@@ -32,7 +32,7 @@ game_state.main.prototype = {
         //animations
         this.bird.animations.add('flying', [0, 1, 2], 10, true);
         this.bird.animations.add('up', [3, 4], 10, true);
-        this.bird.animations.add('down', [2, 5], 10, true);
+        this.bird.animations.add('down', [2, 5], 8, true);
 
         //controls
         this.space_key = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
