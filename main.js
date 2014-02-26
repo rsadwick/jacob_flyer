@@ -16,10 +16,14 @@ game_state.main.prototype = {
 
         //laying the pipe:
         this.game.load.image('pipe', 'assets/pipe.png');
+
+        //star powerup
+        this.game.load.image('star', 'assets/star.png');
     },
 
     create: function() {
     	this.player_hit_wall = false;
+        this.player_powered = false;
         this.game.input.keyboard.disabled = false
     	// Fuction called after 'preload' to setup the game
 
@@ -48,6 +52,16 @@ game_state.main.prototype = {
         this.score = 0;
         var style = { font: "30px Arial", fill: "#ff9900" };
         this.label_score = this.game.add.text(20, 20, "0", style);
+
+        //power up
+        //stars:
+        this.powerups = game.add.group();
+        for(var currentStar = 0; currentStar < 1; currentStar++){
+            var star = this.powerups.create(200,  200, 'star');
+            star.body.gravity.y = 4;
+            star.body.bounce.y = 0.7 + Math.random() * 0.2;
+            star.body.bounce.x = 1.7 + Math.random() * 0.2;
+        }
     },
     
     update: function() {
@@ -65,11 +79,30 @@ game_state.main.prototype = {
         {
             this.bird.animations.play('down');
         }
+
+        //powerup player:
+        //this.game.physics.overlap(this.bird, this.powerups, this.collect_powerup, null, this);
+
+
+
+
+
     },
+
+    render: function(){
+        this.game.debug.renderSpriteBounds(this.bird);
+    },
+
 
     //jump:
     jump: function(){
-        this.bird.body.velocity.y = -350;
+
+         this.bird.body.velocity.y = -350;
+        if(this.player_powered)
+        {
+            this.bird.body.gravity.y = 2500;
+        }
+
         this.bird.animations.play('up');
     },
 
@@ -80,11 +113,18 @@ game_state.main.prototype = {
             this.game.input.keyboard.disabled = true;
             this.bird.animations.stop();
             this.bird.frame = 6;
-            this.bird.animations.stop();
             this.player_hit_wall = true;
             this.game.stage.backgroundColor = '#ff0000';
             this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 2, this.restart_game, this);
+
         }
+    },
+
+    collect_powerup: function(player, star)
+    {
+        star.kill();
+        this.player_powered = true;
+        //this.bird.body.velocity.y += 10;
     },
 
     restart_game: function(){
