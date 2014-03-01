@@ -56,12 +56,14 @@ game_state.main.prototype = {
         //power up
         //stars:
         this.powerups = game.add.group();
-        for(var currentStar = 0; currentStar < 1; currentStar++){
+        this.powerups.createMultiple(20, 'star');
+        this.powerup_timer = this.game.time.events.loop(5000, this.add_powerup, this);
+       /* for(var currentStar = 0; currentStar < 1; currentStar++){
             var star = this.powerups.create(200,  200, 'star');
             star.body.gravity.y = 4;
             star.body.bounce.y = 0.7 + Math.random() * 0.2;
             star.body.bounce.x = 1.7 + Math.random() * 0.2;
-        }
+        }*/
     },
     
     update: function() {
@@ -81,12 +83,7 @@ game_state.main.prototype = {
         }
 
         //powerup player:
-        //this.game.physics.overlap(this.bird, this.powerups, this.collect_powerup, null, this);
-
-
-
-
-
+        this.game.physics.overlap(this.bird, this.powerups, this.collect_powerup, null, this);
     },
 
     render: function(){
@@ -124,12 +121,13 @@ game_state.main.prototype = {
     {
         star.kill();
         this.player_powered = true;
-        //this.bird.body.velocity.y += 10;
+        this.bird.body.velocity.y += 10;
     },
 
     restart_game: function(){
         this.game.time.events.remove(this.timer);
         this.game.time.events.remove(this.death_timer);
+        this.game.time.events.remove(this.powerup_timer);
         this.game.state.start('main');
     },
 
@@ -157,6 +155,18 @@ game_state.main.prototype = {
             this.score += 1;
             this.label_score.content = this.score;
         }
+    },
+
+    add_powerup: function(){
+        console.log(this.game.width)
+        var star = this.powerups.getFirstDead();
+        star.reset(this.game.width, 100);
+        star.body.gravity.y = 4;
+        star.body.velocity.x = -200;
+        star.body.velocity.y = 25;
+        star.body.bounce.y = 0.7 + Math.random() * 0.2;
+        star.body.bounce.x = 1.7 + Math.random() * 0.2;
+        star.outOfBoundsKill = true;
     }
 };
 
