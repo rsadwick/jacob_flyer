@@ -22,6 +22,7 @@ game_state.main.prototype = {
     },
 
     create: function() {
+        this.game.physics.startSystem(Phaser.Physics.ARCADE);
     	this.player_hit_wall = false;
         this.player_powered = false;
         this.game.input.keyboard.disabled = false
@@ -29,6 +30,7 @@ game_state.main.prototype = {
 
         //display bird:
         this.bird = this.game.add.sprite(100, 245, 'bird');
+        this.game.physics.enable( this.bird, Phaser.Physics.ARCADE);
         this.bird.body.gravity.y = 1000;
         this.bird.body.bounce.x = 0.9;
         this.bird.body.bounce.y = 0.9;
@@ -44,8 +46,12 @@ game_state.main.prototype = {
         this.bird.animations.play('flying');
 
         //pipes:
-        this.pipes = game.add.group();
-        this.pipes.createMultiple(20, 'pipe');
+        this.pipes = this.game.add.group();
+        this.pipes.enableBody = true;
+        this.pipes.physicsBodyType = Phaser.Physics.ARCADE;
+        this.pipes.createMultiple(15, 'pipe', 0);
+        this.pipes.setAll('checkWorldBounds', true);
+        this.pipes.setAll('outOfBoundsKill', true);
         this.timer = this.game.time.events.loop(1500, this.add_row_of_pipes, this);
 
         //score:
@@ -55,9 +61,13 @@ game_state.main.prototype = {
 
         //power up
         //stars:
-        this.powerups = game.add.group();
+
+
+        this.powerups = this.game.add.group();
+        this.powerups.enableBody = true;
+        this.powerups.physicsBodyType = Phaser.Physics.ARCADE;
         this.powerups.createMultiple(20, 'star');
-        this.powerup_timer = this.game.time.events.loop(5000, this.add_powerup, this);
+        this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 99, this.add_powerup, this);
        /* for(var currentStar = 0; currentStar < 1; currentStar++){
             var star = this.powerups.create(200,  200, 'star');
             star.body.gravity.y = 4;
@@ -74,7 +84,7 @@ game_state.main.prototype = {
         }
 
         //player and pipe collision
-        this.game.physics.collide(this.bird, this.pipes, this.on_hit, null, this);
+        this.game.physics.arcade.collide(this.bird, this.pipes, this.on_hit, null, this);
 
         //player is falling:
         if(!this.space_key.isDown && this.bird.body.velocity.y > 1 && !this.player_hit_wall )
@@ -83,18 +93,18 @@ game_state.main.prototype = {
         }
 
         //powerup player:
-        this.game.physics.overlap(this.bird, this.powerups, this.collect_powerup, null, this);
+        this.game.physics.arcade.overlap(this.bird, this.powerups, this.collect_powerup, null, this);
     },
 
     render: function(){
-        this.game.debug.renderSpriteBounds(this.bird);
+       // this.game.debug.renderSpriteBounds(this.bird);
     },
 
 
     //jump:
     jump: function(){
 
-         this.bird.body.velocity.y = -350;
+        this.bird.body.velocity.y = -350;
         if(this.player_powered)
         {
             this.bird.body.gravity.y = 2500;
@@ -113,12 +123,12 @@ game_state.main.prototype = {
             this.player_hit_wall = true;
             this.game.stage.backgroundColor = '#ff0000';
             this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 2, this.restart_game, this);
-
         }
     },
 
     collect_powerup: function(player, star)
     {
+        this.game.physics.enable( star, Phaser.Physics.ARCADE);
         star.kill();
         this.player_powered = true;
         this.bird.body.velocity.y += 10;
@@ -133,14 +143,13 @@ game_state.main.prototype = {
 
     add_one_pipe: function(x, y){
         var pipe = this.pipes.getFirstDead();
-        //position
-        pipe.reset(x, y);
-        pipe.body.velocity.x = -200;
-        pipe.body.bounce.x = 1;
-        pipe.body.bounce.y = 1;
-
-        //kill pipe off screen:
-        pipe.outOfBoundsKill = true;
+        console.log(pipe)
+        if(pipe){
+            pipe.reset(x, y);
+            pipe.body.velocity.x = -200;
+            pipe.body.bounce.x = 1;
+            pipe.body.bounce.y = 1;
+        }
     },
 
     add_row_of_pipes: function(){
@@ -153,13 +162,13 @@ game_state.main.prototype = {
         }
         if(!this.player_hit_wall){
             this.score += 1;
-            this.label_score.content = this.score;
+            this.label_score.text = this.score;
         }
     },
 
     add_powerup: function(){
-        console.log(this.game.width)
         var star = this.powerups.getFirstDead();
+        //this.game.physics.enable( star, Phaser.Physics.ARCADE);
         star.reset(this.game.width, 100);
         star.body.gravity.y = 4;
         star.body.velocity.x = -200;
