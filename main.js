@@ -2,7 +2,6 @@
 var game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div');
 var game_state = {};
 
-
 // Creates a new 'main' state that wil contain the game
 game_state.main = function() { };  
 game_state.main.prototype = {
@@ -61,19 +60,11 @@ game_state.main.prototype = {
 
         //power up
         //stars:
-
-
         this.powerups = this.game.add.group();
         this.powerups.enableBody = true;
         this.powerups.physicsBodyType = Phaser.Physics.ARCADE;
         this.powerups.createMultiple(20, 'star');
-        this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 99, this.add_powerup, this);
-       /* for(var currentStar = 0; currentStar < 1; currentStar++){
-            var star = this.powerups.create(200,  200, 'star');
-            star.body.gravity.y = 4;
-            star.body.bounce.y = 0.7 + Math.random() * 0.2;
-            star.body.bounce.x = 1.7 + Math.random() * 0.2;
-        }*/
+        this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 5, this.add_powerup, this);
     },
     
     update: function() {
