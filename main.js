@@ -1,6 +1,7 @@
 // Initialize Phaser, and creates a 400x490px game
 var game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div');
 var game_state = {};
+var floor;
 
 // Creates a new 'main' state that wil contain the game
 game_state.main = function() { };  
@@ -24,6 +25,7 @@ game_state.main.prototype = {
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
     	this.player_hit_wall = false;
         this.player_powered = false;
+        this.player_hit_score = false;
         this.game.input.keyboard.disabled = false
     	// Fuction called after 'preload' to setup the game
 
@@ -53,6 +55,14 @@ game_state.main.prototype = {
         this.pipes.setAll('outOfBoundsKill', true);
         this.timer = this.game.time.events.loop(1500, this.add_row_of_pipes, this);
 
+        //hole indicator:
+        this.holes = this.game.add.group();
+        this.holes.enableBody = true;
+        this.holes.physicsBodyType = Phaser.Physics.ARCADE;
+        this.holes.createMultiple(15, 'pipe', 0);
+        this.holes.setAll('checkWorldBounds', true);
+        this.holes.setAll('outOfBoundsKill', true);
+
         //score:
         this.score = 0;
         var style = { font: "30px Arial", fill: "#ff9900" };
@@ -64,6 +74,8 @@ game_state.main.prototype = {
         this.powerups.enableBody = true;
         this.powerups.physicsBodyType = Phaser.Physics.ARCADE;
         this.powerups.createMultiple(20, 'star');
+        this.powerups.setAll('checkWorldBounds', true);
+        this.powerups.setAll('outOfBoundsKill', true);
         this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 5, this.add_powerup, this);
     },
     
@@ -85,10 +97,15 @@ game_state.main.prototype = {
 
         //powerup player:
         this.game.physics.arcade.overlap(this.bird, this.powerups, this.collect_powerup, null, this);
+
+        //add score when player hits pipe safty zone:
+        this.game.physics.arcade.overlap(this.bird, this.holes, this.collect_score, null, this);
     },
 
     render: function(){
-       // this.game.debug.renderSpriteBounds(this.bird);
+        this.game.debug.bodyInfo(this.bird, 32, 32);
+        this.game.debug.body(this.bird);
+        this.game.debug.body(this.holes, '#ff9900')
     },
 
 
@@ -134,12 +151,12 @@ game_state.main.prototype = {
 
     add_one_pipe: function(x, y){
         var pipe = this.pipes.getFirstDead();
-        console.log(pipe)
         if(pipe){
             pipe.reset(x, y);
             pipe.body.velocity.x = -200;
             pipe.body.bounce.x = 1;
             pipe.body.bounce.y = 1;
+
         }
     },
 
@@ -150,10 +167,19 @@ game_state.main.prototype = {
             if(i != hole && i != hole + 1 && i != hole + 2 && i != hole + 3){
                 this.add_one_pipe(400, i * 60 + 10);
             }
-        }
-        if(!this.player_hit_wall){
-            this.score += 1;
-            this.label_score.text = this.score;
+            else
+            {
+                var single_hole = this.holes.getFirstDead();
+                if(single_hole){
+                    single_hole.reset(400, i * 60 + 10);
+                    single_hole.alpha = 0.1;
+                    single_hole.body.velocity.x = -200;
+                    single_hole.body.bounce.x = 10;
+
+
+                   // single_hole.body.bounce.y = 10;
+                }
+            }
         }
     },
 
@@ -166,7 +192,21 @@ game_state.main.prototype = {
         star.body.velocity.y = 25;
         star.body.bounce.y = 0.7 + Math.random() * 0.2;
         star.body.bounce.x = 1.7 + Math.random() * 0.2;
-        star.outOfBoundsKill = true;
+    },
+
+    collect_score: function(obj, obj2){
+       // var distance = this.game.physics.arcade.angleBetween(obj, obj2);
+        var distance = (this.game.physics.arcade.distanceBetween(obj, obj2));
+        console.log(distance)
+        if(distance >= 108 && distance < 109)
+        {
+            this.score += 1;
+            this.label_score.text = this.score;
+        }
+    },
+
+    processCo: function(){
+        console.log("YPPPPPPP")
     }
 };
 
