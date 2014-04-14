@@ -1,7 +1,8 @@
 // Initialize Phaser, and creates a 400x490px game
 var game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div');
 var game_state = {};
-var floor;
+var count = 0;
+var emitter;
 
 // Creates a new 'main' state that wil contain the game
 game_state.main = function() { };  
@@ -19,9 +20,18 @@ game_state.main.prototype = {
 
         //star powerup
         this.game.load.image('star', 'assets/star.png');
+
+        //candy
+        this.game.load.image('candy', 'assets/cherry.png');
+
+        //bg
+        this.game.load.image('shrooms', 'assets/bg_shroom.png');
     },
 
     create: function() {
+
+        this.background = this.game.add.tileSprite(0, 0, 600, 800, 'shrooms');
+
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
     	this.player_hit_wall = false;
         this.player_powered = false;
@@ -35,6 +45,7 @@ game_state.main.prototype = {
         this.bird.body.gravity.y = 1000;
         this.bird.body.bounce.x = 0.9;
         this.bird.body.bounce.y = 0.9;
+        this.bird.anchor.setTo(0.5, 0.5);
 
         //animations
         this.bird.animations.add('flying', [0, 1, 2], 10, true);
@@ -59,7 +70,7 @@ game_state.main.prototype = {
         this.holes = this.game.add.group();
         this.holes.enableBody = true;
         this.holes.physicsBodyType = Phaser.Physics.ARCADE;
-        this.holes.createMultiple(15, 'pipe', 0);
+        this.holes.createMultiple(15, 'candy', 0);
         this.holes.setAll('checkWorldBounds', true);
         this.holes.setAll('outOfBoundsKill', true);
 
@@ -80,6 +91,13 @@ game_state.main.prototype = {
     },
     
     update: function() {
+
+        //background logic:
+        if(!this.player_hit_wall)
+            this.background.tilePosition.x -= 0.7;
+        else
+            this.background.tilePosition.x += 0.3;
+
 		// Function called 60 times per second
         //if bird is out of the world, restart game:
         if(this.bird.inWorld == false){
@@ -103,11 +121,10 @@ game_state.main.prototype = {
     },
 
     render: function(){
-        this.game.debug.bodyInfo(this.bird, 32, 32);
+        /*this.game.debug.bodyInfo(this.bird, 32, 32);
         this.game.debug.body(this.bird);
-        this.game.debug.body(this.holes, '#ff9900')
+        this.game.debug.body(this.holes, '#ff9900');*/
     },
-
 
     //jump:
     jump: function(){
@@ -117,20 +134,27 @@ game_state.main.prototype = {
         {
             this.bird.body.gravity.y = 2500;
         }
-
         this.bird.animations.play('up');
     },
 
     on_hit: function(){
         if(!this.player_hit_wall)
         {
+
             this.bird.body.velocity.x =  -300;
             this.game.input.keyboard.disabled = true;
             this.bird.animations.stop();
             this.bird.frame = 6;
             this.player_hit_wall = true;
             this.game.stage.backgroundColor = '#ff0000';
-            this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 2, this.restart_game, this);
+            this.background.alpha = 0.3;
+            this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 4, this.restart_game, this);
+            //particles
+            emitter = game.add.emitter(0, 0, 100);
+            emitter.makeParticles(['star']);
+            emitter.start(true, 2000, null, 10);
+            emitter.x = this.bird.x;
+            emitter.y = this.bird.y;
         }
     },
 
@@ -172,7 +196,7 @@ game_state.main.prototype = {
                 var single_hole = this.holes.getFirstDead();
                 if(single_hole){
                     single_hole.reset(400, i * 60 + 10);
-                    single_hole.alpha = 0.1;
+                    //single_hole.alpha = 0.1;
                     single_hole.body.velocity.x = -200;
                     single_hole.body.bounce.x = 10;
 
@@ -195,14 +219,9 @@ game_state.main.prototype = {
     },
 
     collect_score: function(obj, obj2){
-       // var distance = this.game.physics.arcade.angleBetween(obj, obj2);
-        var distance = (this.game.physics.arcade.distanceBetween(obj, obj2));
-        console.log(distance)
-        if(distance >= 108 && distance < 109)
-        {
-            this.score += 1;
-            this.label_score.text = this.score;
-        }
+        obj2.kill()
+        this.score += 1;
+        this.label_score.text = this.score;
     },
 
     processCo: function(){
