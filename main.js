@@ -3,6 +3,23 @@ var game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div');
 var game_state = {};
 var count = 0;
 var emitter;
+var powerupState;
+var powerUpTypes = {
+    OVERWEIGHT: {
+        velocity: -350,
+        gravity: 2500
+    },
+    FEATHERWEIGHT:{
+        velocity: -250,
+        gravity: 500
+    },
+    NORMAL: {
+        velocity: -350,
+        gravity: 1000
+    }
+};
+
+var playerDefault;
 
 // Creates a new 'main' state that wil contain the game
 game_state.main = function() { };  
@@ -73,6 +90,7 @@ game_state.main.prototype = {
         this.holes.createMultiple(15, 'candy', 0);
         this.holes.setAll('checkWorldBounds', true);
         this.holes.setAll('outOfBoundsKill', true);
+        this.game.add.tween( this.holes).to( { y: this.holes.y + 12 }, 500, Phaser.Easing.Back.InOut, true, 0, 1000, true);
 
         //score:
         this.score = 0;
@@ -101,7 +119,7 @@ game_state.main.prototype = {
 		// Function called 60 times per second
         //if bird is out of the world, restart game:
         if(this.bird.inWorld == false){
-            this.restart_game();
+            this.on_hit();
         }
 
         //player and pipe collision
@@ -128,11 +146,25 @@ game_state.main.prototype = {
 
     //jump:
     jump: function(){
-
-        this.bird.body.velocity.y = -350;
         if(this.player_powered)
         {
-            this.bird.body.gravity.y = 2500;
+            switch(powerupState){
+                case powerUpTypes.OVERWEIGHT:
+                    this.bird.body.velocity.y = powerUpTypes.OVERWEIGHT.velocity;
+                    this.bird.body.gravity.y = powerUpTypes.OVERWEIGHT.gravity;
+                    break;
+                case powerUpTypes.FEATHERWEIGHT:
+                    this.bird.body.velocity.y = powerUpTypes.FEATHERWEIGHT.velocity;
+                    this.bird.body.gravity.y = powerUpTypes.FEATHERWEIGHT.gravity;
+                    break;
+            }
+        }
+        else
+        {
+            this.bird.body.velocity.y = powerUpTypes.NORMAL.velocity;
+            this.bird.body.gravity.y = powerUpTypes.NORMAL.gravity;
+            //maybe use for neat game play for x velo:
+            //this.bird.body.velocity.x = 20;
         }
         this.bird.animations.play('up');
     },
@@ -140,15 +172,15 @@ game_state.main.prototype = {
     on_hit: function(){
         if(!this.player_hit_wall)
         {
-
-            this.bird.body.velocity.x =  -300;
+            this.player_hit_wall = true;
+           // this.bird.body.velocity.x =  -300;
             this.game.input.keyboard.disabled = true;
             this.bird.animations.stop();
             this.bird.frame = 6;
-            this.player_hit_wall = true;
+
             this.game.stage.backgroundColor = '#ff0000';
             this.background.alpha = 0.3;
-            this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 4, this.restart_game, this);
+            this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 1, this.restart_game, this);
             //particles
             emitter = game.add.emitter(0, 0, 100);
             emitter.makeParticles(['star']);
@@ -164,6 +196,21 @@ game_state.main.prototype = {
         star.kill();
         this.player_powered = true;
         this.bird.body.velocity.y += 10;
+        powerupState = powerUpTypes.OVERWEIGHT;
+        //how long does it last?
+        this.overweightTimer = this.game.time.events.add(Phaser.Timer.SECOND * 1, this.remove_powerup, this);
+    },
+
+    remove_powerup: function(){
+
+      switch(powerupState){
+          case powerUpTypes.OVERWEIGHT:
+                 this.player_powered = false;
+                 this.bird.body.gravity.y = 1000;
+                 this.game.time.events.remove(this.overweightTimer);
+                 powerupState = powerUpTypes.NORMAL;
+              break;
+      }
     },
 
     restart_game: function(){
@@ -180,7 +227,6 @@ game_state.main.prototype = {
             pipe.body.velocity.x = -200;
             pipe.body.bounce.x = 1;
             pipe.body.bounce.y = 1;
-
         }
     },
 
@@ -199,9 +245,6 @@ game_state.main.prototype = {
                     //single_hole.alpha = 0.1;
                     single_hole.body.velocity.x = -200;
                     single_hole.body.bounce.x = 10;
-
-
-                   // single_hole.body.bounce.y = 10;
                 }
             }
         }
@@ -219,7 +262,21 @@ game_state.main.prototype = {
     },
 
     collect_score: function(obj, obj2){
-        obj2.kill()
+        obj2.kill();
+        //score player based on powerups
+        switch(powerupState)
+        {
+            case powerUpTypes.OVERWEIGHT:
+                this.score += 5;
+                break;
+
+            case powerUpTypes.FEATHERWEIGHT:
+                this.score += 5;
+                break;
+
+            default:
+                this.score += 1;
+        }
         this.score += 1;
         this.label_score.text = this.score;
     },
