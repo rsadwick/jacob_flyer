@@ -1,21 +1,31 @@
 // Initialize Phaser, and creates a 400x490px game
 var game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div');
 var game_state = {};
-var count = 0;
+
+//particle
 var emitter;
+//powerups: only 1 powerup state at a time.  No stacking.
 var powerupState;
 var powerUpTypes = {
     OVERWEIGHT: {
         velocity: -350,
-        gravity: 2500
+        gravity: 2500,
+        creation: 5,
+        duration: 2
     },
     FEATHERWEIGHT:{
         velocity: -250,
-        gravity: 500
+        gravity: 500,
+        creation: 2,
+        duration: 7
     },
     NORMAL: {
         velocity: -350,
         gravity: 1000
+
+    },
+    SHIELD:{
+        duration: 7
     }
 };
 
@@ -43,6 +53,15 @@ game_state.main.prototype = {
 
         //bg
         this.game.load.image('shrooms', 'assets/bg_shroom.png');
+
+        //powerups:
+        //ton
+        this.game.load.image('ton', 'assets/ton.png');
+        //feather
+        this.game.load.image('feather', 'assets/feather.png');
+        //shield
+        this.game.load.image('shield', 'assets/shield.png');
+        this.game.load.image('shield_effect', 'assets/shield_effect.png');
     },
 
     create: function() {
@@ -63,11 +82,15 @@ game_state.main.prototype = {
         this.bird.body.bounce.x = 0.9;
         this.bird.body.bounce.y = 0.9;
         this.bird.anchor.setTo(0.5, 0.5);
+        //this.bird.anchor.setTo(0, 0);
 
         //animations
         this.bird.animations.add('flying', [0, 1, 2], 10, true);
         this.bird.animations.add('up', [3, 4], 10, true);
         this.bird.animations.add('down', [2, 5], 8, true);
+
+
+
 
         //controls
         this.space_key = this.game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
@@ -97,15 +120,37 @@ game_state.main.prototype = {
         var style = { font: "30px Arial", fill: "#ff9900" };
         this.label_score = this.game.add.text(20, 20, "0", style);
 
-        //power up
+        //power ups
+
+
         //stars:
         this.powerups = this.game.add.group();
         this.powerups.enableBody = true;
         this.powerups.physicsBodyType = Phaser.Physics.ARCADE;
-        this.powerups.createMultiple(20, 'star');
+        this.powerups.createMultiple(20, 'ton');
         this.powerups.setAll('checkWorldBounds', true);
         this.powerups.setAll('outOfBoundsKill', true);
+
+        //feather:
+        this.feathers = this.game.add.group();
+        this.feathers.enableBody = true;
+        this.feathers.physicsBodyType = Phaser.Physics.ARCADE;
+        this.feathers.createMultiple(20, 'feather');
+        this.feathers.setAll('checkWorldBounds', true);
+        this.feathers.setAll('outOfBoundsKill', true);
+
+        //shield
+        //feather:
+        this.shields = this.game.add.group();
+        this.shields.enableBody = true;
+        this.shields.physicsBodyType = Phaser.Physics.ARCADE;
+        this.shields.createMultiple(20, 'shield');
+        this.shields.setAll('checkWorldBounds', true);
+        this.shields.setAll('outOfBoundsKill', true);
+
+         //random roll for timer duration:
         this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 5, this.add_powerup, this);
+
     },
     
     update: function() {
@@ -116,11 +161,20 @@ game_state.main.prototype = {
         else
             this.background.tilePosition.x += 0.3;
 
+
 		// Function called 60 times per second
         //if bird is out of the world, restart game:
         if(this.bird.inWorld == false){
             this.on_hit();
         }
+        if(this.shield_effect){
+            if(this.shield_effect.inWorld != false)
+            {
+                this.shield_effect.x = this.bird.x;
+                this.shield_effect.y = this.bird.y;
+            }
+        }
+
 
         //player and pipe collision
         this.game.physics.arcade.collide(this.bird, this.pipes, this.on_hit, null, this);
@@ -133,6 +187,8 @@ game_state.main.prototype = {
 
         //powerup player:
         this.game.physics.arcade.overlap(this.bird, this.powerups, this.collect_powerup, null, this);
+        this.game.physics.arcade.overlap(this.bird, this.feathers, this.collect_feather, null, this);
+        this.game.physics.arcade.overlap(this.bird, this.shields, this.collect_shield, null, this);
 
         //add score when player hits pipe safty zone:
         this.game.physics.arcade.overlap(this.bird, this.holes, this.collect_score, null, this);
@@ -157,6 +213,9 @@ game_state.main.prototype = {
                     this.bird.body.velocity.y = powerUpTypes.FEATHERWEIGHT.velocity;
                     this.bird.body.gravity.y = powerUpTypes.FEATHERWEIGHT.gravity;
                     break;
+                default:
+                    this.bird.body.velocity.y = powerUpTypes.NORMAL.velocity;
+                    this.bird.body.gravity.y = powerUpTypes.NORMAL.gravity;
             }
         }
         else
@@ -170,7 +229,7 @@ game_state.main.prototype = {
     },
 
     on_hit: function(){
-        if(!this.player_hit_wall)
+        if(!this.player_hit_wall && powerupState != powerUpTypes.SHIELD)
         {
             this.player_hit_wall = true;
            // this.bird.body.velocity.x =  -300;
@@ -188,6 +247,12 @@ game_state.main.prototype = {
             emitter.x = this.bird.x;
             emitter.y = this.bird.y;
         }
+
+        else if(powerupState == powerUpTypes.SHIELD)
+        {
+
+            console.log("SMASH")
+        }
     },
 
     collect_powerup: function(player, star)
@@ -198,36 +263,82 @@ game_state.main.prototype = {
         this.bird.body.velocity.y += 10;
         powerupState = powerUpTypes.OVERWEIGHT;
         //how long does it last?
-        this.overweightTimer = this.game.time.events.add(Phaser.Timer.SECOND * 1, this.remove_powerup, this);
+        this.overweightTimer = this.game.time.events.add(Phaser.Timer.SECOND * powerUpTypes.OVERWEIGHT.duration, this.remove_powerup, this);
+    },
+
+    collect_feather: function(player, star)
+    {
+        this.game.physics.enable( star, Phaser.Physics.ARCADE);
+        star.kill();
+        this.player_powered = true;
+        this.bird.body.velocity.y += 10;
+        powerupState = powerUpTypes.FEATHERWEIGHT;
+        //how long does it last?
+        this.featherTimer = this.game.time.events.add(Phaser.Timer.SECOND * powerUpTypes.FEATHERWEIGHT.duration, this.remove_powerup, this);
+    },
+
+    collect_shield: function(player, shield)
+    {
+        this.game.physics.enable( shield, Phaser.Physics.ARCADE);
+        shield.kill();
+        this.shield_effect = this.game.add.sprite(this.bird.x, this.bird.y, 'shield_effect');
+        this.shield_effect.anchor.setTo(0.5, 0.5);
+        this.shield_effect.alpha = 0.8;
+        this.game.add.tween(this.shield_effect).to( { alpha: 0.2 }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
+        this.player_powered = true;
+        powerupState = powerUpTypes.SHIELD;
+        this.bird.body.mass = 9;
+        this.bird.body.immovable = true;
+        //how long does it last?
+        this.shieldTimer = this.game.time.events.add(Phaser.Timer.SECOND * powerUpTypes.SHIELD.duration, this.remove_powerup, this);
     },
 
     remove_powerup: function(){
 
-      switch(powerupState){
-          case powerUpTypes.OVERWEIGHT:
-                 this.player_powered = false;
-                 this.bird.body.gravity.y = 1000;
-                 this.game.time.events.remove(this.overweightTimer);
-                 powerupState = powerUpTypes.NORMAL;
-              break;
-      }
+        switch(powerupState){
+            case powerUpTypes.OVERWEIGHT:
+                this.player_powered = false;
+                this.bird.body.gravity.y = 1000;
+                this.game.time.events.remove(this.overweightTimer);
+                powerupState = powerUpTypes.NORMAL;
+            break;
+                case powerUpTypes.FEATHERWEIGHT:
+                this.player_powered = false;
+                this.bird.body.gravity.y = 1000;
+                this.game.time.events.remove(this.featherTimer);
+                powerupState = powerUpTypes.NORMAL;
+            break;
+            case powerUpTypes.SHIELD:
+                powerupState = powerUpTypes.NORMAL;
+                this.player_powered = false;
+                this.bird.body.mass = 1;
+                this.bird.body.immovable = false;
+                this.game.time.events.remove(this.shieldTimer);
+                this.shield_effect.kill();
+            break;
+            }
     },
 
     restart_game: function(){
+        //clean up timers:
         this.game.time.events.remove(this.timer);
         this.game.time.events.remove(this.death_timer);
         this.game.time.events.remove(this.powerup_timer);
+        this.game.time.events.remove(this.choosePowerupTimer);
+        powerupState = powerUpTypes.NORMAL;
         this.game.state.start('main');
     },
 
     add_one_pipe: function(x, y){
         var pipe = this.pipes.getFirstDead();
-        if(pipe){
+        if(pipe ){
             pipe.reset(x, y);
             pipe.body.velocity.x = -200;
             pipe.body.bounce.x = 1;
             pipe.body.bounce.y = 1;
+           // pipe.body.mass = 1;
         }
+
     },
 
     add_row_of_pipes: function(){
@@ -251,14 +362,52 @@ game_state.main.prototype = {
     },
 
     add_powerup: function(){
-        var star = this.powerups.getFirstDead();
-        //this.game.physics.enable( star, Phaser.Physics.ARCADE);
-        star.reset(this.game.width, 100);
-        star.body.gravity.y = 4;
-        star.body.velocity.x = -200;
-        star.body.velocity.y = 25;
-        star.body.bounce.y = 0.7 + Math.random() * 0.2;
-        star.body.bounce.x = 1.7 + Math.random() * 0.2;
+        //roll for duration
+        this.powerup_creation = Math.floor(Math.random() * 10) + 1;
+        this.choosePowerupTimer = this.game.time.events.loop(Phaser.Timer.SECOND * this.powerup_creation, this.choose_powerup, this);
+        console.log(this.powerup_creation);
+    },
+
+    choose_powerup: function(){
+        var powerUp;
+        var totalPowerups = 3;
+        var randomSeed = Math.floor(Math.random() * totalPowerups);
+        //randomSeed = 2;
+        switch(randomSeed){
+            case 0:
+                powerUp = this.powerups.getFirstDead();
+                //this.game.physics.enable( star, Phaser.Physics.ARCADE);
+                powerUp.reset(this.game.width, 100);
+                powerUp.body.gravity.y = 4;
+                powerUp.body.velocity.x = -200;
+                powerUp.body.velocity.y = 45;
+                powerUp.body.rotation.y = 3;
+                powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
+                powerUp.body.bounce.x = 1.7 + Math.random() * 0.2;
+                break;
+            case 1:
+                powerUp = this.feathers.getFirstDead();
+                powerUp.reset(this.game.width, 100);
+                powerUp.body.gravity.y = 1;
+                powerUp.body.velocity.x = -100;
+                powerUp.body.velocity.y = 20;
+                var rotationStart = -0.5;
+                var rotationEnd = 1;
+                powerUp.rotation = rotationStart;
+                this.game.add.tween(powerUp).to( { rotation: rotationEnd }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
+                break;
+
+            case 2:
+                powerUp = this.shields.getFirstDead();
+                powerUp.reset(this.game.width, 100);
+                powerUp.body.gravity.y = 1;
+                powerUp.body.velocity.x = -100;
+                powerUp.body.velocity.y = 20;
+
+                //this.game.add.tween(powerUp).to( { scale: 2 }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
+                break;
+
+        }
     },
 
     collect_score: function(obj, obj2){
