@@ -247,16 +247,11 @@ game_state.main.prototype = {
             emitter.x = this.bird.x;
             emitter.y = this.bird.y;
         }
-
-        else if(powerupState == powerUpTypes.SHIELD)
-        {
-
-            console.log("SMASH")
-        }
     },
 
     collect_powerup: function(player, star)
     {
+        this.remove_powerup();
         this.game.physics.enable( star, Phaser.Physics.ARCADE);
         star.kill();
         this.player_powered = true;
@@ -268,6 +263,7 @@ game_state.main.prototype = {
 
     collect_feather: function(player, star)
     {
+        this.remove_powerup();
         this.game.physics.enable( star, Phaser.Physics.ARCADE);
         star.kill();
         this.player_powered = true;
@@ -279,6 +275,8 @@ game_state.main.prototype = {
 
     collect_shield: function(player, shield)
     {
+        this.remove_powerup();
+        powerupState = powerUpTypes.SHIELD;
         this.game.physics.enable( shield, Phaser.Physics.ARCADE);
         shield.kill();
         this.shield_effect = this.game.add.sprite(this.bird.x, this.bird.y, 'shield_effect');
@@ -286,7 +284,7 @@ game_state.main.prototype = {
         this.shield_effect.alpha = 0.8;
         this.game.add.tween(this.shield_effect).to( { alpha: 0.2 }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
         this.player_powered = true;
-        powerupState = powerUpTypes.SHIELD;
+
         this.bird.body.mass = 9;
         this.bird.body.immovable = true;
         //how long does it last?
@@ -325,6 +323,7 @@ game_state.main.prototype = {
         this.game.time.events.remove(this.death_timer);
         this.game.time.events.remove(this.powerup_timer);
         this.game.time.events.remove(this.choosePowerupTimer);
+        this.game.time.events.remove(this.shieldTimer);
         powerupState = powerUpTypes.NORMAL;
         this.game.state.start('main');
     },
@@ -338,7 +337,6 @@ game_state.main.prototype = {
             pipe.body.bounce.y = 1;
            // pipe.body.mass = 1;
         }
-
     },
 
     add_row_of_pipes: function(){
