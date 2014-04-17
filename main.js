@@ -30,7 +30,7 @@ var powerUpTypes = {
     SHIELD:{
         duration: 7,
         currentTime: 0,
-        chance: 0.1
+        chance: 0.2
     }
 };
 
@@ -295,7 +295,6 @@ game_state.main.prototype = {
     },
 
     shieldCheck: function(){
-         console.log(powerUpTypes.SHIELD.duration, powerUpTypes.SHIELD.currentTime)
         if (powerUpTypes.SHIELD.duration > powerUpTypes.SHIELD.currentTime){
             powerUpTypes.SHIELD.currentTime++;
             console.log(powerUpTypes.SHIELD.duration, powerUpTypes.SHIELD.currentTime)
@@ -354,6 +353,7 @@ game_state.main.prototype = {
         this.game.time.events.remove(this.shieldTimer);
         this.game.time.events.remove(this.overweightTimer);
         this.game.time.events.remove(this.featherTimer);
+        this.game.time.events.remove(this.choosePowerupTimer);
         this.game.state.start('main');
     },
 
@@ -389,19 +389,8 @@ game_state.main.prototype = {
     },
 
     add_powerup: function(){
-
-        if(this.choosePowerupTimer){
-            if(this.choosePowerupTimer.timer.running){
-                console.log("RUNNING/.///")
-                return;
-            }
-
-        }
-
-        //roll for duration
-        this.powerup_creation = Math.floor(Math.random() * 2) + 1;
-        console.log(this.powerup_creation);
-
+        //roll for time when powerup is created
+        this.powerup_creation = Math.floor(Math.random() * 3) + 2;
         this.choosePowerupTimer = this.game.time.events.add(Phaser.Timer.SECOND * this.powerup_creation, this.choose_powerup, this);
 
     },
@@ -409,7 +398,7 @@ game_state.main.prototype = {
     choose_powerup: function(){
         this.game.time.events.remove(this.choosePowerupTimer);
         var powerUp;
-
+        //roll for power up
         var random = Math.random();
 
         if (random < powerUpTypes.SHIELD.chance) {
@@ -419,9 +408,6 @@ game_state.main.prototype = {
             powerUp.body.gravity.y = 1;
             powerUp.body.velocity.x = -100;
             powerUp.body.velocity.y = 20;
-
-            //this.game.add.tween(powerUp).to( { scale: 2 }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
-
         }
         else if (random < powerUpTypes.FEATHERWEIGHT.chance) {
             // option 2: chance 0.50—0.7499...
