@@ -3,6 +3,7 @@ var game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div');
 var game_state = {};
 //particle
 var emitter;
+var bossTween;
 
 var shieldTween;
 //powerups: only 1 powerup state at a time.  No stacking.
@@ -13,14 +14,16 @@ var powerUpTypes = {
         gravity: 2500,
         creation: 5,
         duration: 2,
-        chance: 0.95
+        chance: 0.95,
+        tint: 0x999999
     },
     FEATHERWEIGHT:{
         velocity: -250,
         gravity: 500,
         creation: 2,
         duration: 7,
-        chance: 0.75
+        chance: 0.75,
+        tint: 0xff9900
     },
     NORMAL: {
         velocity: -350,
@@ -30,9 +33,24 @@ var powerUpTypes = {
     SHIELD:{
         duration: 7,
         currentTime: 0,
-        chance: 0.2
+        chance: 0.2,
+        blendMode: Phaser.blendModes.ADD
     }
 };
+
+var bossAbilties = {
+    UP_ATTACK:{
+        chance: 1,
+        damage: 1,
+        ease: Phaser.Easing.Bounce.InOut
+    },
+
+    CHARGE_ATTACK:{
+        chance: 0,
+        damage: 2,
+        ease: Phaser.Easing.Elastic.Out
+    }
+}
 
 // Creates a new 'main' state that wil contain the game
 game_state.main = function() { };  
@@ -65,6 +83,9 @@ game_state.main.prototype = {
         //shield
         this.game.load.image('shield', 'assets/shield.png');
         this.game.load.image('shield_effect', 'assets/shield_effect.png');
+
+        //boss
+        this.game.load.image('clown', 'assets/clown_boss.png');
     },
 
     create: function() {
@@ -150,6 +171,11 @@ game_state.main.prototype = {
          //random roll for timer duration:
         this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 3, this.add_powerup, this);
 
+        //boss timer:
+        this.levelTimer = game.time.create(false);
+        this.levelTimer.add(100, this.create_boss, this);
+        this.levelTimer.start();
+
     },
     
     update: function() {
@@ -190,6 +216,14 @@ game_state.main.prototype = {
 
         //add score when player hits pipe safty zone:
         this.game.physics.arcade.overlap(this.bird, this.holes, this.collect_score, null, this);
+
+        if(this.clown)
+        {
+           // this.clown.alpha = 1;
+           // this.clown.y = this.bird.y;
+
+
+        }
     },
 
     render: function(){
@@ -257,6 +291,7 @@ game_state.main.prototype = {
         powerupState = powerUpTypes.OVERWEIGHT;
         this.game.physics.enable( star, Phaser.Physics.ARCADE);
         star.kill();
+        this.bird.tint = powerUpTypes.OVERWEIGHT.tint;
         this.player_powered = true;
         this.bird.body.velocity.y += 10;
 
@@ -270,6 +305,8 @@ game_state.main.prototype = {
         powerupState = powerUpTypes.FEATHERWEIGHT;
         this.game.physics.enable( star, Phaser.Physics.ARCADE);
         star.kill();
+        this.bird.tint = powerUpTypes.FEATHERWEIGHT.tint;
+        this.bird.alpha = 0.4;
         this.player_powered = true;
         this.bird.body.velocity.y += 10;
 
@@ -287,6 +324,7 @@ game_state.main.prototype = {
         this.shield_effect.anchor.setTo(0.5, 0.5);
         this.shield_effect.alpha = 0.6;
         this.shield_effect.visible = true;
+        this.shield_effect.blendMode = powerUpTypes.SHIELD.blendMode;
         shieldTween = this.game.add.tween(this.shield_effect).to( { alpha: 0.8 }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
         this.player_powered = true;
         this.bird.body.mass = 9;
@@ -298,7 +336,6 @@ game_state.main.prototype = {
     shieldCheck: function(){
         if (powerUpTypes.SHIELD.duration > powerUpTypes.SHIELD.currentTime){
             powerUpTypes.SHIELD.currentTime++;
-            console.log(powerUpTypes.SHIELD.duration, powerUpTypes.SHIELD.currentTime)
         }
         else if (powerUpTypes.SHIELD.duration == powerUpTypes.SHIELD.currentTime){
             this.remove_powerup()
@@ -314,7 +351,9 @@ game_state.main.prototype = {
     },
 
     remove_powerup: function(){
-
+        this.bird.blendMode = Phaser.blendModes.NORMAL;
+        this.bird.tint = 0xFFFFFF;
+        this.bird.alpha = 1;
         switch(powerupState){
             case powerUpTypes.OVERWEIGHT:
                 this.game.time.events.remove(this.overweightTimer);
@@ -453,7 +492,77 @@ game_state.main.prototype = {
                 this.score += 1;
         }
         this.label_score.text = this.score;
-    }
+    },
+
+    create_boss: function(){
+        //stop level generation:
+        this.game.time.events.remove(this.timer);
+        //background change:
+        this.game.stage.backgroundColor = '#999999';
+        this.game.add.tween(this.background).to( { alpha: 0.1 }, 2000, Phaser.Easing.Linear.None, true);
+
+        //create boss:
+        this.clown = this.game.add.sprite(108, 180, 'clown');
+        this.clown.alpha = 0;
+        this.clown.x = this.game.width - this.clown.width;
+        this.clown.y = this.bird.y;
+
+        this.bossTween = this.game.add.tween(this.clown).to({ alpha: 1, tint: 0xff9900 }, 2000, Phaser.Easing.Linear.None, false, 2000)
+        this.bossTween.onComplete.add(this.startBoss, this);
+        this.bossTween.start();
+
+
+
+       // bossTween.onComplete.add(firstTween, this);
+
+
+        //attacks
+
+    },
+
+    startBoss: function (){
+            this.shotsFired = 0;
+            var _scope = this;
+            function loadFireBalls(){
+                console.log("load gun")
+                this.fireballTimer = this.game.time.create(false);
+                this.fireballTimer.loop(1000, shootFireballs, this);
+                this.fireballTimer.start();
+            }
+            function shootFireballs(){
+                console.log("EEP");
+                this.shotsFired++;
+                console.log(this.shotsFired)
+                if(this.shotsFired >= 3){
+                     this.fireballTimer.stop();
+                     this.game.time.events.remove(this.fireballTimer);
+                     this.shotsFired = 0;
+                     resetBoss();
+                }
+            }
+            function resetBoss(){
+                 this.bossTween = this.game.add.tween(_scope.clown).to({ y: _scope.bird.y - 40 }, 2000, Phaser.Easing.Elastic.InOut, true);
+                // startBoss()
+            }
+            var randomSeed = Math.random();
+
+            if (randomSeed < bossAbilties.UP_ATTACK.chance) {
+                console.log("UP ATTACK@")
+                var oldPosition = this.clown.y;
+                this.fireweed = this.game.add.tween(this.clown).to({ y: this.bird.y - 40 }, 2000, Phaser.Easing.Elastic.InOut, true);
+                this.fireweed.onComplete.add(loadFireBalls, this)
+
+            }
+            else if (randomSeed < bossAbilties.CHARGE_ATTACK.chance) {
+               console.log("CHARGE")
+               var oldPositionX = this.clown.x;
+               var oldPositionY = this.clown.y;
+               this.game.add.tween(this.clown).to({ tint: 0xAAAAAA }, 1000, Phaser.Easing.Elastic.InOut, true)
+                   .to({ x: this.bird.x, y: this.bird.y }, 1000, Phaser.Easing.Elastic.InOut, true)
+                   .to({ x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In, true, 500)
+
+            }
+        }
 };
 
 // Add and start the 'main' state to start the game
