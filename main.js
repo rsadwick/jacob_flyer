@@ -12,13 +12,15 @@ var powerUpTypes = {
         velocity: -350,
         gravity: 2500,
         creation: 5,
-        duration: 2
+        duration: 2,
+        chance: 0.95
     },
     FEATHERWEIGHT:{
         velocity: -250,
         gravity: 500,
         creation: 2,
-        duration: 7
+        duration: 7,
+        chance: 0.75
     },
     NORMAL: {
         velocity: -350,
@@ -27,11 +29,10 @@ var powerUpTypes = {
     },
     SHIELD:{
         duration: 7,
-        currentTime: 0
+        currentTime: 0,
+        chance: 0.1
     }
 };
-
-var playerDefault;
 
 // Creates a new 'main' state that wil contain the game
 game_state.main = function() { };  
@@ -147,7 +148,7 @@ game_state.main.prototype = {
         this.shield_effect.visible = false;
 
          //random roll for timer duration:
-        this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 6, this.add_powerup, this);
+        this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 3, this.add_powerup, this);
 
     },
     
@@ -388,54 +389,67 @@ game_state.main.prototype = {
     },
 
     add_powerup: function(){
+
+        if(this.choosePowerupTimer){
+            if(this.choosePowerupTimer.timer.running){
+                console.log("RUNNING/.///")
+                return;
+            }
+
+        }
+
         //roll for duration
-        this.powerup_creation = Math.floor(Math.random() * 3) + 1;
-        if( this.choosePowerupTimer)
-            this.game.time.events.remove(this.choosePowerupTimer);
-        this.choosePowerupTimer = this.game.time.events.loop(Phaser.Timer.SECOND * this.powerup_creation, this.choose_powerup, this);
+        this.powerup_creation = Math.floor(Math.random() * 2) + 1;
         console.log(this.powerup_creation);
+
+        this.choosePowerupTimer = this.game.time.events.add(Phaser.Timer.SECOND * this.powerup_creation, this.choose_powerup, this);
+
     },
 
     choose_powerup: function(){
+        this.game.time.events.remove(this.choosePowerupTimer);
         var powerUp;
-        var totalPowerups = 3;
-        var randomSeed = Math.floor(Math.random() * totalPowerups);
-        //randomSeed = 2;
-        switch(randomSeed){
-            case 0:
-                powerUp = this.powerups.getFirstDead();
-                //this.game.physics.enable( star, Phaser.Physics.ARCADE);
-                powerUp.reset(this.game.width, 100);
-                powerUp.body.gravity.y = 4;
-                powerUp.body.velocity.x = -200;
-                powerUp.body.velocity.y = 45;
-                powerUp.body.rotation.y = 3;
-                powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
-                powerUp.body.bounce.x = 1.7 + Math.random() * 0.2;
-                break;
-            case 1:
-                powerUp = this.feathers.getFirstDead();
-                powerUp.reset(this.game.width, 100);
-                powerUp.body.gravity.y = 1;
-                powerUp.body.velocity.x = -100;
-                powerUp.body.velocity.y = 20;
-                var rotationStart = -0.5;
-                var rotationEnd = 1;
-                powerUp.rotation = rotationStart;
-                this.game.add.tween(powerUp).to( { rotation: rotationEnd }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
-                break;
 
-            case 2:
-                powerUp = this.shields.getFirstDead();
-                powerUp.reset(this.game.width, 100);
-                powerUp.body.gravity.y = 1;
-                powerUp.body.velocity.x = -100;
-                powerUp.body.velocity.y = 20;
+        var random = Math.random();
 
-                //this.game.add.tween(powerUp).to( { scale: 2 }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
-                break;
+        if (random < powerUpTypes.SHIELD.chance) {
+            // option 1: chance 0.0–0.499...
+            powerUp = this.shields.getFirstDead();
+            powerUp.reset(this.game.width, 100);
+            powerUp.body.gravity.y = 1;
+            powerUp.body.velocity.x = -100;
+            powerUp.body.velocity.y = 20;
+
+            //this.game.add.tween(powerUp).to( { scale: 2 }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
 
         }
+        else if (random < powerUpTypes.FEATHERWEIGHT.chance) {
+            // option 2: chance 0.50—0.7499...
+            powerUp = this.feathers.getFirstDead();
+            powerUp.reset(this.game.width, 100);
+            powerUp.body.gravity.y = 1;
+            powerUp.body.velocity.x = -100;
+            powerUp.body.velocity.y = 20;
+            var rotationStart = -0.5;
+            var rotationEnd = 1;
+            powerUp.rotation = rotationStart;
+            this.game.add.tween(powerUp).to( { rotation: rotationEnd }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
+
+        }
+        else if (random < powerUpTypes.OVERWEIGHT.chance) {
+            //option 3: chance 0.75–0.99...
+            powerUp = this.powerups.getFirstDead();
+            //this.game.physics.enable( star, Phaser.Physics.ARCADE);
+            powerUp.reset(this.game.width, 100);
+            powerUp.body.gravity.y = 4;
+            powerUp.body.velocity.x = -200;
+            powerUp.body.velocity.y = 45;
+            powerUp.body.rotation.y = 3;
+            powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
+            powerUp.body.bounce.x = 1.7 + Math.random() * 0.2;
+
+        }
+
     },
 
     collect_score: function(obj, obj2){
