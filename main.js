@@ -200,6 +200,7 @@ game_state.main.prototype = {
 
     //jump:
     jump: function(){
+        //affect the way the player jumps with different powerups:
         if(this.player_powered)
         {
             switch(powerupState){
@@ -212,6 +213,7 @@ game_state.main.prototype = {
                     this.bird.body.gravity.y = powerUpTypes.FEATHERWEIGHT.gravity;
                     break;
                 default:
+                    //fall into this just in case
                     this.bird.body.velocity.y = powerUpTypes.NORMAL.velocity;
                     this.bird.body.gravity.y = powerUpTypes.NORMAL.gravity;
             }
@@ -247,7 +249,8 @@ game_state.main.prototype = {
             this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 1, this.restart_game, this);
         }
     },
-
+    //todo: needs to be refactored into one method but this will work for now
+    /* Powerups cannot stack, the effect is removed when the player picks up another powerup */
     collect_powerup: function(player, star)
     {
         this.remove_powerup();
@@ -290,8 +293,6 @@ game_state.main.prototype = {
         this.bird.body.immovable = true;
         //how long does it last?
         this.shieldTimer = this.game.time.events.loop(Phaser.Timer.SECOND, this.shieldCheck, this);
-
-
     },
 
     shieldCheck: function(){
@@ -364,7 +365,6 @@ game_state.main.prototype = {
             pipe.body.velocity.x = -200;
             pipe.body.bounce.x = 1;
             pipe.body.bounce.y = 1;
-           // pipe.body.mass = 1;
         }
     },
 
@@ -399,9 +399,9 @@ game_state.main.prototype = {
         this.game.time.events.remove(this.choosePowerupTimer);
         var powerUp;
         //roll for power up
-        var random = Math.random();
+        var randomSeed = Math.random();
 
-        if (random < powerUpTypes.SHIELD.chance) {
+        if (randomSeed < powerUpTypes.SHIELD.chance) {
             // option 1: chance 0.0–0.499...
             powerUp = this.shields.getFirstDead();
             powerUp.reset(this.game.width, 100);
@@ -409,7 +409,7 @@ game_state.main.prototype = {
             powerUp.body.velocity.x = -100;
             powerUp.body.velocity.y = 20;
         }
-        else if (random < powerUpTypes.FEATHERWEIGHT.chance) {
+        else if (randomSeed < powerUpTypes.FEATHERWEIGHT.chance) {
             // option 2: chance 0.50—0.7499...
             powerUp = this.feathers.getFirstDead();
             powerUp.reset(this.game.width, 100);
@@ -422,7 +422,7 @@ game_state.main.prototype = {
             this.game.add.tween(powerUp).to( { rotation: rotationEnd }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
 
         }
-        else if (random < powerUpTypes.OVERWEIGHT.chance) {
+        else if (randomSeed < powerUpTypes.OVERWEIGHT.chance) {
             //option 3: chance 0.75–0.99...
             powerUp = this.powerups.getFirstDead();
             //this.game.physics.enable( star, Phaser.Physics.ARCADE);
@@ -433,9 +433,7 @@ game_state.main.prototype = {
             powerUp.body.rotation.y = 3;
             powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
             powerUp.body.bounce.x = 1.7 + Math.random() * 0.2;
-
         }
-
     },
 
     collect_score: function(obj, obj2){
@@ -454,12 +452,7 @@ game_state.main.prototype = {
             default:
                 this.score += 1;
         }
-        this.score += 1;
         this.label_score.text = this.score;
-    },
-
-    processCo: function(){
-        console.log("YPPPPPPP")
     }
 };
 
