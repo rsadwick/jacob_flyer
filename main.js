@@ -4,6 +4,7 @@ var game_state = {};
 //particle
 var emitter;
 var bossTween;
+var emitterTest;
 
 var shieldTween;
 //powerups: only 1 powerup state at a time.  No stacking.
@@ -14,7 +15,7 @@ var powerUpTypes = {
         gravity: 2500,
         creation: 5,
         duration: 2,
-        chance: 0.95,
+        chance: 1,
         tint: 0x999999
     },
     FEATHERWEIGHT:{
@@ -22,7 +23,7 @@ var powerUpTypes = {
         gravity: 500,
         creation: 2,
         duration: 7,
-        chance: 0.75,
+        chance: 0,
         tint: 0xff9900
     },
     NORMAL: {
@@ -33,7 +34,7 @@ var powerUpTypes = {
     SHIELD:{
         duration: 7,
         currentTime: 0,
-        chance: 0.2,
+        chance: 0,
         blendMode: Phaser.blendModes.ADD
     }
 };
@@ -294,6 +295,18 @@ game_state.main.prototype = {
         this.bird.tint = powerUpTypes.OVERWEIGHT.tint;
         this.player_powered = true;
         this.bird.body.velocity.y += 10;
+
+         //particles that make it look like the player is being weighed down:
+        emitterTest = game.add.emitter(0, 0, 500);
+        emitterTest.makeParticles(['star']);
+        emitterTest.setRotation(360, 180);
+        emitterTest.setAlpha(1, 0, 3000)
+        emitterTest.setScale(0.1, 1, 0.1, 1, 2000, Phaser.Easing.Quintic.Out);
+        emitterTest.gravity = 450.5;
+        emitterTest.minParticleSpeed.setTo(45, -120);
+        emitterTest.maxParticleSpeed.setTo(90, -500);
+        emitterTest.start(false, 0, 2, 300);
+        this.bird.addChild(emitterTest)
 
         //how long does it last?
         this.overweightTimer = this.game.time.events.add(Phaser.Timer.SECOND * powerUpTypes.OVERWEIGHT.duration, this.remove_powerup, this);
