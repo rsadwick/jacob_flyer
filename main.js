@@ -15,7 +15,7 @@ var powerUpTypes = {
         gravity: 2500,
         creation: 5,
         duration: 2,
-        chance: 1,
+        chance: 0.95,
         tint: 0x999999
     },
     FEATHERWEIGHT:{
@@ -23,7 +23,7 @@ var powerUpTypes = {
         gravity: 500,
         creation: 2,
         duration: 7,
-        chance: 0,
+        chance: 0.75,
         tint: 0xff9900
     },
     NORMAL: {
@@ -34,7 +34,7 @@ var powerUpTypes = {
     SHIELD:{
         duration: 7,
         currentTime: 0,
-        chance: 0,
+        chance: 0.5,
         blendMode: Phaser.blendModes.ADD
     }
 };
@@ -174,7 +174,7 @@ game_state.main.prototype = {
 
         //boss timer:
         this.levelTimer = this.game.time.create(false);
-        this.levelTimer.add(100, this.create_boss, this);
+        this.levelTimer.add(500, this.create_boss, this);
         this.levelTimer.start();
 
         //bullets for boss:
@@ -222,6 +222,9 @@ game_state.main.prototype = {
 
         //add score when player hits pipe saftey zone:
         this.game.physics.arcade.overlap(this.bird, this.holes, this.collect_score, null, this);
+
+        //boss bullets
+        this.game.physics.arcade.overlap(this.bird, this.bullets, this.onBulletDamage, null, this);
 
     },
 
@@ -292,18 +295,6 @@ game_state.main.prototype = {
         this.bird.tint = powerUpTypes.OVERWEIGHT.tint;
         this.player_powered = true;
         this.bird.body.velocity.y += 10;
-
-         //particles that make it look like the player is being weighed down:
-        emitterTest = game.add.emitter(0, 0, 500);
-        emitterTest.makeParticles(['star']);
-        emitterTest.setRotation(360, 180);
-        emitterTest.setAlpha(1, 0, 3000)
-        emitterTest.setScale(0.1, 1, 0.1, 1, 2000, Phaser.Easing.Quintic.Out);
-        emitterTest.gravity = 450.5;
-        emitterTest.minParticleSpeed.setTo(45, -120);
-        emitterTest.maxParticleSpeed.setTo(90, -500);
-        emitterTest.start(false, 0, 2, 300);
-        this.bird.addChild(emitterTest)
 
         //how long does it last?
         this.overweightTimer = this.game.time.events.add(Phaser.Timer.SECOND * powerUpTypes.OVERWEIGHT.duration, this.remove_powerup, this);
@@ -533,14 +524,14 @@ game_state.main.prototype = {
         function loadFireBalls(){
             console.log("load gun")
             this.fireballTimer = this.game.time.create(false);
-            this.fireballTimer = this.game.time.events.loop(Phaser.Timer.SECOND * 1, shootFireballs, this);
+            this.fireballTimer = this.game.time.events.loop(Phaser.Timer.SECOND * 2, shootFireballs, this);
         }
 
         //shots fired!
         function shootFireballs(){
             var bullet = this.bullets.getFirstDead();
             bullet.reset(this.clown.x - 8, this.clown.y - 8);
-            this.game.physics.arcade.moveToObject(bullet, this.bird, 300);
+            this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 1500);
             this.shotsFired++;
             if(this.shotsFired >= 3){
                  this.game.time.events.remove(this.fireballTimer);
@@ -560,12 +551,14 @@ game_state.main.prototype = {
 
         //greater than chance:
         else if (randomSeed > bossAbilties.CHARGE_ATTACK.chance) {
-           console.log("CHARGE")
-           var oldPositionX = this.clown.x;
-           var oldPositionY = this.clown.y;
+            console.log("CHARGE")
+            var oldPositionX = this.clown.x;
+            var oldPositionY = this.clown.y;
+            var nextPositionX = this.bird.x;
+            var nextPositionY = this.bird.y;
             this.bossTween = this.game.add.tween(this.clown)
                .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 500)
-               .to({ tint: 0x0066f5, x: this.bird.x, y: this.bird.y }, 1000, Phaser.Easing.Elastic.InOut)
+               .to({ tint: 0x0066f5, x: nextPositionX, y: nextPositionY }, 1000, Phaser.Easing.Elastic.InOut)
                .to({ tint: 0xffffff, x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In);
             this.bossTween._lastChild.onComplete.add(onChargeComplete, this);
             this.bossTween.start();
@@ -579,6 +572,22 @@ game_state.main.prototype = {
               this.bossTween.stop();
             _scope.startBoss()
         }
+    },
+
+    onBulletDamage : function(player, bullet){
+        bullet.kill();
+         //particles that make it look like the player is being weighed down:
+        emitterTest = game.add.emitter(0, 0, 10);
+        emitterTest.makeParticles(['star']);
+        emitterTest.setRotation(360, 180);
+        //emitterTest.setAlpha(1, 0, 3000)
+        emitterTest.setScale(0.1, 1, 0.1, 1, 200, Phaser.Easing.Quintic.Out);
+        emitterTest.gravity = 450.5;
+        emitterTest.minParticleSpeed.setTo(45, -120);
+        emitterTest.maxParticleSpeed.setTo(90, -500);
+        emitterTest.start(true, 0, 2, 10);
+        emitterTest.x = this.bird.x;
+        emitterTest.y = this.bird.y;
     }
 };
 
