@@ -3,9 +3,9 @@ var game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div');
 var game_state = {};
 //particle
 var emitter;
-var bossTween;
 var emitterTest;
 
+var bossTween;
 var shieldTween;
 //powerups: only 1 powerup state at a time.  No stacking.
 var powerupState;
@@ -41,13 +41,13 @@ var powerUpTypes = {
 
 var bossAbilties = {
     UP_ATTACK:{
-        chance: 1,
+        chance: 0.50,
         damage: 1,
         ease: Phaser.Easing.Bounce.InOut
     },
 
     CHARGE_ATTACK:{
-        chance: 0,
+        chance: 0.50,
         damage: 2,
         ease: Phaser.Easing.Elastic.Out
     }
@@ -173,10 +173,17 @@ game_state.main.prototype = {
         this.powerup_timer = this.game.time.events.loop(Phaser.Timer.SECOND * 3, this.add_powerup, this);
 
         //boss timer:
-        this.levelTimer = game.time.create(false);
+        this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(100, this.create_boss, this);
         this.levelTimer.start();
 
+        //bullets for boss:
+        this.bullets = this.game.add.group();
+        this.bullets.enableBody = true;
+        this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+        this.bullets.createMultiple(3, 'candy');
+        this.bullets.setAll('checkWorldBounds', true);
+        this.bullets.setAll('outOfBoundsKill', true);
     },
     
     update: function() {
@@ -187,8 +194,6 @@ game_state.main.prototype = {
         else
             this.background.tilePosition.x += 0.3;
 
-
-		// Function called 60 times per second
         //if bird is out of the world, restart game:
         if(this.bird.inWorld == false){
             this.on_hit();
@@ -215,16 +220,9 @@ game_state.main.prototype = {
         this.game.physics.arcade.overlap(this.bird, this.feathers, this.collect_feather, null, this);
         this.game.physics.arcade.overlap(this.bird, this.shields, this.collect_shield, null, this);
 
-        //add score when player hits pipe safty zone:
+        //add score when player hits pipe saftey zone:
         this.game.physics.arcade.overlap(this.bird, this.holes, this.collect_score, null, this);
 
-        if(this.clown)
-        {
-           // this.clown.alpha = 1;
-           // this.clown.y = this.bird.y;
-
-
-        }
     },
 
     render: function(){
@@ -267,7 +265,6 @@ game_state.main.prototype = {
         if(!this.player_hit_wall && powerupState != powerUpTypes.SHIELD)
         {
             this.player_hit_wall = true;
-           // this.bird.body.velocity.x =  -300;
             this.game.input.keyboard.disabled = true;
             this.bird.animations.stop();
             this.bird.frame = 6;
@@ -472,7 +469,6 @@ game_state.main.prototype = {
             var rotationEnd = 1;
             powerUp.rotation = rotationStart;
             this.game.add.tween(powerUp).to( { rotation: rotationEnd }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
-
         }
         else if (randomSeed < powerUpTypes.OVERWEIGHT.chance) {
             //option 3: chance 0.75–0.99...
@@ -507,6 +503,9 @@ game_state.main.prototype = {
         this.label_score.text = this.score;
     },
 
+    /* Clown Boss *
+    / * Two moves: Move Up/Down + Shoot.  Charges and resets position.
+    */
     create_boss: function(){
         //stop level generation:
         this.game.time.events.remove(this.timer);
@@ -520,62 +519,67 @@ game_state.main.prototype = {
         this.clown.x = this.game.width - this.clown.width;
         this.clown.y = this.bird.y;
 
-        this.bossTween = this.game.add.tween(this.clown).to({ alpha: 1, tint: 0xff9900 }, 2000, Phaser.Easing.Linear.None, false, 2000)
+        this.bossTween = this.game.add.tween(this.clown).to({ alpha: 1 }, 2000, Phaser.Easing.Linear.None, false, 2000)
         this.bossTween.onComplete.add(this.startBoss, this);
         this.bossTween.start();
-
-
-
-       // bossTween.onComplete.add(firstTween, this);
-
-
-        //attacks
-
     },
 
     startBoss: function (){
-            this.shotsFired = 0;
-            var _scope = this;
-            function loadFireBalls(){
-                console.log("load gun")
-                this.fireballTimer = this.game.time.create(false);
-                this.fireballTimer.loop(1000, shootFireballs, this);
-                this.fireballTimer.start();
-            }
-            function shootFireballs(){
-                console.log("EEP");
-                this.shotsFired++;
-                console.log(this.shotsFired)
-                if(this.shotsFired >= 3){
-                     this.fireballTimer.stop();
-                     this.game.time.events.remove(this.fireballTimer);
-                     this.shotsFired = 0;
-                     resetBoss();
-                }
-            }
-            function resetBoss(){
-                 this.bossTween = this.game.add.tween(_scope.clown).to({ y: _scope.bird.y - 40 }, 2000, Phaser.Easing.Elastic.InOut, true);
-                // startBoss()
-            }
-            var randomSeed = Math.random();
+        //scope
+        this.shotsFired = 0;
+        var _scope = this;
 
-            if (randomSeed < bossAbilties.UP_ATTACK.chance) {
-                console.log("UP ATTACK@")
-                var oldPosition = this.clown.y;
-                this.fireweed = this.game.add.tween(this.clown).to({ y: this.bird.y - 40 }, 2000, Phaser.Easing.Elastic.InOut, true);
-                this.fireweed.onComplete.add(loadFireBalls, this)
+        //loads the timer that shoots the fireballs:
+        function loadFireBalls(){
+            console.log("load gun")
+            this.fireballTimer = this.game.time.create(false);
+            this.fireballTimer = this.game.time.events.loop(Phaser.Timer.SECOND * 1, shootFireballs, this);
+        }
 
-            }
-            else if (randomSeed < bossAbilties.CHARGE_ATTACK.chance) {
-               console.log("CHARGE")
-               var oldPositionX = this.clown.x;
-               var oldPositionY = this.clown.y;
-               this.game.add.tween(this.clown).to({ tint: 0xAAAAAA }, 1000, Phaser.Easing.Elastic.InOut, true)
-                   .to({ x: this.bird.x, y: this.bird.y }, 1000, Phaser.Easing.Elastic.InOut, true)
-                   .to({ x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In, true, 500)
-
+        //shots fired!
+        function shootFireballs(){
+            var bullet = this.bullets.getFirstDead();
+            bullet.reset(this.clown.x - 8, this.clown.y - 8);
+            this.game.physics.arcade.moveToObject(bullet, this.bird, 300);
+            this.shotsFired++;
+            if(this.shotsFired >= 3){
+                 this.game.time.events.remove(this.fireballTimer);
+                 this.shotsFired = 0;
+                 _scope.startBoss();
             }
         }
+
+        //roll the dice for boss attacks
+        var randomSeed = Math.random();
+
+        //less than change
+        if (randomSeed <= bossAbilties.UP_ATTACK.chance) {
+            this.fireweed = this.game.add.tween(this.clown).to({ y: this.bird.y - 40 }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
+            this.fireweed.onComplete.add(loadFireBalls, this);
+        }
+
+        //greater than chance:
+        else if (randomSeed > bossAbilties.CHARGE_ATTACK.chance) {
+           console.log("CHARGE")
+           var oldPositionX = this.clown.x;
+           var oldPositionY = this.clown.y;
+            this.bossTween = this.game.add.tween(this.clown)
+               .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 500)
+               .to({ tint: 0x0066f5, x: this.bird.x, y: this.bird.y }, 1000, Phaser.Easing.Elastic.InOut)
+               .to({ tint: 0xffffff, x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In);
+            this.bossTween._lastChild.onComplete.add(onChargeComplete, this);
+            this.bossTween.start();
+        }
+        //misses the roll just in case:
+        else{
+            this.startBoss();
+        }
+
+        function onChargeComplete(){
+              this.bossTween.stop();
+            _scope.startBoss()
+        }
+    }
 };
 
 // Add and start the 'main' state to start the game
