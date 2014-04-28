@@ -507,7 +507,7 @@ game_state.main.prototype = {
         this.clown = this.game.add.sprite(108, 180, 'clown');
         this.clown.alpha = 0;
         this.clown.x = this.game.width - this.clown.width;
-        this.clown.y = this.bird.y;
+        this.clown.y = this.game.height / 2 - this.clown.height;
 
         this.bossTween = this.game.add.tween(this.clown).to({ alpha: 1 }, 2000, Phaser.Easing.Linear.None, false, 2000)
         this.bossTween.onComplete.add(this.startBoss, this);
@@ -546,9 +546,9 @@ game_state.main.prototype = {
         if (randomSeed <= bossAbilties.UP_ATTACK.chance) {
 
             //boss figures out where he is and moves according to top/bottom.
-            var gotoThisPos;
-            (this.clown.y < this.game.height / 2) ?  gotoThisPos = 300 : gotoThisPos = 5;
-            this.fireweed = this.game.add.tween(this.clown).to({ y: gotoThisPos }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
+            var bossPosition;
+            (this.clown.y < this.game.height / 2) ? bossPosition = 300 : bossPosition = 5;
+            this.fireweed = this.game.add.tween(this.clown).to({ y: bossPosition }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
             this.fireweed.onComplete.add(loadFireBalls, this);
         }
 
@@ -573,7 +573,7 @@ game_state.main.prototype = {
 
         function onChargeComplete(){
               this.bossTween.stop();
-            _scope.startBoss()
+            _scope.startBoss();
         }
     },
 
