@@ -432,7 +432,6 @@ game_state.main.prototype = {
         //roll for time when powerup is created
         this.powerup_creation = Math.floor(Math.random() * 3) + 2;
         this.choosePowerupTimer = this.game.time.events.add(Phaser.Timer.SECOND * this.powerup_creation, this.choose_powerup, this);
-
     },
 
     choose_powerup: function(){
@@ -545,7 +544,11 @@ game_state.main.prototype = {
 
         //less than change
         if (randomSeed <= bossAbilties.UP_ATTACK.chance) {
-            this.fireweed = this.game.add.tween(this.clown).to({ y: this.bird.y - 40 }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
+
+            //boss figures out where he is and moves according to top/bottom.
+            var gotoThisPos;
+            (this.clown.y < this.game.height / 2) ?  gotoThisPos = 300 : gotoThisPos = 5;
+            this.fireweed = this.game.add.tween(this.clown).to({ y: gotoThisPos }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
             this.fireweed.onComplete.add(loadFireBalls, this);
         }
 
