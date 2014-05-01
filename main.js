@@ -5,6 +5,12 @@ var game_state = {};
 var emitter;
 var emitterTest;
 
+//lives
+var lives;
+var maxLife = 3;
+var currentLifeSprite;
+
+//tweens: need to be moved into game state
 var bossTween;
 var shieldTween;
 //powerups: only 1 powerup state at a time.  No stacking.
@@ -87,6 +93,9 @@ game_state.main.prototype = {
 
         //boss
         this.game.load.image('clown', 'assets/clown_boss.png');
+
+        //load lives sprite:
+        this.game.load.spritesheet('lives', 'assets/lives.png', 52, 45 );
     },
 
     create: function() {
@@ -140,6 +149,19 @@ game_state.main.prototype = {
         this.score = 0;
         var style = { font: "30px Arial", fill: "#ff9900" };
         this.label_score = this.game.add.text(20, 20, "0", style);
+
+       // var test =  this.game.add.sprite(52, 45, 'lives');
+        //test.frame = 0;
+        this.lives = this.game.add.group();
+
+        var sprite;
+        for (var i = 0; i < 3; i++)
+        {
+            //  They are evenly spaced out on the X coordinate, with a random Y coordinate
+           sprite = this.lives.create(20 + (60 * i), 20, 'lives');
+           sprite.frame = 2;
+
+        }
 
         /* power ups */
         //stars:
@@ -234,6 +256,27 @@ game_state.main.prototype = {
         this.game.debug.body(this.holes, '#ff9900');*/
     },
 
+    hurtPlayer: function(amount){
+        console.log(maxLife)
+        if(amount >= 3){
+            currentLifeSprite = this.lives.setAll("frame", 0);
+            return;
+        }
+        else{
+            currentLifeSprite = this.lives.getAt(maxLife - 1);
+            if(currentLifeSprite.frame == 2){
+                currentLifeSprite.frame = 1;
+            }
+            else{
+                currentLifeSprite.frame = 0;
+                maxLife -= 1;
+                if(maxLife == 0){
+                    this.on_hit();
+                }
+            }
+        }
+    },
+
     //jump:
     jump: function(){
         //affect the way the player jumps with different powerups:
@@ -267,6 +310,7 @@ game_state.main.prototype = {
     on_hit: function(){
         if(!this.player_hit_wall && powerupState != powerUpTypes.SHIELD)
         {
+            this.hurtPlayer(3);
             this.player_hit_wall = true;
             this.game.input.keyboard.disabled = true;
             this.bird.animations.stop();
@@ -591,6 +635,7 @@ game_state.main.prototype = {
         emitterTest.start(true, 0, 2, 10);
         emitterTest.x = this.bird.x;
         emitterTest.y = this.bird.y;
+        this.hurtPlayer(1);
     }
 };
 
