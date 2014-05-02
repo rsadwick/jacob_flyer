@@ -249,6 +249,7 @@ game_state.main.prototype = {
         //boss bullets
         this.game.physics.arcade.overlap(this.bird, this.bullets, this.onBulletDamage, null, this);
         this.game.physics.arcade.overlap(this.clown, this.bird, this.onBossAttack, null, this);
+        this.game.physics.arcade.overlap(this.bullets, this.clown, this.onBulletDamageBoss, null, this);
 
     },
 
@@ -563,6 +564,7 @@ game_state.main.prototype = {
         this.clown.alpha = 0;
         this.clown.x = this.game.width - this.clown.width;
         this.clown.y = this.game.height / 2 - this.clown.height;
+        this.clown.enableBody = true;
         this.game.physics.enable( this.clown, Phaser.Physics.ARCADE);
 
         this.bossTween = this.game.add.tween(this.clown).to({ alpha: 1 }, 2000, Phaser.Easing.Linear.None, false, 2000)
@@ -636,8 +638,29 @@ game_state.main.prototype = {
     },
 
     onBulletDamage : function(player, bullet){
-        bullet.kill();
-         //particles that make it look like the player is being weighed down:
+
+        if(powerupState == powerUpTypes.SHIELD){
+            //reflect the bullet
+            //bullet.reset(this.bird.x - 8, this.bird.y - 8);
+            //this.game.physics.arcade.moveToObject(bullet, this.clown, 100, 500);
+        }
+        else{
+            bullet.kill();
+            //particles that make it look like the player is being weighed down:
+            this.createBossAttackEffects();
+            this.hurtPlayer(1);
+        }
+    },
+
+    onBossAttack: function(boss, player){
+        if(!this.boss_hit_player){
+            this.hurtPlayer(1);
+            this.createBossAttackEffects();
+            this.boss_hit_player = true;
+        }
+    },
+
+    createBossAttackEffects: function(){
         emitterTest = game.add.emitter(0, 0, 10);
         emitterTest.makeParticles(['star']);
         emitterTest.setRotation(360, 180);
@@ -649,15 +672,14 @@ game_state.main.prototype = {
         emitterTest.start(true, 0, 2, 10);
         emitterTest.x = this.bird.x;
         emitterTest.y = this.bird.y;
-        this.hurtPlayer(1);
+
     },
 
-    onBossAttack: function(boss, player){
-        if(!this.boss_hit_player){
-            this.hurtPlayer(1);
-            this.boss_hit_player = true;
-        }
+    onBulletDamageBoss: function(bullets, clown){
+        console.log("on dmage BOSS")
+
     }
+
 };
 
 // Add and start the 'main' state to start the game
