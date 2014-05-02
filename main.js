@@ -99,14 +99,15 @@ game_state.main.prototype = {
     },
 
     create: function() {
-
+        maxLife = 3;
         this.background = this.game.add.tileSprite(0, 0, 600, 800, 'shrooms');
 
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
     	this.player_hit_wall = false;
         this.player_powered = false;
+        this.boss_hit_player = false;
         this.player_hit_score = false;
-        this.game.input.keyboard.disabled = false
+        this.game.input.keyboard.disabled = false;
     	// Fuction called after 'preload' to setup the game
 
         //display bird:
@@ -247,6 +248,7 @@ game_state.main.prototype = {
 
         //boss bullets
         this.game.physics.arcade.overlap(this.bird, this.bullets, this.onBulletDamage, null, this);
+        this.game.physics.arcade.overlap(this.clown, this.bird, this.onBossAttack, null, this);
 
     },
 
@@ -311,22 +313,30 @@ game_state.main.prototype = {
         if(!this.player_hit_wall && powerupState != powerUpTypes.SHIELD)
         {
             this.hurtPlayer(3);
-            this.player_hit_wall = true;
-            this.game.input.keyboard.disabled = true;
-            this.bird.animations.stop();
-            this.bird.frame = 6;
-
-            this.game.stage.backgroundColor = '#ff0000';
-            this.background.alpha = 0.3;
-
-            //particles
-            emitter = game.add.emitter(0, 0, 100);
-            emitter.makeParticles(['star']);
-            emitter.start(true, 2000, null, 10);
-            emitter.x = this.bird.x;
-            emitter.y = this.bird.y;
-            this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 1, this.restart_game, this);
+            this.kill_player();
         }
+        else if(!this.player_hit_Wall && maxLife <= 0){
+            this.hurtPlayer(3);
+            this.kill_player();
+        }
+    },
+
+    kill_player: function(){
+        this.player_hit_wall = true;
+        this.game.input.keyboard.disabled = true;
+        this.bird.animations.stop();
+        this.bird.frame = 6;
+
+        this.game.stage.backgroundColor = '#ff0000';
+        this.background.alpha = 0.3;
+
+        //particles
+        emitter = game.add.emitter(0, 0, 100);
+        emitter.makeParticles(['star']);
+        emitter.start(true, 2000, null, 10);
+        emitter.x = this.bird.x;
+        emitter.y = this.bird.y;
+        this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 1, this.restart_game, this);
     },
     //todo: needs to be refactored into one method but this will work for now
     /* Powerups cannot stack, the effect is removed when the player picks up another powerup */
@@ -444,7 +454,7 @@ game_state.main.prototype = {
 
     add_one_pipe: function(x, y){
         var pipe = this.pipes.getFirstDead();
-        if(pipe ){
+        if(pipe){
             pipe.reset(x, y);
             pipe.body.velocity.x = -200;
             pipe.body.bounce.x = 1;
@@ -542,6 +552,7 @@ game_state.main.prototype = {
     */
     create_boss: function(){
         //stop level generation:
+
         this.game.time.events.remove(this.timer);
         //background change:
         this.game.stage.backgroundColor = '#999999';
@@ -552,6 +563,7 @@ game_state.main.prototype = {
         this.clown.alpha = 0;
         this.clown.x = this.game.width - this.clown.width;
         this.clown.y = this.game.height / 2 - this.clown.height;
+        this.game.physics.enable( this.clown, Phaser.Physics.ARCADE);
 
         this.bossTween = this.game.add.tween(this.clown).to({ alpha: 1 }, 2000, Phaser.Easing.Linear.None, false, 2000)
         this.bossTween.onComplete.add(this.startBoss, this);
@@ -560,6 +572,7 @@ game_state.main.prototype = {
 
     startBoss: function (){
         //scope
+
         this.shotsFired = 0;
         var _scope = this;
 
@@ -599,6 +612,7 @@ game_state.main.prototype = {
         //greater than chance:
         else if (randomSeed > bossAbilties.CHARGE_ATTACK.chance) {
             console.log("CHARGE")
+            this.boss_hit_player = false;
             var oldPositionX = this.clown.x;
             var oldPositionY = this.clown.y;
             var nextPositionX = this.bird.x;
@@ -616,7 +630,7 @@ game_state.main.prototype = {
         }
 
         function onChargeComplete(){
-              this.bossTween.stop();
+            this.bossTween.stop();
             _scope.startBoss();
         }
     },
@@ -636,6 +650,13 @@ game_state.main.prototype = {
         emitterTest.x = this.bird.x;
         emitterTest.y = this.bird.y;
         this.hurtPlayer(1);
+    },
+
+    onBossAttack: function(boss, player){
+        if(!this.boss_hit_player){
+            this.hurtPlayer(1);
+            this.boss_hit_player = true;
+        }
     }
 };
 
