@@ -5,6 +5,9 @@ var game_state = {};
 var emitter;
 var emitterTest;
 
+//boss switch for bullets
+var bulletHitShield = false;
+
 //lives
 var lives;
 var maxLife = 3;
@@ -161,7 +164,6 @@ game_state.main.prototype = {
             //  They are evenly spaced out on the X coordinate, with a random Y coordinate
            sprite = this.lives.create(20 + (60 * i), 20, 'lives');
            sprite.frame = 2;
-
         }
 
         /* power ups */
@@ -249,7 +251,7 @@ game_state.main.prototype = {
         //boss bullets
         this.game.physics.arcade.overlap(this.bird, this.bullets, this.onBulletDamage, null, this);
         this.game.physics.arcade.overlap(this.clown, this.bird, this.onBossAttack, null, this);
-        this.game.physics.arcade.overlap(this.bullets, this.clown, this.onBulletDamageBoss, null, this);
+        this.game.physics.arcade.overlap(this.clown, this.bullets, this.onBulletDamageBoss, null, this);
 
     },
 
@@ -641,8 +643,9 @@ game_state.main.prototype = {
 
         if(powerupState == powerUpTypes.SHIELD){
             //reflect the bullet
+            bulletHitShield = true;
             //bullet.reset(this.bird.x - 8, this.bird.y - 8);
-            //this.game.physics.arcade.moveToObject(bullet, this.clown, 100, 500);
+            this.game.physics.arcade.moveToObject(bullet, this.clown, 100, 500);
         }
         else{
             bullet.kill();
@@ -672,14 +675,22 @@ game_state.main.prototype = {
         emitterTest.start(true, 0, 2, 10);
         emitterTest.x = this.bird.x;
         emitterTest.y = this.bird.y;
-
     },
 
-    onBulletDamageBoss: function(bullets, clown){
-        console.log("on dmage BOSS")
+    onBulletDamageBoss: function(clown, shot){
+        if(bulletHitShield)
+        {
+            bulletHitShield = false;
+            shot.kill();
+            var shotAnim  = this.game.add.tween(clown)
+                .to({ tint: 0xf50400 }, 100, Phaser.Easing.Elastic.InOut)
+                .to({ tint: 0x0066f5 }, 100, Phaser.Easing.Elastic.InOut)
+                .to({ tint: 0xffffff }, 100, Phaser.Easing.Elastic.In);
+            shotAnim.start();
 
+            console.log("on dmage BOSS")
+        }
     }
-
 };
 
 // Add and start the 'main' state to start the game
