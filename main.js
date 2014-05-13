@@ -7,6 +7,7 @@ var emitterTest;
 
 //boss switch for bullets
 var bulletHitShield = false;
+var oldBulletGravity;
 
 //lives
 var lives;
@@ -23,7 +24,7 @@ var powerUpTypes = {
         velocity: -350,
         gravity: 2500,
         creation: 5,
-        duration: 2,
+        duration: 7,
         chance: 0.95,
         tint: 0x999999
     },
@@ -32,7 +33,7 @@ var powerUpTypes = {
         gravity: 500,
         creation: 2,
         duration: 7,
-        chance: 0.75,
+        chance: 0.05,
         tint: 0xff9900
     },
     NORMAL: {
@@ -43,7 +44,7 @@ var powerUpTypes = {
     SHIELD:{
         duration: 7,
         currentTime: 0,
-        chance: 0.5,
+        chance: 0.1,
         blendMode: Phaser.blendModes.ADD
     }
 };
@@ -591,7 +592,15 @@ game_state.main.prototype = {
         function shootFireballs(){
             var bullet = this.bullets.getFirstDead();
             bullet.reset(this.clown.x - 8, this.clown.y - 8);
-            this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 1500);
+            //when player is powered with feather weight, the boss throws like a pee wee:
+            if(powerupState == powerUpTypes.FEATHERWEIGHT){
+                this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 9500);
+                bullet.body.gravity.y = 100;
+            }
+            else{
+                this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 1500);
+            }
+
             this.shotsFired++;
             if(this.shotsFired >= 3){
                  this.game.time.events.remove(this.fireballTimer);
@@ -640,14 +649,21 @@ game_state.main.prototype = {
     },
 
     onBulletDamage : function(player, bullet){
-
+        //Boss takes damage/loses advantage based on player's powerups
         if(powerupState == powerUpTypes.SHIELD){
             //reflect the bullet
             bulletHitShield = true;
             //bullet.reset(this.bird.x - 8, this.bird.y - 8);
             this.game.physics.arcade.moveToObject(bullet, this.clown, 100, 500);
         }
+        else if(powerupState == powerUpTypes.OVERWEIGHT){
+            bulletHitShield = true;
+            bullet.body.velocity.setTo(400, 400);
+            oldBulletGravity = bullet.body.gravity.y;
+            bullet.body.gravity.y = 400;
+        }
         else{
+            bullet.body.gravity.y = oldBulletGravity;
             bullet.kill();
             //particles that make it look like the player is being weighed down:
             this.createBossAttackEffects();
