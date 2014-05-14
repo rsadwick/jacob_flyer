@@ -162,6 +162,7 @@ game_state.main.prototype = {
         this.holes.setAll('outOfBoundsKill', true);
         this.game.add.tween( this.holes).to( { y: this.holes.y + 12 }, 500, Phaser.Easing.Back.InOut, true, 0, 1000, true);
 
+        //lives ui groups for player and boss
         this.lives = this.game.add.group();
         this.bossLives = this.game.add.group();
 
@@ -279,7 +280,6 @@ game_state.main.prototype = {
         var actorLife = (actor == character.PLAYER) ? maxLife : bossLife
         if(amount >= 3){
             lifeSprite.setAll("frame", 0);
-            return;
         }
         else{
             liveGroup = lifeSprite.getAt(actorLife - 1);
