@@ -33,7 +33,7 @@ var powerUpTypes = {
         gravity: 500,
         creation: 2,
         duration: 7,
-        chance: 0.05,
+        chance: 0.75,
         tint: 0xff9900
     },
     NORMAL: {
@@ -75,7 +75,7 @@ game_state.main.prototype = {
         this.game.load.spritesheet('bird', 'assets/jacob.png', 144, 111 );
 
         //laying the pipe:
-        this.game.load.image('pipe', 'assets/pipe.png');
+        this.game.load.image('pipe', 'assets/pip_wall.png');
 
         //star powerup
         this.game.load.image('star', 'assets/star.png');
@@ -201,7 +201,7 @@ game_state.main.prototype = {
         //boss timer:
         this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(500, this.create_boss, this);
-        this.levelTimer.start();
+       // this.levelTimer.start();
 
         //bullets for boss:
         this.bullets = this.game.add.group();
@@ -590,7 +590,10 @@ game_state.main.prototype = {
 
         //shots fired!
         function shootFireballs(){
+
             var bullet = this.bullets.getFirstDead();
+            //reset bullet gravity:
+            bullet.body.gravity.y = 0;
             bullet.reset(this.clown.x - 8, this.clown.y - 8);
             //when player is powered with feather weight, the boss throws like a pee wee:
             if(powerupState == powerUpTypes.FEATHERWEIGHT){
@@ -660,7 +663,6 @@ game_state.main.prototype = {
             bulletHitShield = true;
             bullet.body.velocity.setTo(400, 400);
             oldBulletGravity = bullet.body.gravity.y;
-            bullet.body.gravity.y = 400;
         }
         else{
             bullet.body.gravity.y = oldBulletGravity;
@@ -694,6 +696,7 @@ game_state.main.prototype = {
     },
 
     onBulletDamageBoss: function(clown, shot){
+        //condition where player reflected bullet:
         if(bulletHitShield)
         {
             bulletHitShield = false;
