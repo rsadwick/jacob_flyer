@@ -7,12 +7,15 @@ var emitterTest;
 
 //boss switch for bullets
 var bulletHitShield = false;
-var oldBulletGravity;
 
-//lives
+//player lives
 var lives;
 var maxLife = 3;
 var currentLifeSprite;
+
+//boss lives
+var bossLife = 3;
+var currentBossLife;
 
 //tweens: need to be moved into game state
 var bossTween;
@@ -61,7 +64,16 @@ var bossAbilties = {
         damage: 2,
         ease: Phaser.Easing.Elastic.Out
     }
-}
+};
+
+var character = {
+    PLAYER:{
+        name: "player"
+    },
+    BOSS:{
+        name: "boss"
+    }
+};
 
 // Creates a new 'main' state that wil contain the game
 game_state.main = function() { };  
@@ -150,22 +162,22 @@ game_state.main.prototype = {
         this.holes.setAll('outOfBoundsKill', true);
         this.game.add.tween( this.holes).to( { y: this.holes.y + 12 }, 500, Phaser.Easing.Back.InOut, true, 0, 1000, true);
 
-        //score:
-        this.score = 0;
-        var style = { font: "30px Arial", fill: "#ff9900" };
-        this.label_score = this.game.add.text(20, 20, "0", style);
-
-       // var test =  this.game.add.sprite(52, 45, 'lives');
-        //test.frame = 0;
         this.lives = this.game.add.group();
+        this.bossLives = this.game.add.group();
 
-        var sprite;
+        //player lives:
+        //var livesSprite;
         for (var i = 0; i < 3; i++)
         {
             //  They are evenly spaced out on the X coordinate, with a random Y coordinate
-           sprite = this.lives.create(20 + (60 * i), 20, 'lives');
-           sprite.frame = 2;
+           currentLifeSprite = this.lives.create(10 + (60 * i), 20, 'lives');
+           currentLifeSprite.frame = 2;
         }
+
+         //score:
+        this.score = 0;
+        var style = { font: "30px Arial", fill: "#ff9900" };
+        this.label_score = this.game.add.text(10, currentLifeSprite.y + currentLifeSprite.height + 12, "0", style);
 
         /* power ups */
         //stars:
@@ -201,7 +213,7 @@ game_state.main.prototype = {
         //boss timer:
         this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(500, this.create_boss, this);
-       // this.levelTimer.start();
+        this.levelTimer.start();
 
         //bullets for boss:
         this.bullets = this.game.add.group();
@@ -262,22 +274,33 @@ game_state.main.prototype = {
         this.game.debug.body(this.holes, '#ff9900');*/
     },
 
-    hurtPlayer: function(amount){
-        console.log(maxLife)
+    hurtCharacter: function(actor, amount, lifeSprite){
+        var liveGroup;
+        var actorLife = (actor == character.PLAYER) ? maxLife : bossLife
         if(amount >= 3){
-            currentLifeSprite = this.lives.setAll("frame", 0);
+            lifeSprite.setAll("frame", 0);
             return;
         }
         else{
-            currentLifeSprite = this.lives.getAt(maxLife - 1);
-            if(currentLifeSprite.frame == 2){
-                currentLifeSprite.frame = 1;
+            liveGroup = lifeSprite.getAt(actorLife - 1);
+            if(liveGroup.frame == 2){
+                liveGroup.frame = 1;
             }
             else{
-                currentLifeSprite.frame = 0;
-                maxLife -= 1;
-                if(maxLife == 0){
-                    this.on_hit();
+                liveGroup.frame = 0;
+                (actor == character.PLAYER) ? maxLife -= 1 : bossLife -= 1;
+
+                if(actor == character.PLAYER)
+                {
+                    if(maxLife == 0){
+                        this.on_hit();
+                    }
+                }
+                else
+                {
+                    if(bossLife == 0){
+                        //todo:kill boss
+                    }
                 }
             }
         }
@@ -316,11 +339,11 @@ game_state.main.prototype = {
     on_hit: function(){
         if(!this.player_hit_wall && powerupState != powerUpTypes.SHIELD)
         {
-            this.hurtPlayer(3);
+            this.hurtCharacter(character.PLAYER, 3, this.lives);
             this.kill_player();
         }
         else if(!this.player_hit_Wall && maxLife <= 0){
-            this.hurtPlayer(3);
+            this.hurtCharacter(character.PLAYER, 3, this.lives);
             this.kill_player();
         }
     },
@@ -556,7 +579,6 @@ game_state.main.prototype = {
     */
     create_boss: function(){
         //stop level generation:
-
         this.game.time.events.remove(this.timer);
         //background change:
         this.game.stage.backgroundColor = '#999999';
@@ -573,6 +595,16 @@ game_state.main.prototype = {
         this.bossTween = this.game.add.tween(this.clown).to({ alpha: 1 }, 2000, Phaser.Easing.Linear.None, false, 2000)
         this.bossTween.onComplete.add(this.startBoss, this);
         this.bossTween.start();
+
+        //boss lives: todo: move into a function since player uses same code
+
+        for (var i = 0; i < 3; i++)
+        {
+            //  They are evenly spaced out on the X coordinate, with a random Y coordinate
+           currentBossLife = this.bossLives.create(220 + (60 * i), 20, 'lives');
+           currentBossLife.frame = 2;
+           currentBossLife.tint = 0x999999;
+        }
     },
 
     startBoss: function (){
@@ -662,20 +694,18 @@ game_state.main.prototype = {
         else if(powerupState == powerUpTypes.OVERWEIGHT){
             bulletHitShield = true;
             bullet.body.velocity.setTo(400, 400);
-            oldBulletGravity = bullet.body.gravity.y;
         }
         else{
-            bullet.body.gravity.y = oldBulletGravity;
             bullet.kill();
             //particles that make it look like the player is being weighed down:
             this.createBossAttackEffects();
-            this.hurtPlayer(1);
+            this.hurtCharacter(character.PLAYER, 1, this.lives);
         }
     },
 
     onBossAttack: function(boss, player){
         if(!this.boss_hit_player){
-            this.hurtPlayer(1);
+            this.hurtCharacter(character.PLAYER, 1, this.lives);
             this.createBossAttackEffects();
             this.boss_hit_player = true;
         }
@@ -706,6 +736,7 @@ game_state.main.prototype = {
                 .to({ tint: 0x0066f5 }, 100, Phaser.Easing.Elastic.InOut)
                 .to({ tint: 0xffffff }, 100, Phaser.Easing.Elastic.In);
             shotAnim.start();
+            this.hurtCharacter(character.BOSS, 1, this.bossLives);
 
             console.log("on dmage BOSS")
         }
