@@ -62,7 +62,8 @@ var bossAbilties = {
     CHARGE_ATTACK:{
         chance: 0.50,
         damage: 2,
-        ease: Phaser.Easing.Elastic.Out
+        ease: Phaser.Easing.Elastic.Out,
+        speed: 1000
     }
 };
 
@@ -116,6 +117,7 @@ game_state.main.prototype = {
 
     create: function() {
         maxLife = 3;
+        bossLife = 3;
         this.background = this.game.add.tileSprite(0, 0, 600, 800, 'shrooms');
 
         this.game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -609,7 +611,6 @@ game_state.main.prototype = {
 
     startBoss: function (){
         //scope
-
         this.shotsFired = 0;
         var _scope = this;
 
@@ -665,9 +666,24 @@ game_state.main.prototype = {
             var oldPositionY = this.clown.y;
             var nextPositionX = this.bird.x;
             var nextPositionY = this.bird.y;
+            //affect charge attack based on which powerup the player has:
+            switch(powerupState)
+            {
+                case powerUpTypes.OVERWEIGHT:
+                    bossAbilties.CHARGE_ATTACK.speed = 1000;
+                    break;
+
+                case powerUpTypes.FEATHERWEIGHT:
+                     bossAbilties.CHARGE_ATTACK.speed = 3000;
+                    break;
+
+                default:
+                    bossAbilties.CHARGE_ATTACK.speed = 1000
+            }
+
             this.bossTween = this.game.add.tween(this.clown)
                .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 500)
-               .to({ tint: 0x0066f5, x: nextPositionX, y: nextPositionY }, 1000, Phaser.Easing.Elastic.InOut)
+               .to({ tint: 0x0066f5, x: nextPositionX, y: nextPositionY }, bossAbilties.CHARGE_ATTACK.speed, Phaser.Easing.Elastic.InOut)
                .to({ tint: 0xffffff, x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In);
             this.bossTween._lastChild.onComplete.add(onChargeComplete, this);
             this.bossTween.start();
