@@ -216,7 +216,7 @@ game_state.main.prototype = {
         //boss timer:
         this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(500, this.create_boss, this);
-        this.levelTimer.start();
+       // this.levelTimer.start();
 
         //bullets for boss:
         this.bullets = this.game.add.group();
@@ -338,7 +338,8 @@ game_state.main.prototype = {
         this.bird.animations.play('up');
     },
 
-    on_hit: function(){
+    on_hit: function(player, obj){
+
         if(!this.player_hit_wall && powerupState != powerUpTypes.SHIELD)
         {
             this.hurtCharacter(character.PLAYER, 3, this.lives);
