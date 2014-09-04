@@ -54,13 +54,13 @@ var powerUpTypes = {
 
 var bossAbilties = {
     UP_ATTACK:{
-        chance: 0.10,
+        chance: 0.50,
         damage: 1,
         ease: Phaser.Easing.Bounce.InOut
     },
 
     CHARGE_ATTACK:{
-        chance: 0.90,
+        chance: 0.60,
         damage: 2,
         ease: Phaser.Easing.Elastic.Out,
         speed: 1000
@@ -650,7 +650,7 @@ game_state.main.prototype = {
         var randomSeed = Math.random();
 
         //less than change
-        if (randomSeed <= bossAbilties.UP_ATTACK.chance) {
+        if (randomSeed < bossAbilties.UP_ATTACK.chance) {
 
             //boss figures out where he is and moves according to top/bottom.
             var bossPosition;
@@ -660,7 +660,7 @@ game_state.main.prototype = {
         }
 
         //greater than chance:
-        else if (randomSeed > bossAbilties.CHARGE_ATTACK.chance) {
+        else if (randomSeed < bossAbilties.CHARGE_ATTACK.chance) {
             console.log("CHARGE")
             this.boss_hit_player = false;
             var oldPositionX = this.clown.x;
