@@ -28,7 +28,7 @@ var powerUpTypes = {
         gravity: 2500,
         creation: 5,
         duration: 7,
-        chance: 0.95,
+        chance: 0.5,
         tint: 0x999999
     },
     FEATHERWEIGHT:{
@@ -36,7 +36,7 @@ var powerUpTypes = {
         gravity: 500,
         creation: 2,
         duration: 7,
-        chance: 0.75,
+        chance: 0.5,
         tint: 0xff9900
     },
     NORMAL: {
@@ -47,20 +47,20 @@ var powerUpTypes = {
     SHIELD:{
         duration: 7,
         currentTime: 0,
-        chance: 0.1,
+        chance: 0.90,
         blendMode: Phaser.blendModes.ADD
     }
 };
 
 var bossAbilties = {
     UP_ATTACK:{
-        chance: 0.50,
+        chance: 0.10,
         damage: 1,
         ease: Phaser.Easing.Bounce.InOut
     },
 
     CHARGE_ATTACK:{
-        chance: 0.50,
+        chance: 0.90,
         damage: 2,
         ease: Phaser.Easing.Elastic.Out,
         speed: 1000
@@ -216,7 +216,7 @@ game_state.main.prototype = {
         //boss timer:
         this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(500, this.create_boss, this);
-       // this.levelTimer.start();
+        this.levelTimer.start();
 
         //bullets for boss:
         this.bullets = this.game.add.group();
@@ -667,11 +667,14 @@ game_state.main.prototype = {
             var oldPositionY = this.clown.y;
             var nextPositionX = this.bird.x;
             var nextPositionY = this.bird.y;
+
             //affect charge attack based on which powerup the player has:
             switch(powerupState)
             {
                 case powerUpTypes.OVERWEIGHT:
                     bossAbilties.CHARGE_ATTACK.speed = 1000;
+                    nextPositionX = this.clown.x;
+                    nextPositionY = this.game.height;
                     break;
 
                 case powerUpTypes.FEATHERWEIGHT:
@@ -722,9 +725,20 @@ game_state.main.prototype = {
 
     onBossAttack: function(boss, player){
         if(!this.boss_hit_player){
-            this.hurtCharacter(character.PLAYER, 1, this.lives);
-            this.createBossAttackEffects();
-            this.boss_hit_player = true;
+            if(powerupState == powerUpTypes.SHIELD){
+                var shotAnim  = this.game.add.tween(boss)
+                .to({ tint: 0xf50400 }, 100, Phaser.Easing.Elastic.InOut)
+                .to({ tint: 0x0066f5 }, 100, Phaser.Easing.Elastic.InOut)
+                .to({ tint: 0xffffff }, 100, Phaser.Easing.Elastic.In);
+                shotAnim.start();
+                this.hurtCharacter(character.BOSS, 1, this.bossLives);
+                this.boss_hit_player = true;
+            }
+            else{
+                this.hurtCharacter(character.PLAYER, 1, this.lives);
+                this.createBossAttackEffects();
+                this.boss_hit_player = true;
+            }
         }
     },
 
