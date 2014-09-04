@@ -132,8 +132,9 @@ game_state.main.prototype = {
         this.bird = this.game.add.sprite(100, 245, 'bird');
         this.game.physics.enable( this.bird, Phaser.Physics.ARCADE);
         this.bird.body.gravity.y = 1000;
-        this.bird.body.bounce.x = 0.9;
-        this.bird.body.bounce.y = 0.9;
+        this.bird.body.mass = 1;
+        //this.bird.body.bounce.setTo(1,1);
+        //this.bird.body.bounce.y = 0.9;
         this.bird.anchor.setTo(0.5, 0.5);
 
         //animations
@@ -216,7 +217,7 @@ game_state.main.prototype = {
         //boss timer:
         this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(500, this.create_boss, this);
-        this.levelTimer.start();
+       // this.levelTimer.start();
 
         //bullets for boss:
         this.bullets = this.game.add.group();
@@ -412,7 +413,7 @@ game_state.main.prototype = {
         this.shield_effect.blendMode = powerUpTypes.SHIELD.blendMode;
         shieldTween = this.game.add.tween(this.shield_effect).to( { alpha: 0.8 }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
         this.player_powered = true;
-        this.bird.body.mass = 9;
+        this.bird.body.mass = 45;
         this.bird.body.immovable = true;
         //how long does it last?
         this.shieldTimer = this.game.time.events.loop(Phaser.Timer.SECOND, this.shieldCheck, this);
@@ -487,8 +488,9 @@ game_state.main.prototype = {
         if(pipe){
             pipe.reset(x, y);
             pipe.body.velocity.x = -200;
-            pipe.body.bounce.x = 1;
-            pipe.body.bounce.y = 1;
+            pipe.body.mass = 10;
+            pipe.body.bounce.setTo(1, 1);
+            //pipe.angle += 45;
         }
     },
 
