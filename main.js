@@ -5,6 +5,9 @@ var game_state = {};
 var emitter;
 var emitterTest;
 
+var bombEmitter;
+var bombStart = false;
+
 //boss switch for bullets
 var bulletHitShield = false;
 
@@ -28,15 +31,16 @@ var powerUpTypes = {
         gravity: 2500,
         creation: 5,
         duration: 7,
-        chance: 0.5,
-        tint: 0x999999
+        chance: -1,
+        tint: 0x999999,
+        graphic: 'assets/weight.png'
     },
     FEATHERWEIGHT:{
         velocity: -250,
         gravity: 500,
         creation: 2,
         duration: 7,
-        chance: 0.5,
+        chance: -1,
         tint: 0xff9900
     },
     NORMAL: {
@@ -47,20 +51,29 @@ var powerUpTypes = {
     SHIELD:{
         duration: 7,
         currentTime: 0,
-        chance: 0.90,
+        chance: -1,
         blendMode: Phaser.blendModes.ADD
+    },
+    BOMBOS:{
+        velocity: -350,
+        gravity: 2500,
+        creation: 5,
+        duration: 7,
+        chance: 0.100,
+        tint: 0x999999,
+        graphic: 'assets/bomb.png'
     }
 };
 
 var bossAbilties = {
     UP_ATTACK:{
-        chance: 0.50,
+        chance: 0.10,
         damage: 1,
         ease: Phaser.Easing.Bounce.InOut
     },
 
     CHARGE_ATTACK:{
-        chance: 0.60,
+        chance: 0.90,
         damage: 2,
         ease: Phaser.Easing.Elastic.Out,
         speed: 1000
@@ -75,6 +88,12 @@ var character = {
         name: "boss"
     }
 };
+
+var level = {
+    name: "level 1",
+    background: 'assets/bg_shroom.png'
+
+}
 
 // Creates a new 'main' state that wil contain the game
 game_state.main = function() { };  
@@ -97,16 +116,19 @@ game_state.main.prototype = {
         this.game.load.image('candy', 'assets/cherry.png');
 
         //bg
-        this.game.load.image('shrooms', 'assets/bg_shroom.png');
+        this.game.load.image('shrooms', level.background);
 
         //powerups:
         //ton
-        this.game.load.image('ton', 'assets/ton.png');
+        this.game.load.image('ton', powerUpTypes.OVERWEIGHT.graphic);
         //feather
         this.game.load.image('feather', 'assets/feather.png');
         //shield
         this.game.load.image('shield', 'assets/shield.png');
         this.game.load.image('shield_effect', 'assets/shield_effect.png');
+
+        //bombos
+        this.game.load.image('bomb', powerUpTypes.BOMBOS.graphic);
 
         //boss
         this.game.load.image('clown', 'assets/clown_boss.png');
@@ -208,6 +230,14 @@ game_state.main.prototype = {
         this.shields.setAll('checkWorldBounds', true);
         this.shields.setAll('outOfBoundsKill', true);
 
+        //bombos
+        this.bombos = this.game.add.group();
+        this.bombos.enableBody = true;
+        this.bombos.physicsBodyType = Phaser.Physics.ARCADE;
+        this.bombos.createMultiple(1, 'bomb');
+        this.bombos.setAll('checkWorldBounds', true);
+        this.bombos.setAll('outOfBoundsKill', true);
+
         this.shield_effect = this.game.add.sprite(this.bird.x, this.bird.y, 'shield_effect');
         this.shield_effect.visible = false;
 
@@ -217,7 +247,7 @@ game_state.main.prototype = {
         //boss timer:
         this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(500, this.create_boss, this);
-       // this.levelTimer.start();
+        //this.levelTimer.start();
 
         //bullets for boss:
         this.bullets = this.game.add.group();
@@ -246,6 +276,19 @@ game_state.main.prototype = {
                 this.shield_effect.x = this.bird.x;
                 this.shield_effect.y = this.bird.y;
             }
+        }
+        if(this.bombos.length >= 1 && bombStart == false){
+
+            console.log(this.bombos.length)
+            var currentBombo = this.getBombos();
+
+            if(currentBombo.inWorld && bombEmitter != null)
+            {
+                 console.log("BOOOOOOM")
+                 bombEmitter.start(true, 0, 2, 6);
+                 bombStart = true;
+            }
+
         }
 
         //player and pipe collision
@@ -516,15 +559,17 @@ game_state.main.prototype = {
 
     add_powerup: function(){
         //roll for time when powerup is created
-        this.powerup_creation = Math.floor(Math.random() * 3) + 2;
+        this.powerup_creation = Math.floor(Math.random() * 5) + 2;
         this.choosePowerupTimer = this.game.time.events.add(Phaser.Timer.SECOND * this.powerup_creation, this.choose_powerup, this);
     },
 
     choose_powerup: function(){
         this.game.time.events.remove(this.choosePowerupTimer);
         var powerUp;
+        var _scope = this;
         //roll for power up
         var randomSeed = Math.random();
+        console.log(randomSeed)
 
         if (randomSeed < powerUpTypes.SHIELD.chance) {
             // option 1: chance 0.0–0.499...
@@ -557,6 +602,35 @@ game_state.main.prototype = {
             powerUp.body.rotation.y = 3;
             powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
             powerUp.body.bounce.x = 1.7 + Math.random() * 0.2;
+        }
+        else{
+        // else if (randomSeed < powerUpTypes.BOMBOS.chance) {
+            //option 3: chance 0.75–0.99...
+            powerUp = this.bombos.getFirstDead();
+            //this.game.physics.enable( star, Phaser.Physics.ARCADE);
+            if(powerUp){
+                powerUp.reset(this.game.width, 100);
+
+                powerUp.body.gravity.y = 4;
+                powerUp.body.velocity.x = -100;
+                powerUp.body.velocity.y = 45;
+                powerUp.body.rotation.y = 3;
+                powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
+                powerUp.body.bounce.x = 1.7 + Math.random() * 0.2;
+
+
+                this.bombosTween = this.game.add.tween(powerUp)
+                   .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 2000)
+                   .to({ tint: 0x0066f5}, 1000, Phaser.Easing.Elastic.InOut)
+                   .to({ tint: 0xffffff}, 1000, Phaser.Easing.Elastic.In);
+
+                this.bombosTween.start();
+                this.bombosTween.onComplete.add(onBombosComplete, this);
+
+                function onBombosComplete(){
+                    _scope.createBombosExploder();
+                }
+            }
         }
     },
 
@@ -619,7 +693,6 @@ game_state.main.prototype = {
 
         //loads the timer that shoots the fireballs:
         function loadFireBalls(){
-            console.log("load gun")
             this.fireballTimer = this.game.time.create(false);
             this.fireballTimer = this.game.time.events.loop(Phaser.Timer.SECOND * 2, shootFireballs, this);
         }
@@ -663,7 +736,6 @@ game_state.main.prototype = {
 
         //greater than chance:
         else if (randomSeed < bossAbilties.CHARGE_ATTACK.chance) {
-            console.log("CHARGE")
             this.boss_hit_player = false;
             var oldPositionX = this.clown.x;
             var oldPositionY = this.clown.y;
@@ -765,15 +837,45 @@ game_state.main.prototype = {
             bulletHitShield = false;
             shot.kill();
             var shotAnim  = this.game.add.tween(clown)
-                .to({ tint: 0xf50400 }, 100, Phaser.Easing.Elastic.InOut)
-                .to({ tint: 0x0066f5 }, 100, Phaser.Easing.Elastic.InOut)
-                .to({ tint: 0xffffff }, 100, Phaser.Easing.Elastic.In);
+                .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut)
+                .to({ tint: 0x0066f5 }, 1000, Phaser.Easing.Elastic.InOut)
+                .to({ tint: 0xffffff }, 1000, Phaser.Easing.Elastic.In);
             shotAnim.start();
             this.hurtCharacter(character.BOSS, 1, this.bossLives);
-
-            console.log("on dmage BOSS")
         }
+    },
+
+     createBombosExploder: function(){
+        bombEmitter = game.add.emitter(0, 0, 1000);
+        bombEmitter.makeParticles(['star']);
+        bombEmitter.setRotation(360, 180);
+
+        var currentBombo = this.getBombos();
+        currentBombo.addChild(bombEmitter);
+        currentBombo.anchor.setTo(0.5, 0.5);
+        bombStart = false;
+        //clean up
+        game.time.events.add(Phaser.Timer.SECOND * 2, removeBomb, this);
+
+         function removeBomb(){
+             console.log("BOMBOS CLEANED");
+             if(this.bombos.length >= 1)
+             {
+               // bombEmitter.kill();
+                currentBombo.kill();
+             }
+         }
+    },
+
+    getBombos: function(){
+        var bombosInstance;
+         for(var currentBombos = 0; currentBombos < this.bombos.length; currentBombos++) {
+            bombosInstance = this.bombos.getAt(currentBombos);
+
+        }
+        return bombosInstance;
     }
+
 };
 
 // Add and start the 'main' state to start the game
