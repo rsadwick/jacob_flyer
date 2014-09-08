@@ -91,7 +91,7 @@ var character = {
 
 var level = {
     name: "level 1",
-    background: 'assets/bg_shroom.png'
+    background: 'assets/bg_desert.png'
 
 }
 
@@ -277,15 +277,14 @@ game_state.main.prototype = {
                 this.shield_effect.y = this.bird.y;
             }
         }
-        if(this.bombos.length >= 1 && bombStart == false){
+        if(this.bombos.length >= 1 && bombStart == false  && bombEmitter != null){
 
-            console.log(this.bombos.length)
             var currentBombo = this.getBombos();
 
-            if(currentBombo.inWorld && bombEmitter != null)
+            if(currentBombo.inWorld)
             {
                  console.log("BOOOOOOM")
-                 bombEmitter.start(true, 0, 2, 6);
+                 bombEmitter.start(true, 300, 2, 6);
                  bombStart = true;
             }
 
@@ -823,7 +822,7 @@ game_state.main.prototype = {
         //emitterTest.setAlpha(1, 0, 3000)
         emitterTest.setScale(0.1, 1, 0.1, 1, 200, Phaser.Easing.Quintic.Out);
         emitterTest.gravity = 450.5;
-        emitterTest.minParticleSpeed.setTo(45, -120);
+        emitterTest.minParticleSpeed.setTo(45, -400);
         emitterTest.maxParticleSpeed.setTo(90, -500);
         emitterTest.start(true, 0, 2, 10);
         emitterTest.x = this.bird.x;
@@ -849,13 +848,15 @@ game_state.main.prototype = {
         bombEmitter = game.add.emitter(0, 0, 1000);
         bombEmitter.makeParticles(['star']);
         bombEmitter.setRotation(360, 180);
+        bombEmitter.setScale(0.1, 3, 0.1, 3, 200, Phaser.Easing.Quintic.Out);
+        bombEmitter.setAlpha(1, 0, 300)
 
         var currentBombo = this.getBombos();
         currentBombo.addChild(bombEmitter);
         currentBombo.anchor.setTo(0.5, 0.5);
         bombStart = false;
         //clean up
-        game.time.events.add(Phaser.Timer.SECOND * 2, removeBomb, this);
+        game.time.events.add(400, removeBomb, this);
 
         function removeBomb(){
             if(this.bombos.length >= 1)
@@ -870,7 +871,6 @@ game_state.main.prototype = {
         var bombosInstance;
          for(var currentBombos = 0; currentBombos < this.bombos.length; currentBombos++) {
             bombosInstance = this.bombos.getAt(currentBombos);
-
         }
         return bombosInstance;
     }
