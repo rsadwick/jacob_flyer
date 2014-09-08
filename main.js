@@ -611,16 +611,16 @@ game_state.main.prototype = {
             if(powerUp){
                 powerUp.reset(this.game.width, 100);
 
-                powerUp.body.gravity.y = 4;
+                powerUp.body.gravity.y = 7;
                 powerUp.body.velocity.x = -100;
-                powerUp.body.velocity.y = 45;
+                powerUp.body.velocity.y = 20;
                 powerUp.body.rotation.y = 3;
                 powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
                 powerUp.body.bounce.x = 1.7 + Math.random() * 0.2;
 
 
                 this.bombosTween = this.game.add.tween(powerUp)
-                   .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 2000)
+                   .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 1000)
                    .to({ tint: 0x0066f5}, 1000, Phaser.Easing.Elastic.InOut)
                    .to({ tint: 0xffffff}, 1000, Phaser.Easing.Elastic.In);
 
@@ -857,14 +857,13 @@ game_state.main.prototype = {
         //clean up
         game.time.events.add(Phaser.Timer.SECOND * 2, removeBomb, this);
 
-         function removeBomb(){
-             console.log("BOMBOS CLEANED");
-             if(this.bombos.length >= 1)
-             {
-               // bombEmitter.kill();
+        function removeBomb(){
+            if(this.bombos.length >= 1)
+            {
+                bombEmitter.destroy(true, false);
                 currentBombo.kill();
-             }
-         }
+            }
+        }
     },
 
     getBombos: function(){
