@@ -281,15 +281,16 @@ game_state.main.prototype = {
             var currentBombo = this.getBombos();
 
             if (currentBombo.inWorld) {
-                console.log("BOOOOOOM")
                 bombEmitter.start(true, 300, 2, 6);
                 bombStart = true;
             }
-
         }
 
         //player and pipe collision
         this.game.physics.arcade.collide(this.bird, this.pipes, this.on_hit, null, this);
+
+        //bomb emitter
+        this.game.physics.arcade.collide(bombEmitter, this.pipes, this.onBombHitPipe, null, this);
 
         //player is falling:
         if (!this.space_key.isDown && this.bird.body.velocity.y > 1 && !this.player_hit_wall) {
@@ -520,7 +521,7 @@ game_state.main.prototype = {
             pipe.body.velocity.x = -200;
             pipe.body.mass = 10;
             pipe.body.bounce.setTo(1, 1);
-            //pipe.angle += 45;
+            pipe.angle = 0;
         }
     },
 
@@ -760,6 +761,15 @@ game_state.main.prototype = {
         }
     },
 
+    onBombHitPipe: function(emitter, ppp){
+        var pipe = this.pipes.getFirstDead();
+        if (pipe) {
+            pipe.angle += 45;
+            pipe.body.bounce.setTo(7, 7);
+
+        }
+    },
+
     onBulletDamage: function (player, bullet) {
         //Boss takes damage/loses advantage based on player's powerups
         if (powerupState == powerUpTypes.SHIELD) {
@@ -829,9 +839,11 @@ game_state.main.prototype = {
 
     createBombosExploder: function () {
         bombEmitter = game.add.emitter(0, 0, 1000);
+        this.game.physics.enable(bombEmitter, Phaser.Physics.ARCADE);
+        bombEmitter.bounce.setTo(7.5, 7.5);
         bombEmitter.makeParticles(['star']);
         bombEmitter.setRotation(360, 180);
-        bombEmitter.setScale(0.1, 3, 0.1, 3, 200, Phaser.Easing.Quintic.Out);
+        bombEmitter.setScale(0.1, 5, 0.1, 5, 200, Phaser.Easing.Quintic.Out);
         bombEmitter.setAlpha(1, 0, 300)
 
         var currentBombo = this.getBombos();
