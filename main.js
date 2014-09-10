@@ -51,7 +51,7 @@ var powerUpTypes = {
     SHIELD: {
         duration: 7,
         currentTime: 0,
-        chance: -1,
+        chance: 0.80,
         blendMode: Phaser.blendModes.ADD
     },
     BOMBOS: {
@@ -59,7 +59,7 @@ var powerUpTypes = {
         gravity: 2500,
         creation: 5,
         duration: 7,
-        chance: 0.100,
+        chance: 0.20,
         tint: 0x999999,
         graphic: 'assets/bomb.png'
     }
@@ -174,7 +174,7 @@ game_state.main.prototype = {
         this.pipes = this.game.add.group();
         this.pipes.enableBody = true;
         this.pipes.physicsBodyType = Phaser.Physics.ARCADE;
-        this.pipes.createMultiple(15, 'pipe', 0);
+        this.pipes.createMultiple(25, 'pipe', 0);
         this.pipes.setAll('checkWorldBounds', true);
         this.pipes.setAll('outOfBoundsKill', true);
         this.timer = this.game.time.events.loop(1500, this.add_row_of_pipes, this);
@@ -281,7 +281,7 @@ game_state.main.prototype = {
             var currentBombo = this.getBombos();
 
             if (currentBombo.inWorld) {
-                bombEmitter.start(true, 300, 2, 6);
+                bombEmitter.start(true, 300, 6, 10);
                 bombStart = true;
             }
         }
@@ -313,9 +313,9 @@ game_state.main.prototype = {
     },
 
     render: function () {
-        /*this.game.debug.bodyInfo(this.bird, 32, 32);
+        this.game.debug.bodyInfo(this.bird, 32, 32);
          this.game.debug.body(this.bird);
-         this.game.debug.body(this.holes, '#ff9900');*/
+         this.game.debug.body(this.holes, '#ff9900');
     },
 
     hurtCharacter: function (actor, amount, lifeSprite) {
@@ -376,7 +376,8 @@ game_state.main.prototype = {
     },
 
     on_hit: function (player, obj) {
-
+        if(obj)
+            obj.body.gravity.y = 300;
         if (!this.player_hit_wall && powerupState != powerUpTypes.SHIELD) {
             this.hurtCharacter(character.PLAYER, 3, this.lives);
             this.kill_player();
@@ -522,6 +523,7 @@ game_state.main.prototype = {
             pipe.body.mass = 10;
             pipe.body.bounce.setTo(1, 1);
             pipe.angle = 0;
+            pipe.body.gravity.setTo(0, 0);
         }
     },
 
@@ -761,11 +763,15 @@ game_state.main.prototype = {
         }
     },
 
-    onBombHitPipe: function(emitter, ppp){
-        var pipe = this.pipes.getFirstDead();
-        if (pipe) {
-            pipe.angle += 45;
-            pipe.body.bounce.setTo(7, 7);
+    onBombHitPipe: function(emitter, currentPipe){
+       // var pipe = this.pipes.getFirstAlive();
+        if (currentPipe) {
+            currentPipe.angle += 45;
+            currentPipe.body.mass = 3;
+           // pipe.body.bounce.setTo(14, 14);
+           // pipe.body.velocity.setTo(-400, -400);
+            currentPipe.body.velocity.y = 400;
+            currentPipe.body.gravity.x = 300;
 
         }
     },
@@ -815,7 +821,7 @@ game_state.main.prototype = {
         emitterTest.setRotation(360, 180);
         //emitterTest.setAlpha(1, 0, 3000)
         emitterTest.setScale(0.1, 1, 0.1, 1, 200, Phaser.Easing.Quintic.Out);
-        emitterTest.gravity = 450.5;
+      //  emitterTest.gravity = 450.5;
         emitterTest.minParticleSpeed.setTo(45, -400);
         emitterTest.maxParticleSpeed.setTo(90, -500);
         emitterTest.start(true, 0, 2, 10);
@@ -840,10 +846,12 @@ game_state.main.prototype = {
     createBombosExploder: function () {
         bombEmitter = game.add.emitter(0, 0, 1000);
         this.game.physics.enable(bombEmitter, Phaser.Physics.ARCADE);
-        bombEmitter.bounce.setTo(7.5, 7.5);
+
+        //bombEmitter.bounce.setTo(7.5, 7.5);
         bombEmitter.makeParticles(['star']);
         bombEmitter.setRotation(360, 180);
         bombEmitter.setScale(0.1, 5, 0.1, 5, 200, Phaser.Easing.Quintic.Out);
+        bombEmitter.mass = 10;
         bombEmitter.setAlpha(1, 0, 300)
 
         var currentBombo = this.getBombos();
