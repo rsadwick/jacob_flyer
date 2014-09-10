@@ -51,7 +51,7 @@ var powerUpTypes = {
     SHIELD: {
         duration: 7,
         currentTime: 0,
-        chance: 0.80,
+        chance: -1,
         blendMode: Phaser.blendModes.ADD
     },
     BOMBOS: {
@@ -59,7 +59,7 @@ var powerUpTypes = {
         gravity: 2500,
         creation: 5,
         duration: 7,
-        chance: 0.20,
+        chance: 0.100,
         tint: 0x999999,
         graphic: 'assets/bomb.png'
     }
