@@ -288,6 +288,7 @@ game_state.main.prototype = {
 
         //player and pipe collision
         this.game.physics.arcade.collide(this.bird, this.pipes, this.on_hit, null, this);
+        this.game.physics.arcade.collide(this.pipes, this.pipes);
 
         //bomb emitter
         this.game.physics.arcade.collide(bombEmitter, this.pipes, this.onBombHitPipe, null, this);
