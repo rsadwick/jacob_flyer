@@ -288,7 +288,7 @@ game_state.main.prototype = {
 
         //player and pipe collision
         this.game.physics.arcade.collide(this.bird, this.pipes, this.on_hit, null, this);
-        this.game.physics.arcade.collide(this.pipes, this.pipes);
+        this.game.physics.arcade.collide(this.pipes, this.pipes, this.on_pipe_on_pipe, null, this);
 
         //bomb emitter
         this.game.physics.arcade.collide(bombEmitter, this.pipes, this.onBombHitPipe, null, this);
@@ -386,6 +386,14 @@ game_state.main.prototype = {
         else if (!this.player_hit_Wall && maxLife <= 0) {
             this.hurtCharacter(character.PLAYER, 3, this.lives);
             this.kill_player();
+        }
+    },
+
+    on_pipe_on_pipe: function(pipe1, pipe2){
+         if (pipe1) {
+            pipe1.body.velocity.setTo(100);
+           // pipe1.body.gravity.setTo(200);
+
         }
     },
 
@@ -764,19 +772,6 @@ game_state.main.prototype = {
         }
     },
 
-    onBombHitPipe: function(emitter, currentPipe){
-       // var pipe = this.pipes.getFirstAlive();
-        if (currentPipe) {
-            currentPipe.angle += 45;
-            currentPipe.body.mass = 3;
-           // pipe.body.bounce.setTo(14, 14);
-           // pipe.body.velocity.setTo(-400, -400);
-            currentPipe.body.velocity.y = 400;
-            currentPipe.body.gravity.x = 300;
-
-        }
-    },
-
     onBulletDamage: function (player, bullet) {
         //Boss takes damage/loses advantage based on player's powerups
         if (powerupState == powerUpTypes.SHIELD) {
@@ -867,6 +862,19 @@ game_state.main.prototype = {
                 bombEmitter.destroy(true, false);
                 currentBombo.kill();
             }
+        }
+    },
+
+    onBombHitPipe: function(emitter, currentPipe){
+       // var pipe = this.pipes.getFirstAlive();
+        if (currentPipe) {
+            currentPipe.angle += 45;
+            currentPipe.body.mass = 3;
+           // pipe.body.bounce.setTo(14, 14);
+           // pipe.body.velocity.setTo(-400, -400);
+            currentPipe.body.velocity.y = 400;
+            currentPipe.body.gravity.setTo(300);
+
         }
     },
 
