@@ -811,14 +811,14 @@ game_state.main.prototype = {
     },
 
     createBossAttackEffects: function () {
-        var damageEmitter = game.add.emitter(0, 0, 10);
+        var damageEmitter = game.add.emitter(game.world.centerX, this.bird.x, this.bird.y);
         damageEmitter.makeParticles(['star']);
         damageEmitter.setRotation(360, 180);
         damageEmitter.setScale(0.1, 1, 0.1, 1, 200, Phaser.Easing.Quintic.Out);
         damageEmitter.minParticleSpeed.setTo(45, -400);
         damageEmitter.maxParticleSpeed.setTo(90, -500);
         damageEmitter.start(true, 0, 2, 10);
-        this.bird.addChild(damageEmitter);
+        //this.bird.addChild(damageEmitter);
     },
 
     onBulletDamageBoss: function (clown, shot) {
