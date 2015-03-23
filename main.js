@@ -147,7 +147,6 @@ game_state.main.prototype = {
         this.player_hit_wall = false;
         this.player_powered = false;
         this.boss_hit_player = false;
-        this.player_hit_score = false;
         this.game.input.keyboard.disabled = false;
         // Fuction called after 'preload' to setup the game
 
@@ -610,7 +609,7 @@ game_state.main.prototype = {
                 powerUp.reset(this.game.width, 100);
 
                 powerUp.body.gravity.y = 7;
-                powerUp.body.velocity.x = -100;
+                powerUp.body.velocity.x = -60;
                 powerUp.body.velocity.y = 20;
                 powerUp.body.rotation.y = 3;
                 powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
@@ -848,7 +847,7 @@ game_state.main.prototype = {
         bombEmitter.setRotation(360, 180);
         bombEmitter.setScale(0.1, 5, 0.1, 5, 200, Phaser.Easing.Quintic.Out);
         bombEmitter.mass = 10;
-        bombEmitter.setAlpha(1, 0, 300)
+        bombEmitter.setAlpha(1, 0, 300);
 
         var currentBombo = this.getBombos();
         currentBombo.addChild(bombEmitter);
@@ -866,15 +865,11 @@ game_state.main.prototype = {
     },
 
     onBombHitPipe: function(emitter, currentPipe){
-       // var pipe = this.pipes.getFirstAlive();
         if (currentPipe) {
             currentPipe.angle += 45;
             currentPipe.body.mass = 3;
-           // pipe.body.bounce.setTo(14, 14);
-           // pipe.body.velocity.setTo(-400, -400);
             currentPipe.body.velocity.y = 400;
             currentPipe.body.gravity.setTo(300);
-
         }
     },
 
