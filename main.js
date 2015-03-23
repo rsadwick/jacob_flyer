@@ -246,7 +246,7 @@ game_state.main.prototype = {
         //boss timer:
         this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(500, this.create_boss, this);
-        //this.levelTimer.start();
+        this.levelTimer.start();
 
         //bullets for boss:
         this.bullets = this.game.add.group();
@@ -313,9 +313,9 @@ game_state.main.prototype = {
     },
 
     render: function () {
-        this.game.debug.bodyInfo(this.bird, 32, 32);
-         this.game.debug.body(this.bird);
-         this.game.debug.body(this.holes, '#ff9900');
+        //this.game.debug.bodyInfo(this.bird, 32, 32);
+        //this.game.debug.body(this.bird);
+        //this.game.debug.body(this.holes, '#ff9900');
     },
 
     hurtCharacter: function (actor, amount, lifeSprite) {
@@ -407,10 +407,10 @@ game_state.main.prototype = {
 
         //particles
         emitter = game.add.emitter(0, 0, 100);
+        this.bird.addChild(emitter);
         emitter.makeParticles(['star']);
         emitter.start(true, 2000, null, 10);
-        emitter.x = this.bird.x;
-        emitter.y = this.bird.y;
+
         this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 1, this.restart_game, this);
     },
     //todo: needs to be refactored into one method but this will work for now
@@ -757,7 +757,7 @@ game_state.main.prototype = {
                 .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 500)
                 .to({ tint: 0x0066f5, x: nextPositionX, y: nextPositionY }, bossAbilties.CHARGE_ATTACK.speed, Phaser.Easing.Elastic.InOut)
                 .to({ tint: 0xffffff, x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In);
-            this.bossTween._lastChild.onComplete.add(onChargeComplete, this);
+            this.bossTween.onComplete.add(onChargeComplete, this);
             this.bossTween.start();
         }
         //misses the roll just in case:
@@ -811,17 +811,14 @@ game_state.main.prototype = {
     },
 
     createBossAttackEffects: function () {
-        emitterTest = game.add.emitter(0, 0, 10);
-        emitterTest.makeParticles(['star']);
-        emitterTest.setRotation(360, 180);
-        //emitterTest.setAlpha(1, 0, 3000)
-        emitterTest.setScale(0.1, 1, 0.1, 1, 200, Phaser.Easing.Quintic.Out);
-      //  emitterTest.gravity = 450.5;
-        emitterTest.minParticleSpeed.setTo(45, -400);
-        emitterTest.maxParticleSpeed.setTo(90, -500);
-        emitterTest.start(true, 0, 2, 10);
-        emitterTest.x = this.bird.x;
-        emitterTest.y = this.bird.y;
+        var damageEmitter = game.add.emitter(0, 0, 10);
+        damageEmitter.makeParticles(['star']);
+        damageEmitter.setRotation(360, 180);
+        damageEmitter.setScale(0.1, 1, 0.1, 1, 200, Phaser.Easing.Quintic.Out);
+        damageEmitter.minParticleSpeed.setTo(45, -400);
+        damageEmitter.maxParticleSpeed.setTo(90, -500);
+        damageEmitter.start(true, 0, 2, 10);
+        this.bird.addChild(damageEmitter);
     },
 
     onBulletDamageBoss: function (clown, shot) {
