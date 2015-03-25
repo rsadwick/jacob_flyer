@@ -245,7 +245,7 @@ game_state.main.prototype = {
         //boss timer:
         this.levelTimer = this.game.time.create(false);
         this.levelTimer.add(500, this.create_boss, this);
-        this.levelTimer.start();
+        //this.levelTimer.start();
 
         //bullets for boss:
         this.bullets = this.game.add.group();
@@ -312,7 +312,7 @@ game_state.main.prototype = {
     },
 
     render: function () {
-        this.game.debug.bodyInfo(this.bird, 32, 32);
+        //this.game.debug.bodyInfo(this.bird, 32, 32);
         //this.game.debug.body(this.bird);
         //this.game.debug.body(this.holes, '#ff9900');
     },
@@ -406,9 +406,10 @@ game_state.main.prototype = {
 
         //particles
         emitter = game.add.emitter(0, 0, 100);
-        this.bird.addChild(emitter);
         emitter.makeParticles(['star']);
-        emitter.start(true, 2000, null, 10);
+        emitter.start(false, 2000, 0, 10);
+        emitter.x = this.bird.body.x + this.bird.width / 2;
+        emitter.y = this.bird.body.y;
 
         this.death_timer = this.game.time.events.add(Phaser.Timer.SECOND * 1, this.restart_game, this);
     },
@@ -812,9 +813,9 @@ game_state.main.prototype = {
         var damageEmitter = game.add.emitter(game.world.centerX, 0, 0, 5);
         damageEmitter.makeParticles(['star']);
         damageEmitter.setScale(0.1, 1, 0.1, 1, 200, Phaser.Easing.Quintic.Out);
-        damageEmitter.minParticleSpeed.setTo(30, -50);
-        damageEmitter.maxParticleSpeed.setTo(90, -200);
-        damageEmitter.start(false, 3000, 20, 5);
+        damageEmitter.setXSpeed(30, -50);
+        damageEmitter.setYSpeed(90, -200);
+        damageEmitter.start(false, 3000, 0, 5);
         damageEmitter.x = this.bird.body.x  + this.bird.width / 2;
         damageEmitter.y = this.bird.body.y;
     },
@@ -838,7 +839,7 @@ game_state.main.prototype = {
         this.game.physics.enable(bombEmitter, Phaser.Physics.ARCADE);
 
         //bombEmitter.bounce.setTo(7.5, 7.5);
-        bombEmitter.makeParticles(['star']);
+        bombEmitter.makeParticles(['star'], 0, 5, true);
         bombEmitter.setRotation(360, 180);
         bombEmitter.setScale(0.1, 5, 0.1, 5, 200, Phaser.Easing.Quintic.Out);
         bombEmitter.mass = 10;
