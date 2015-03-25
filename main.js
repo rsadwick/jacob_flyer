@@ -3,7 +3,6 @@ var game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div');
 var game_state = {};
 //particle
 var emitter;
-var emitterTest;
 
 var bombEmitter;
 var bombStart = false;
@@ -313,7 +312,7 @@ game_state.main.prototype = {
     },
 
     render: function () {
-        //this.game.debug.bodyInfo(this.bird, 32, 32);
+        this.game.debug.bodyInfo(this.bird, 32, 32);
         //this.game.debug.body(this.bird);
         //this.game.debug.body(this.holes, '#ff9900');
     },
@@ -615,7 +614,6 @@ game_state.main.prototype = {
                 powerUp.body.bounce.y = 0.7 + Math.random() * 0.2;
                 powerUp.body.bounce.x = 1.7 + Math.random() * 0.2;
 
-
                 this.bombosTween = this.game.add.tween(powerUp)
                     .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 1000)
                     .to({ tint: 0x0066f5}, 1000, Phaser.Easing.Elastic.InOut)
@@ -811,14 +809,14 @@ game_state.main.prototype = {
     },
 
     createBossAttackEffects: function () {
-        var damageEmitter = game.add.emitter(game.world.centerX, this.bird.x, this.bird.y);
+        var damageEmitter = game.add.emitter(game.world.centerX, 0, 0, 5);
         damageEmitter.makeParticles(['star']);
-        damageEmitter.setRotation(360, 180);
         damageEmitter.setScale(0.1, 1, 0.1, 1, 200, Phaser.Easing.Quintic.Out);
-        damageEmitter.minParticleSpeed.setTo(45, -400);
-        damageEmitter.maxParticleSpeed.setTo(90, -500);
-        damageEmitter.start(true, 0, 2, 10);
-        //this.bird.addChild(damageEmitter);
+        damageEmitter.minParticleSpeed.setTo(30, -50);
+        damageEmitter.maxParticleSpeed.setTo(90, -200);
+        damageEmitter.start(false, 3000, 20, 5);
+        damageEmitter.x = this.bird.body.x  + this.bird.width / 2;
+        damageEmitter.y = this.bird.body.y;
     },
 
     onBulletDamageBoss: function (clown, shot) {
