@@ -5,9 +5,8 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
     var Player = function () {
         this._game;
         this.bird;
-        this.player_hit_wall;
-        this.is_powered;
-        this.test_var = 12;
+        this.player_hit_wall = false;
+        this.is_powered = false;
     }
 
     Player.prototype.init = function (game) {
@@ -24,8 +23,8 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
         this._game.physics.enable(this.bird, Phaser.Physics.ARCADE);
         this.bird.body.gravity.y = 1000;
         this.bird.body.mass = 1;
-        //this.bird.body.bounce.setTo(1,1);
-        //this.bird.body.bounce.y = 0.9;
+        this.bird.body.bounce.setTo(1,1);
+        this.bird.body.bounce.y = 0.9;
         this.bird.anchor.setTo(0.5, 0.5);
 
         //animations
@@ -39,8 +38,24 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
 
     };
 
-    Player.prototype.get_sprite = function(){
-        return this.test_var;
+    Player.prototype.get_hit_wall = function(){
+        return this.player_hit_wall;
+    };
+
+    Player.prototype.set_hit_wall = function(state){
+        this.player_hit_wall = state;
+    };
+
+    Player.prototype.get_player = function(){
+        return this.bird;
+    };
+
+    Player.prototype.get_powered = function(){
+        return this.is_powered;
+    };
+
+    Player.prototype.set_powered = function(state){
+        this.is_powered = state;
     };
 
     return Player;
