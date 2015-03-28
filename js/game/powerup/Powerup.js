@@ -6,6 +6,8 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         console.log("POWER UP")
         this._game;
         this._player;
+        this.start_chance;
+        this.end_chance;
 
     }
 
@@ -39,8 +41,14 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     };
 
-    Powerup.prototype.get_powerup = function(){
+    Powerup.prototype.get_powerup = function(){};
 
+    Powerup.prototype.get_start_chance = function(){
+        return this.start_chance;
+    };
+
+    Powerup.prototype.get_end_chance = function(){
+        return this.end_chance;
     };
 
     return Powerup;

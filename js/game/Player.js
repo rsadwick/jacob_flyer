@@ -12,6 +12,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         this.space_key;
 
         //events
+        this.jump_event = new CustomEvent("jump_event");
         this.death_event = new CustomEvent("death_event");
     }
 
@@ -79,12 +80,22 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
     };
 
     Player.prototype.jump = function(){
+
+        this.bird.animations.play('up');
+
+        window.dispatchEvent(this.jump_event);
+        if(this.get_powered()){
+            return;
+        }
         this.bird.body.velocity.y = this.settings.level.powerUpTypes.NORMAL.velocity;
         this.bird.body.gravity.y = this.settings.level.powerUpTypes.NORMAL.gravity;
-        this.bird.animations.play('up');
+
     };
 
-    Player.prototype.set_powerup_effect = function(powerup){
+    Player.prototype.set_powerup_effect = function(powerup, old_powerup){
+        if(old_powerup)
+            old_powerup.remove();
+
         this.powerup = powerup;
         powerup.on_collect(this, powerup.get_powerup());
     };

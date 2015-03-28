@@ -1,4 +1,4 @@
-define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js'], function (HUD, Player, Powerup, Shield) {
+define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js'], function (HUD, Player, Powerup, Shield, Weight) {
 
     "use strict";
 
@@ -13,6 +13,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.pipes;
         this.settings;
         this.powerups;
+        this.old_powerup;
         this.powerup;
         this.powerup_timer;
         this.choosePowerupTimer;
@@ -82,7 +83,6 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         else
             this.background.tilePosition.x += 0.3;
 
-
         //player and pipe collision
         this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
         this._game.physics.arcade.collide(this.pipes, this.pipes, this.on_pipe_on_pipe, null, this);
@@ -90,7 +90,6 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         //powerups:
         if(this.powerup)
             this._game.physics.arcade.overlap(this._player.get_player(), this.powerup.get_powerup(), this.on_collect, null, this);
-
     };
 
     Level.prototype.add_one_pipe = function(x, y){
@@ -141,21 +140,19 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //roll for powerup
         var randomSeed = Math.random();
-        console.log(randomSeed, this.settings.level.powerUpTypes.SHIELD.chance);
-
-        if(randomSeed < this.settings.level.powerUpTypes.SHIELD.chance){
-            for(var powerup in this.powerups){
-                if(this.powerups[powerup] instanceof Shield){
-                    this.powerups[powerup].add();
-                    this.powerup = this.powerups[powerup];
-                }
+        console.log(randomSeed);
+        this.old_powerup = this.powerup;
+        for(var powerup in this.powerups){
+            if(randomSeed >= this.powerups[powerup].get_start_chance() && randomSeed <= this.powerups[powerup].get_end_chance() ){
+                this.powerups[powerup].add();
+                this.powerup = this.powerups[powerup];
             }
         }
     };
 
     Level.prototype.on_collect = function(player, powerup){
         powerup.kill();
-        this._player.set_powerup_effect(this.powerup);
+        this._player.set_powerup_effect(this.powerup, this.old_powerup);
     };
 
     Level.prototype.kill_player = function(){
@@ -168,6 +165,12 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._game.time.events.remove(this.death_timer);
         this._game.time.events.remove(this.choosePowerupTimer);
         this._game.time.events.remove(this.powerup_timer);
+
+        for(var powerup in this.powerups){
+            this.powerups[powerup].remove();
+        }
+
+
         this._game.state.start('main');
     };
 

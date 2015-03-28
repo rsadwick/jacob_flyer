@@ -6,7 +6,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         Powerup.call(this);
         this.duration = 7;
         this.current_time = 0;
-        this.chance = 0.50;
+        this.start_chance = 0.10;
+        this.end_chance = 0.30;
         this.blend_mode = Phaser.blendModes.ADD;
         this.shields;
         this.shield_timer;
@@ -99,12 +100,13 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.current_time = 0;
         this._game.time.events.remove(this.shield_timer);
         var player = this.get_affected_player();
-        player.set_powered(false);
-        player.get_player().body.mass = 1;
-        player.get_player().body.immovable = false;
-        player.get_player().removeChild(this.effect);
-        player.is_shielded = false;
-
+        if(player){
+            player.set_powered(false);
+            player.get_player().body.mass = 1;
+            player.get_player().body.immovable = false;
+            player.get_player().removeChild(this.effect);
+            player.is_shielded = false;
+        }
     };
 
     Shield.prototype.get_powerup = function(){
