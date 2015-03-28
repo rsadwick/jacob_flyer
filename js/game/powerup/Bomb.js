@@ -21,6 +21,10 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     Bomb.prototype.preload = function () {
         this._game.load.image('bomb', 'assets/bomb.png');
+        this._game.load.image('burst_blue', 'assets/laserBlueBurst.png');
+        this._game.load.image('burst_green', 'assets/laserGreenBurst.png');
+        this._game.load.image('burst_red', 'assets/laserRedBurst.png');
+        this._game.load.image('burst_yellow', 'assets/laserYellowBurst.png');
     };
 
     Bomb.prototype.create = function (player) {
@@ -37,7 +41,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             var current_bomb = this.get_instances();
 
             if (current_bomb.inWorld) {
-                this.emitter.start(true, 300, 6, 10);
+                this.emitter.start(false, 0, 10, 50, true);
                 this.start = true;
             }
         }
@@ -94,22 +98,23 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     Bomb.prototype.explode = function(){
 
-        this.emitter = this._game.add.emitter(0, 0, 1000);
+        this.emitter = this._game.add.emitter(0, 0, 0, 250);
         this._game.physics.enable(this.emitter, Phaser.Physics.ARCADE);
 
-        this.emitter.makeParticles(['star'], 0, 5, true);
+        this.emitter.makeParticles(['burst_blue', 'burst_green', 'burst_red', 'burst_yellow'], 0, 5, true);
         this.emitter.setRotation(360, 180);
-        this.emitter.setScale(0.1, 5, 0.1, 5, 200, Phaser.Easing.Quintic.Out);
+        this.emitter.setScale(0.1, 2, 0.1, 2, 200, Phaser.Easing.Quintic.Out);
         this.emitter.mass = 10;
-        this.emitter.setAlpha(1, 0, 300);
+        this.emitter.setAlpha(1, 0, 500);
 
         var bomb = this.get_instances();
         bomb.addChild(this.emitter);
-        bomb.anchor.setTo(0.5, 0.5);
+        //bomb.anchor.setTo(0.5, 0.5);
+        bomb.tint = 0xffffff;
         this.start = false;
 
         //clean up and remove
-        this._game.time.events.add(400, this.remove, this);
+        this._game.time.events.add(500, this.remove, this);
 
     };
 

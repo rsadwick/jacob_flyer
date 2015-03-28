@@ -46,7 +46,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._game.load.image('candy', 'assets/cherry.png');
 
         //background:
-        this._game.load.image('shrooms', this.level.background);
+        this._game.load.image('shrooms', this.settings.level.background);
     };
 
     Level.prototype.create = function (player) {
@@ -84,7 +84,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
             this.background.tilePosition.x += 0.3;
 
         //player and pipe collision
-        this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
+        //this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
         this._game.physics.arcade.collide(this.pipes, this.pipes, this.on_pipe_on_pipe, null, this);
 
         //powerups:

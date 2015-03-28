@@ -11,7 +11,7 @@ require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/
         var settings = {
             level : {
                 name: "level 1",
-                background: 'assets/bg_desert.png',
+                background: 'assets/bg_shroom.png',
 
                 character : {
                     PLAYER: {
