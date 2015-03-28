@@ -1,4 +1,4 @@
-define(['/js/game/HUD.js', '/js/game/Player.js'], function (HUD, Player) {
+define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js'], function (HUD, Player, Powerup, Shield) {
 
     "use strict";
 
@@ -11,10 +11,17 @@ define(['/js/game/HUD.js', '/js/game/Player.js'], function (HUD, Player) {
         }
         this.background;
         this.pipes;
+        this.settings;
+        this.powerups;
+        this.powerup;
+        this.powerup_timer;
+        this.choosePowerupTimer;
     }
 
-    Level.prototype.init = function (game) {
+    Level.prototype.init = function (game, settings, powerups) {
         this._game = game;
+        this.settings = settings;
+        this.powerups = powerups;
 
     };
 
@@ -56,6 +63,9 @@ define(['/js/game/HUD.js', '/js/game/Player.js'], function (HUD, Player) {
         this.holes.setAll('checkWorldBounds', true);
         this.holes.setAll('outOfBoundsKill', true);
         this._game.add.tween(this.holes).to({ y: this.holes.y + 12 }, 500, Phaser.Easing.Back.InOut, true, 0, 1000, true);
+
+         //random roll for timer duration:
+        this.powerup_timer = this._game.time.events.loop(Phaser.Timer.SECOND * 3, this.create_powerup, this);
     };
 
     Level.prototype.update = function () {
@@ -64,6 +74,11 @@ define(['/js/game/HUD.js', '/js/game/Player.js'], function (HUD, Player) {
             this.background.tilePosition.x -= 0.7;
         else
             this.background.tilePosition.x += 0.3;
+
+
+        //powerups:
+        if(this.powerup)
+            this._game.physics.arcade.overlap(this._player.get_player(), this.powerup.get_powerup(), this.on_collect, null, this);
 
     };
 
@@ -96,7 +111,39 @@ define(['/js/game/HUD.js', '/js/game/Player.js'], function (HUD, Player) {
                 }
             }
         }
+    };
+
+    Level.prototype.create_powerup = function(){
+        var powerup_creation = Math.floor(Math.random() * 5) + 2;
+        this.choosePowerupTimer = this._game.time.events.add(Phaser.Timer.SECOND * powerup_creation, this.choose_powerup, this);
+    };
+
+    Level.prototype.choose_powerup = function(){
+        this._game.time.events.remove(this.choosePowerupTimer);
+        var _scope = this;
+
+        //roll for powerup
+        var randomSeed = Math.random();
+        console.log(randomSeed, this.settings.level.powerUpTypes.SHIELD.chance);
+
+        if(randomSeed < this.settings.level.powerUpTypes.SHIELD.chance){
+            for(var powerup in this.powerups){
+                if(this.powerups[powerup] instanceof Shield){
+                    this.powerups[powerup].add();
+                    this.powerup = this.powerups[powerup];
+                }
+            }
+        }
+    };
+
+    Level.prototype.on_collect = function(player, powerup){
+        powerup.kill();
+        this._player.set_powerup_effect(this.powerup);
     }
+
+    Level.prototype.get_settings = function(){
+      return this.settings;
+    };
 
     return Level;
 

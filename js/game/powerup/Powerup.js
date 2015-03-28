@@ -39,6 +39,10 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     };
 
+    Powerup.prototype.get_powerup = function(){
+
+    };
+
     return Powerup;
 
 });

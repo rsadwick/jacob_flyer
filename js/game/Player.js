@@ -7,10 +7,12 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
         this.bird;
         this.player_hit_wall = false;
         this.is_powered = false;
+        this.settings = {};
     }
 
-    Player.prototype.init = function (game) {
+    Player.prototype.init = function (game, settings) {
         this._game = game;
+        this.settings = settings;
     };
 
     Player.prototype.preload = function () {
@@ -32,6 +34,10 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
         this.bird.animations.add('up', [3, 4], 10, true);
         this.bird.animations.add('down', [2, 5], 8, true);
         this.bird.animations.play('flying');
+
+        //controls:
+        this.space_key = this._game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
+        this.space_key.onDown.add(this.jump, this);
     };
 
     Player.prototype.update = function () {
@@ -56,6 +62,16 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
 
     Player.prototype.set_powered = function(state){
         this.is_powered = state;
+    };
+
+    Player.prototype.jump = function(){
+        this.bird.body.velocity.y = this.settings.level.powerUpTypes.NORMAL.velocity;
+        this.bird.body.gravity.y = this.settings.level.powerUpTypes.NORMAL.gravity;
+    };
+
+    Player.prototype.set_powerup_effect = function(powerup){
+        powerup.on_collect(this, powerup.get_powerup());
+
     };
 
     return Player;
