@@ -47,7 +47,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         }
     };
 
-
     Bomb.prototype.add = function(){
         var bomb = this.bombs.getFirstDead();
 

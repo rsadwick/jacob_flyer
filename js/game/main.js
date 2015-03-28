@@ -2,8 +2,9 @@
  main.js
  */
 require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game/powerup/Powerup.js',
-    'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js', 'js/game/powerup/Bomb.js'],
-    function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather, Bomb) {
+    'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js',
+    'js/game/powerup/Bomb.js', '/js/game/HUD.js'],
+    function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather, Bomb, HUD) {
         var game_state = {};
         var _game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div', { preload: game_state.preload, create: game_state.create, update: game_state.update });
 
@@ -80,6 +81,7 @@ require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/
         }
 
         var level = new Level();
+        var hud = new HUD();
         var player = new Player();
         var shield = new Shield();
         var weight = new Weight();
@@ -98,6 +100,9 @@ require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/
                 level.init(_game, settings, powerups);
                 level.preload();
 
+                hud.init(_game);
+                hud.preload();
+
                 player.init(_game, level.get_settings());
                 player.preload();
 
@@ -109,6 +114,7 @@ require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/
 
             create: function() {
                 level.create(player);
+                hud.create();
                 player.create();
 
                 for(var powerup in powerups){
