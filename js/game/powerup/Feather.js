@@ -4,8 +4,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Feather = function () {
         Powerup.call(this);
-        this.start_chance = 0.40;
-        this.end_chance = 0.99;
+        this.start_chance = 0.0;
+        this.end_chance = 0.0;
         this.velocity = -350;
         this.gravity = 2500;
         this.duration = 7;

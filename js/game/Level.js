@@ -1,4 +1,4 @@
-define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js'], function (HUD, Player, Powerup, Shield, Weight, Feather) {
+define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js', 'js/game/powerup/Bomb.js'], function (HUD, Player, Powerup, Shield, Weight, Feather, Bomb) {
 
     "use strict";
 
@@ -84,12 +84,18 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
             this.background.tilePosition.x += 0.3;
 
         //player and pipe collision
-        //this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
+        this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
         this._game.physics.arcade.collide(this.pipes, this.pipes, this.on_pipe_on_pipe, null, this);
 
         //powerups:
         if(this.powerup)
             this._game.physics.arcade.overlap(this._player.get_player(), this.powerup.get_powerup(), this.on_collect, null, this);
+
+        //bomb emitters
+        if(this.powerup instanceof Bomb)
+        {
+            this._game.physics.arcade.collide(this.powerup.get_emitter(), this.pipes, this.powerup.on_collide, null, this.powerup);
+        }
     };
 
     Level.prototype.add_one_pipe = function(x, y){
@@ -125,7 +131,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
     Level.prototype.on_pipe_on_pipe = function(pipe1, pipe2){
         if(pipe1){
-            pipe1.body.velocity.setTo(100);
+            pipe1.body.velocity.setTo(200);
         }
     };
 
@@ -151,6 +157,9 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
     };
 
     Level.prototype.on_collect = function(player, powerup){
+        if(this.powerup instanceof Bomb)
+            return;
+
         powerup.kill();
         this._player.set_powerup_effect(this.powerup, this.old_powerup);
     };

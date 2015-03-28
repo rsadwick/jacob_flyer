@@ -1,8 +1,9 @@
 /*
  main.js
  */
-require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js'],
-    function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather) {
+require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game/powerup/Powerup.js',
+    'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js', 'js/game/powerup/Bomb.js'],
+    function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather, Bomb) {
         var game_state = {};
         var _game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div', { preload: game_state.preload, create: game_state.create, update: game_state.update });
 
@@ -83,8 +84,9 @@ require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/
         var shield = new Shield();
         var weight = new Weight();
         var feather = new Feather();
+        var bomb = new Bomb();
         var powerups = [];
-        powerups.push(shield, weight, feather);
+        powerups.push(shield, weight, feather, bomb);
         console.log(powerups)
 
         game_state.main = function () {};
