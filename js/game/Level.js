@@ -1,4 +1,4 @@
-define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js'], function (HUD, Player, Powerup, Shield, Weight) {
+define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js'], function (HUD, Player, Powerup, Shield, Weight, Feather) {
 
     "use strict";
 
@@ -84,7 +84,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
             this.background.tilePosition.x += 0.3;
 
         //player and pipe collision
-        this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
+        //this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
         this._game.physics.arcade.collide(this.pipes, this.pipes, this.on_pipe_on_pipe, null, this);
 
         //powerups:
