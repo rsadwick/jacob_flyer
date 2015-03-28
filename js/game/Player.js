@@ -1,4 +1,4 @@
-define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
+define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], function (HUD, Level, Shield) {
 
     "use strict";
 
@@ -7,12 +7,18 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
         this.bird;
         this.player_hit_wall = false;
         this.is_powered = false;
+        this.is_shielded = false;
         this.settings = {};
+        this.space_key;
+
+        //events
+        this.death_event = new CustomEvent("death_event");
     }
 
     Player.prototype.init = function (game, settings) {
         this._game = game;
         this.settings = settings;
+
     };
 
     Player.prototype.preload = function () {
@@ -20,6 +26,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
     };
 
     Player.prototype.create = function () {
+        this.set_hit_wall(false);
         this._game.physics.startSystem(Phaser.Physics.ARCADE);
         this.bird = this._game.add.sprite(100, 245, 'bird');
         this._game.physics.enable(this.bird, Phaser.Physics.ARCADE);
@@ -41,7 +48,14 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
     };
 
     Player.prototype.update = function () {
+        //player is falling:
+        if (!this.space_key.isDown && this.bird.body.velocity.y > 1 && !this.get_hit_wall()) {
+            this.bird.animations.play('down');
+        }
 
+        if (!this.bird.inWorld) {
+            this.hit();
+        }
     };
 
     Player.prototype.get_hit_wall = function(){
@@ -67,11 +81,39 @@ define(['/js/game/HUD.js', '/js/game/Level.js'], function (HUD, Level) {
     Player.prototype.jump = function(){
         this.bird.body.velocity.y = this.settings.level.powerUpTypes.NORMAL.velocity;
         this.bird.body.gravity.y = this.settings.level.powerUpTypes.NORMAL.gravity;
+        this.bird.animations.play('up');
     };
 
     Player.prototype.set_powerup_effect = function(powerup){
+        this.powerup = powerup;
         powerup.on_collect(this, powerup.get_powerup());
+    };
 
+    Player.prototype.hit = function(player, obj){
+        if(obj){
+            obj.body.gravity.y = 300;
+        }
+
+        if(!this.is_shielded)
+            this.kill();
+    };
+
+    Player.prototype.kill = function(){
+
+        this._game.input.keyboard.disabled = true;
+        this.bird.animations.stop();
+        this.bird.frame = 6;
+
+        //particles
+        if(!this.get_hit_wall()){
+            var emitter = this._game.add.emitter(0, 0, 100);
+            emitter.makeParticles(['star']);
+            emitter.start(false, 2000, 0, 10);
+            emitter.x = this.bird.body.x + this.bird.width / 2;
+            emitter.y = this.bird.body.y;
+            window.dispatchEvent(this.death_event);
+            this.set_hit_wall(true);
+        }
     };
 
     return Player;

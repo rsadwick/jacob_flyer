@@ -58,6 +58,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             this.effect.blendMode = this.blend_mode;
             this.tween = this._game.add.tween(this.effect).to({ alpha: 0.8}, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
             player.get_player().addChild(this.effect);
+            player.is_shielded = true;
 
             this._game.physics.enable(powerup, Phaser.Physics.ARCADE);
 
@@ -102,6 +103,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         player.get_player().body.mass = 1;
         player.get_player().body.immovable = false;
         player.get_player().removeChild(this.effect);
+        player.is_shielded = false;
 
     };
 

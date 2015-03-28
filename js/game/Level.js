@@ -16,13 +16,20 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.powerup;
         this.powerup_timer;
         this.choosePowerupTimer;
+        this.death_timer;
+
+        //events
+        this.death_event = new CustomEvent('death');
     }
 
     Level.prototype.init = function (game, settings, powerups) {
         this._game = game;
         this.settings = settings;
         this.powerups = powerups;
-
+        var scope = this;
+        window.addEventListener('death_event', function (e) {
+            scope.kill_player();
+        }, false);
     };
 
     Level.prototype.preload = function () {
@@ -76,6 +83,10 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
             this.background.tilePosition.x += 0.3;
 
 
+        //player and pipe collision
+        this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
+        this._game.physics.arcade.collide(this.pipes, this.pipes, this.on_pipe_on_pipe, null, this);
+
         //powerups:
         if(this.powerup)
             this._game.physics.arcade.overlap(this._player.get_player(), this.powerup.get_powerup(), this.on_collect, null, this);
@@ -113,6 +124,12 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         }
     };
 
+    Level.prototype.on_pipe_on_pipe = function(pipe1, pipe2){
+        if(pipe1){
+            pipe1.body.velocity.setTo(100);
+        }
+    };
+
     Level.prototype.create_powerup = function(){
         var powerup_creation = Math.floor(Math.random() * 5) + 2;
         this.choosePowerupTimer = this._game.time.events.add(Phaser.Timer.SECOND * powerup_creation, this.choose_powerup, this);
@@ -139,10 +156,23 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
     Level.prototype.on_collect = function(player, powerup){
         powerup.kill();
         this._player.set_powerup_effect(this.powerup);
-    }
+    };
+
+    Level.prototype.kill_player = function(){
+        this._game.stage.backgroundColor = '#ff0000';
+        this.background.alpha = 0.3;
+        this.death_timer = this._game.time.events.add(Phaser.Timer.SECOND * 1, this.restart, this);
+    };
+
+    Level.prototype.restart = function(){
+        this._game.time.events.remove(this.death_timer);
+        this._game.time.events.remove(this.choosePowerupTimer);
+        this._game.time.events.remove(this.powerup_timer);
+        this._game.state.start('main');
+    };
 
     Level.prototype.get_settings = function(){
-      return this.settings;
+        return this.settings;
     };
 
     return Level;

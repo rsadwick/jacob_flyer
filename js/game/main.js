@@ -3,7 +3,9 @@
  */
 require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game/powerup/Powerup.js', 'js/game/powerup/Shield.js'],
     function (PhaserLib, Player, Level, Powerup, Shield) {
-        var _game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div', { preload: preload, create: create, update: update });
+        var game_state = {};
+        var _game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div', { preload: game_state.preload, create: game_state.create, update: game_state.update });
+
 
         var settings = {
             level : {
@@ -83,36 +85,46 @@ require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/
         powerups.push(shield);
         console.log(powerups)
 
+        game_state.main = function () {};
 
-        function preload() {
-            level.init(_game, settings, powerups);
-            level.preload();
+        game_state.main.prototype = {
 
-            player.init(_game, level.get_settings());
-            player.preload();
 
-            for(var powerup in powerups){
-                powerups[powerup].init(_game);
-                powerups[powerup].preload();
+            preload: function() {
+                level.init(_game, settings, powerups);
+                level.preload();
+
+                player.init(_game, level.get_settings());
+                player.preload();
+
+                for(var powerup in powerups){
+                    powerups[powerup].init(_game);
+                    powerups[powerup].preload();
+                }
+            },
+
+            create: function() {
+                level.create(player);
+                player.create();
+
+                for(var powerup in powerups){
+                    powerups[powerup].create();
+                }
+            },
+
+            update: function() {
+
+                level.update();
+                player.update();
+
+                for(var powerup in powerups){
+                    powerups[powerup].update();
+                }
             }
         }
 
-        function create() {
-            level.create(player);
-            player.create();
+        _game.state.add('main', game_state.main);
+        _game.state.start('main');
 
-            for(var powerup in powerups){
-                powerups[powerup].create();
-            }
-        }
-
-        function update() {
-            player.update();
-            level.update();
-
-            for(var powerup in powerups){
-                powerups[powerup].update();
-            }
-        }
 
     });
