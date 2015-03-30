@@ -9,6 +9,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.start = false;
         this.emitter;
         this.tween;
+        this.timer;
     }
 
     Bomb.prototype = Object.create(Powerup.prototype);
@@ -74,7 +75,11 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     };
 
     Bomb.prototype.remove = function(){
+        if(this.timer)
+            this._game.time.events.remove(this.timer);
+
         var bomb = this.get_instances();
+
         if(bomb && this.emitter){
             if(this.bombs.length >= 1){
                 this.emitter.destroy(true, false);
@@ -92,7 +97,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         for (var currentBombos = 0; currentBombos < this.bombs.length; currentBombos++) {
             instance = this.bombs.getAt(currentBombos);
         }
-        return instance;
+        console.log(instance.alive)
+        return (instance.alive) ? instance : null;
     };
 
     Bomb.prototype.explode = function(){
@@ -113,7 +119,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.start = false;
 
         //clean up and remove
-        this._game.time.events.add(500, this.remove, this);
+        this.timer = this._game.time.events.add(500, this.remove, this);
 
     };
 

@@ -1,7 +1,7 @@
 /*
  main.js
  */
-require(['/js/libs/phaser.min.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game/powerup/Powerup.js',
+require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game/powerup/Powerup.js',
     'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js',
     'js/game/powerup/Bomb.js', '/js/game/HUD.js'],
     function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather, Bomb, HUD) {
