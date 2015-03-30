@@ -80,6 +80,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         //boss timer:
         this.boss_timer = this._game.time.create(false);
         this.boss_timer.add(500, this.summon_boss, this);
+        this.boss_timer.start();
 
     };
 
@@ -205,6 +206,13 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
     Level.prototype.summon_boss = function(){
         this._game.time.events.remove(this.boss_timer);
+        this._game.time.events.remove(this.timer);
+
+        //background change to denote boss phase starting:
+        this._game.stage.backgroundColor = '#999999';
+        this._game.add.tween(this.background).to({ alpha: 0.1 }, 2000, Phaser.Easing.Linear.None, true);
+        var boss = this.settings.level.character.BOSS.type;
+        boss.add();
     };
 
     return Level;

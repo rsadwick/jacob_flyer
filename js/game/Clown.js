@@ -1,4 +1,4 @@
-define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function (Level, Player) {
+define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function (Level, Player, Boss) {
 
     "use strict";
 
@@ -22,6 +22,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
     Clown.prototype.create = function (player) {
         console.log("created")
+
     };
 
     Clown.prototype.update = function () {
@@ -48,8 +49,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         //create boss:
         this.boss = this._game.add.sprite(108, 180, 'clown');
         this.boss.alpha = 0;
-        this.boss.x = this._game.width - this.clown.width;
-        this.boss.y = this._game.height / 2 - this.clown.height;
+        this.boss.x = this._game.width - this.boss.width;
+        this.boss.y = this._game.height / 2 - this.boss.height;
         this.boss.enableBody = true;
         this._game.physics.enable(this.boss, Phaser.Physics.ARCADE);
 

@@ -6,8 +6,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         Powerup.call(this);
         this.duration = 7;
         this.current_time = 0;
-        this.start_chance = 0.10;
-        this.end_chance = 0.30;
+        this.start_chance = 0.81;
+        this.end_chance = 0.99;
         this.blend_mode = Phaser.blendModes.ADD;
         this.shields;
         this.shield_timer;

@@ -3,10 +3,22 @@
  */
 require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game/powerup/Powerup.js',
     'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js',
-    'js/game/powerup/Bomb.js', '/js/game/HUD.js'],
-    function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather, Bomb, HUD) {
+    'js/game/powerup/Bomb.js', '/js/game/HUD.js', '/js/game/Boss.js', '/js/game/Clown.js'],
+    function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather, Bomb, HUD, Boss, Clown) {
         var game_state = {};
         var _game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div', { preload: game_state.preload, create: game_state.create, update: game_state.update });
+
+        var level = new Level();
+        var hud = new HUD();
+        var player = new Player();
+        var shield = new Shield();
+        var weight = new Weight();
+        var feather = new Feather();
+        var bomb = new Bomb();
+        var powerups = [];
+        var clown = new Clown();
+        powerups.push(shield, weight, feather, bomb);
+        console.log(powerups);
 
 
         var settings = {
@@ -19,6 +31,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                         name: "player"
                     },
                     BOSS: {
+                        type: clown,
                         name: "boss",
                         bossAbilties: {
                             UP_ATTACK: {
@@ -80,17 +93,6 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
             }
         }
 
-        var level = new Level();
-        var hud = new HUD();
-        var player = new Player();
-        var shield = new Shield();
-        var weight = new Weight();
-        var feather = new Feather();
-        var bomb = new Bomb();
-        var powerups = [];
-        powerups.push(shield, weight, feather, bomb);
-        console.log(powerups)
-
         game_state.main = function () {};
 
         game_state.main.prototype = {
@@ -106,6 +108,9 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 player.init(_game, level.get_settings());
                 player.preload();
 
+                clown.init(_game);
+                clown.preload();
+
                 for(var powerup in powerups){
                     powerups[powerup].init(_game);
                     powerups[powerup].preload();
@@ -116,6 +121,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 level.create(player);
                 hud.create();
                 player.create();
+                clown.create();
 
                 for(var powerup in powerups){
                     powerups[powerup].create();
@@ -126,6 +132,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
 
                 level.update();
                 player.update();
+                clown.update();
 
                 for(var powerup in powerups){
                     powerups[powerup].update();
