@@ -12,6 +12,7 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this.max_life = 3;
 
         this.score = 0;
+        this.score_label;
 
         //boss
         this.boss_lives = 3;
@@ -22,6 +23,17 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     HUD.prototype.init = function (game, settings) {
         this._game = game;
+
+        var scope = this;
+        window.addEventListener('score_event', function (event) {
+
+            console.log(event.detail.obj.key)
+            //todo: ajax to server with key and will return a score.
+            scope.score += 5;
+            //update UI
+            scope.score_update();
+
+        }, false);
     };
 
     HUD.prototype.preload = function () {
@@ -43,13 +55,16 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         //score:
         this.score = 0;
         var style = { font: "30px Arial", fill: "#ff9900" };
-        this.label_score = this._game.add.text(10, this.current_life.y + this.current_life.height + 12, "0", style);
-
+        this.score_label = this._game.add.text(10, this.current_life.y + this.current_life.height + 12, "0", style);
     };
 
     HUD.prototype.update = function () {
 
     };
+
+    HUD.prototype.score_update = function(){
+        this.score_label.text = this.score;
+    }
 
 
     return HUD;

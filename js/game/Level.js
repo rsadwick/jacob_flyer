@@ -21,6 +21,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //events
         this.death_event = new CustomEvent('death');
+
     }
 
     Level.prototype.init = function (game, settings, powerups) {
@@ -86,6 +87,9 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         //player and pipe collision
         //this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
         this._game.physics.arcade.collide(this.pipes, this.pipes, this.on_pipe_on_pipe, null, this);
+
+        //collect cherries:
+        this._game.physics.arcade.overlap(this._player.get_player(), this.holes, this.validate_score, null, this);
 
         //powerups:
         if(this.powerup)
@@ -179,13 +183,19 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
             this.powerups[powerup].remove();
         }
 
-
         this._game.state.start('main');
     };
 
     Level.prototype.get_settings = function(){
         return this.settings;
     };
+
+    Level.prototype.validate_score = function(player, obj){
+        obj.kill();
+        var collide_obj = {player: player, obj: obj}
+        this.score_event = new CustomEvent("score_event", {'detail': collide_obj});
+        window.dispatchEvent(this.score_event, collide_obj);
+    }
 
     return Level;
 
