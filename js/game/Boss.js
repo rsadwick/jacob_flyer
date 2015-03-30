@@ -6,6 +6,8 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this._game;
         this._player;
         this.lives;
+        this.boss;
+        this.phase = 0;
     }
 
     Boss.prototype.init = function (game) {
@@ -26,6 +28,10 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     Boss.prototype.on_collide = function (boss, obj) {
         console.log("boss on collide!")
+    };
+
+    Boss.prototype.add = function () {
+        console.log("boss added")
     };
 
     Boss.prototype.remove = function(){};

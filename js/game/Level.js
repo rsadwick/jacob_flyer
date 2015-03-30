@@ -18,6 +18,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.powerup_timer;
         this.choosePowerupTimer;
         this.death_timer;
+        this.boss_timer;
 
         //events
         this.death_event = new CustomEvent('death');
@@ -75,6 +76,11 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
          //random roll for timer duration:
         this.powerup_timer = this._game.time.events.loop(Phaser.Timer.SECOND * 3, this.create_powerup, this);
+
+        //boss timer:
+        this.boss_timer = this._game.time.create(false);
+        this.boss_timer.add(500, this.summon_boss, this);
+
     };
 
     Level.prototype.update = function () {
@@ -195,7 +201,11 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         var collide_obj = {player: player, obj: obj}
         this.score_event = new CustomEvent("score_event", {'detail': collide_obj});
         window.dispatchEvent(this.score_event, collide_obj);
-    }
+    };
+
+    Level.prototype.summon_boss = function(){
+        this._game.time.events.remove(this.boss_timer);
+    };
 
     return Level;
 
