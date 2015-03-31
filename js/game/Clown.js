@@ -7,14 +7,15 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         this.tween;
         this.charge_start_chance = 0.0;
-        this.charge_end_chance = 0.50;
+        this.charge_end_chance = 0.80;
 
-        this.shoot_start_chance = 0.51;
-        this.shoot_end_chance = 0.99;
+        this.shoot_start_chance = 0.81;
+        this.shoot_end_chance = 0.100;
 
         this.shotsFired = 0;
 
         this._player;
+        this.attack_speed = 1000;
     }
 
     Clown.prototype = Object.create(Boss.prototype);
@@ -52,7 +53,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         else if(random >= this.shoot_start_chance && random <= this.shoot_end_chance){
             this.attack_shoot();
         }
-
+        else{
+            this.attack_charge();
+        }
     };
 
     Clown.prototype.attack_charge = function(){
@@ -61,31 +64,26 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         var oldPositionY = this.boss.y;
         var nextPositionX = this._player.get_player().x;
         var nextPositionY = this._player.get_player().y;
+        var speed = this.get_attack_speed();
 
-        //affect charge attack based on which powerup the player has:
-        /*switch (powerupState) {
-            case powerUpTypes.OVERWEIGHT:
-                bossAbilties.CHARGE_ATTACK.speed = 1000;
-                nextPositionX = this.clown.x;
-                nextPositionY = this.game.height;
-                break;
+        //affect charge attack based on powerup the player possesses:
 
-            case powerUpTypes.FEATHERWEIGHT:
-                bossAbilties.CHARGE_ATTACK.speed = 3000;
-                break;
-
-            default:
-                bossAbilties.CHARGE_ATTACK.speed = 1000
-        }*/
+        if(this._player.get_powered()){
+            speed = this._player.get_powerup_effect().get_speed();
+            if(this._player.get_powerup_effect().is_position_debuff()){
+                nextPositionX = this.boss.x;
+                nextPositionY = this._game.height;
+            }
+        }
 
         this.tween = this._game.add.tween(this.boss)
             .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 500)
-            .to({ tint: 0x0066f5, x: nextPositionX, y: nextPositionY }, 1000, Phaser.Easing.Elastic.InOut)
+            .to({ tint: 0x0066f5, x: nextPositionX, y: nextPositionY }, speed, Phaser.Easing.Elastic.InOut)
             .to({ tint: 0xffffff, x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In);
-        this.tween.onComplete.add(onChargeComplete, this);
+        this.tween.onComplete.add(on_attack_complete, this);
         this.tween.start();
 
-        function onChargeComplete() {
+        function on_attack_complete() {
             this.tween.stop();
             this.attack();
         }
@@ -111,6 +109,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 //reset bullet gravity:
                 bullet.body.gravity.y = 0;
                 bullet.reset(this.boss.x - 8, this.boss.y - 8);
+
+
+
                 //when player is powered with feather weight, the boss throws like a pee wee:
                 /*if (powerupState == powerUpTypes.FEATHERWEIGHT) {
                     this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 9500);
@@ -155,7 +156,15 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
     Clown.prototype.set_player = function (player){
         this._player = player;
-    }
+    };
+
+    Clown.prototype.set_attack_speed = function (speed){
+        this.attack_speed = speed;
+    };
+
+     Clown.prototype.get_attack_speed = function (){
+        return this.attack_speed;
+    };
 
     return Clown;
 

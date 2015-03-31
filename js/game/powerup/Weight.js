@@ -7,13 +7,17 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.start_chance = 0.31;
         this.end_chance = 0.50;
         this.velocity = -350;
-        this.gravity = 2500;
+
         this.duration = 7;
         this.tint = 0x999999;
         this._player;
         this.effect;
         this.tween;
 
+        //debuff effects
+        this.speed = 1000;
+        this.gravity = 100;
+        this.change_position = true;
     }
 
     Weight.prototype = Object.create(Powerup.prototype);
@@ -105,7 +109,14 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             player.get_player().body.velocity.y = -350;
             player.get_player().body.gravity.y = 2500;
         }
+    };
 
+    Weight.prototype.get_speed = function(){
+        return this.speed;
+    };
+
+    Weight.prototype.get_gravity = function(){
+        return this.gravity;
     };
 
     return Weight;

@@ -8,6 +8,7 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this._player;
         this.start_chance;
         this.end_chance;
+        this.change_position = false;
 
     }
 
@@ -50,6 +51,10 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     Powerup.prototype.get_end_chance = function(){
         return this.end_chance;
     };
+
+    Powerup.prototype.is_position_debuff = function(){
+        return this.change_position;
+    }
 
     return Powerup;
 

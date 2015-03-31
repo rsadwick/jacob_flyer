@@ -10,6 +10,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         this.is_shielded = false;
         this.settings = {};
         this.space_key;
+        this.powerup;
 
         //events
         this.jump_event = new CustomEvent("jump_event");
@@ -98,6 +99,10 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
 
         this.powerup = powerup;
         powerup.on_collect(this, powerup.get_powerup());
+    };
+
+    Player.prototype.get_powerup_effect = function(){
+        return this.powerup;
     };
 
     Player.prototype.hit = function(player, obj){
