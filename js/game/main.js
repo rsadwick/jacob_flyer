@@ -111,6 +111,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 clown.init(_game);
                 clown.preload();
 
+
                 for(var powerup in powerups){
                     powerups[powerup].init(_game);
                     powerups[powerup].preload();
@@ -122,6 +123,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 hud.create();
                 player.create();
                 clown.create();
+                clown.set_player(player);
 
                 for(var powerup in powerups){
                     powerups[powerup].create();

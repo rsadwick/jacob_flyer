@@ -6,6 +6,15 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         Boss.call(this);
 
         this.tween;
+        this.charge_start_chance = 0.0;
+        this.charge_end_chance = 0.50;
+
+        this.shoot_start_chance = 0.51;
+        this.shoot_end_chance = 0.99;
+
+        this.shotsFired = 0;
+
+        this._player;
     }
 
     Clown.prototype = Object.create(Boss.prototype);
@@ -21,7 +30,12 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     };
 
     Clown.prototype.create = function (player) {
-        console.log("created")
+        this.bullets = this._game.add.group();
+        this.bullets.enableBody = true;
+        this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
+        this.bullets.createMultiple(3, 'candy');
+        this.bullets.setAll('checkWorldBounds', true);
+        this.bullets.setAll('outOfBoundsKill', true);
 
     };
 
@@ -31,14 +45,90 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
     Clown.prototype.attack = function(){
         //boss picks randomly what attack to use
+        var random = Math.random();
+        if(random >= this.charge_start_chance && random <= this.charge_end_chance){
+            this.attack_charge();
+        }
+        else if(random >= this.shoot_start_chance && random <= this.shoot_end_chance){
+            this.attack_shoot();
+        }
+
     };
 
     Clown.prototype.attack_charge = function(){
+        this.boss_hit_player = false;
+        var oldPositionX = this.boss.x;
+        var oldPositionY = this.boss.y;
+        var nextPositionX = this._player.get_player().x;
+        var nextPositionY = this._player.get_player().y;
 
+        //affect charge attack based on which powerup the player has:
+        /*switch (powerupState) {
+            case powerUpTypes.OVERWEIGHT:
+                bossAbilties.CHARGE_ATTACK.speed = 1000;
+                nextPositionX = this.clown.x;
+                nextPositionY = this.game.height;
+                break;
+
+            case powerUpTypes.FEATHERWEIGHT:
+                bossAbilties.CHARGE_ATTACK.speed = 3000;
+                break;
+
+            default:
+                bossAbilties.CHARGE_ATTACK.speed = 1000
+        }*/
+
+        this.tween = this._game.add.tween(this.boss)
+            .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 500)
+            .to({ tint: 0x0066f5, x: nextPositionX, y: nextPositionY }, 1000, Phaser.Easing.Elastic.InOut)
+            .to({ tint: 0xffffff, x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In);
+        this.tween.onComplete.add(onChargeComplete, this);
+        this.tween.start();
+
+        function onChargeComplete() {
+            this.tween.stop();
+            this.attack();
+        }
     };
 
     Clown.prototype.attack_shoot = function(){
+            //boss figures out where he is and moves according to top/bottom.
+            var bossPosition;
+            (this.boss.y < this._game.height / 2) ? bossPosition = 300 : bossPosition = 5;
+            this.fireweed = this._game.add.tween(this.boss).to({ y: bossPosition }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
+            this.fireweed.onComplete.add(loadFireBalls, this);
 
+            //loads the timer that shoots the fireballs:
+            function loadFireBalls() {
+                this.fireballTimer = this._game.time.create(false);
+                this.fireballTimer = this._game.time.events.loop(Phaser.Timer.SECOND * 2, shootFireballs, this);
+            }
+
+            //shots fired!
+            function shootFireballs() {
+
+                var bullet = this.bullets.getFirstDead();
+                //reset bullet gravity:
+                bullet.body.gravity.y = 0;
+                bullet.reset(this.boss.x - 8, this.boss.y - 8);
+                //when player is powered with feather weight, the boss throws like a pee wee:
+                /*if (powerupState == powerUpTypes.FEATHERWEIGHT) {
+                    this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 9500);
+                    bullet.body.gravity.y = 100;
+                }
+                else {
+                    this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 1500);
+                }*/
+
+                this._game.physics.arcade.moveToObject(bullet, this._player.get_player(), 50, 1500);
+
+                this.shotsFired++;
+                if (this.shotsFired >= 3) {
+                    this._game.time.events.remove(this.fireballTimer);
+                    this.shotsFired = 0;
+                    this.attack();
+                }
+            }
     };
 
     Clown.prototype.on_collide = function (boss, obj) {
@@ -63,6 +153,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         console.log("removed")
     };
 
+    Clown.prototype.set_player = function (player){
+        this._player = player;
+    }
 
     return Clown;
 
