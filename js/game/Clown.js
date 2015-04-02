@@ -6,11 +6,11 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         Boss.call(this);
 
         this.tween;
-        this.charge_start_chance = 0.91;
+        this.charge_start_chance = 0.51;
         this.charge_end_chance = 0.100;
 
         this.shoot_start_chance = 0.0;
-        this.shoot_end_chance = 0.90;
+        this.shoot_end_chance = 0.50;
 
         this.shotsFired = 0;
 
@@ -70,7 +70,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         //affect charge attack based on powerup the player possesses:
 
         if(this._player.get_powered()){
-            speed = this._player.get_powerup_effect().get_speed();
+            speed = this.attack_speed * 3;
             if(this._player.get_powerup_effect().is_position_debuff()){
                 nextPositionX = this.boss.x;
                 nextPositionY = this._game.height;
