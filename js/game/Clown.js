@@ -6,16 +6,17 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         Boss.call(this);
 
         this.tween;
-        this.charge_start_chance = 0.0;
-        this.charge_end_chance = 0.80;
+        this.charge_start_chance = 0.91;
+        this.charge_end_chance = 0.100;
 
-        this.shoot_start_chance = 0.81;
-        this.shoot_end_chance = 0.100;
+        this.shoot_start_chance = 0.0;
+        this.shoot_end_chance = 0.90;
 
         this.shotsFired = 0;
 
         this._player;
         this.attack_speed = 1000;
+
     }
 
     Clown.prototype = Object.create(Boss.prototype);
@@ -109,20 +110,17 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 //reset bullet gravity:
                 bullet.body.gravity.y = 0;
                 bullet.reset(this.boss.x - 8, this.boss.y - 8);
+                var speed = 1500;
 
+                if(this._player.get_powered()){
 
-
-                //when player is powered with feather weight, the boss throws like a pee wee:
-                /*if (powerupState == powerUpTypes.FEATHERWEIGHT) {
-                    this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 9500);
-                    bullet.body.gravity.y = 100;
+                    if(this._player.get_powerup_effect().is_shooting_debuff()){
+                        speed = this._player.get_powerup_effect().get_speed();
+                        bullet.body.gravity.y = this._player.get_powerup_effect().get_gravity();
+                    }
                 }
-                else {
-                    this.game.physics.arcade.moveToObject(bullet, this.bird, 60, 1500);
-                }*/
 
-                this._game.physics.arcade.moveToObject(bullet, this._player.get_player(), 50, 1500);
-
+                this._game.physics.arcade.moveToObject(bullet, this._player.get_player(), 50, speed);
                 this.shotsFired++;
                 if (this.shotsFired >= 3) {
                     this._game.time.events.remove(this.fireballTimer);
@@ -162,8 +160,37 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.attack_speed = speed;
     };
 
-     Clown.prototype.get_attack_speed = function (){
+    Clown.prototype.get_attack_speed = function (){
         return this.attack_speed;
+    };
+
+    Clown.prototype.analyze_player = function(){
+        if(this._player.get_powered()){
+
+            if(this._player.get_powerup_effect().is_shooting_debuff()){
+
+                var instance;
+                for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
+                    instance = this.bullets.getAt(shot_bullet);
+                    if(instance.alive && instance.body.velocity.x <= 0){
+                        instance.body.velocity.x = -122.66666666666663;
+                        this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, this._player.get_powerup_effect().get_speed());
+                        instance.body.gravity.y = this._player.get_powerup_effect().get_gravity();
+                    }
+                }
+            }
+        }
+        else{
+            var instance;
+            for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
+                instance = this.bullets.getAt(shot_bullet);
+                if(instance.alive){
+                    instance.body.gravity.y = 0;
+                    this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, 1500);
+
+                }
+            }
+        }
     };
 
     return Clown;

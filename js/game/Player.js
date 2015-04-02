@@ -15,6 +15,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         //events
         this.jump_event = new CustomEvent("jump_event");
         this.death_event = new CustomEvent("death_event");
+
     }
 
     Player.prototype.init = function (game, settings) {

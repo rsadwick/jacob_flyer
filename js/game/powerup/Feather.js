@@ -5,15 +5,17 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     var Feather = function () {
         Powerup.call(this);
         this.start_chance = 0.0;
-        this.end_chance = 0.30;
+        this.end_chance = 0.90;
         this.velocity = -350;
-        this.speed = 3000;
-        this.gravity = 2500;
+        this.speed = 9500;
+        this.gravity = 100;
         this.duration = 7;
         this.tint = 0x999999;
         this._player;
         this.effect;
         this.tween;
+
+        this.shoot_position = true;
 
     }
 
@@ -58,6 +60,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
             //how long does it last?
             this.timer = this._game.time.events.loop(Phaser.Timer.SECOND * this.duration, this.remove, this);
+            window.dispatchEvent(this.power_started);
         }
 
     };
@@ -89,6 +92,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             player.get_player().tint = 0xFFFFFF;
             player.get_player().alpha = 1;
         }
+        window.dispatchEvent(this.power_ended);
     };
 
     Feather.prototype.get_powerup = function(){

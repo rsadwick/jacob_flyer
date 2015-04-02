@@ -3,6 +3,17 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     "use strict";
 
     var Boss = function () {
+
+        var scope = this;
+         //player powered up
+        window.addEventListener('power_started', function (event) {
+            scope.analyze_player();
+        }, false);
+
+        window.addEventListener('power_ended', function (event) {
+            scope.analyze_player();
+        }, false);
+
         this._game;
         this._player;
         this.lives;
@@ -16,9 +27,7 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     Boss.prototype.preload = function () {};
 
-    Boss.prototype.create = function (player) {
-        console.log("boss created")
-    };
+    Boss.prototype.create = function (player) {};
 
     Boss.prototype.update = function () {};
 
@@ -43,6 +52,8 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     Boss.prototype.get_lives = function(){
         return this.lives;
     };
+
+    Boss.prototype.analyze_player = function(){};
 
     return Boss;
 

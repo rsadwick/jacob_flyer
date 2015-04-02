@@ -3,12 +3,15 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     "use strict";
 
     var Powerup = function () {
-        console.log("POWER UP")
+        console.log("POWER UP base")
         this._game;
         this._player;
         this.start_chance;
         this.end_chance;
         this.change_position = false;
+        this.shoot_position = false;
+        this.power_started = new CustomEvent("power_started");
+        this.power_ended = new CustomEvent("power_ended");
 
     }
 
@@ -38,6 +41,7 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     };
 
     Powerup.prototype.remove = function(){
+        window.dispatchEvent(this.power_ended);
         console.log("removed")
 
     };
@@ -54,7 +58,11 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     Powerup.prototype.is_position_debuff = function(){
         return this.change_position;
-    }
+    };
+
+    Powerup.prototype.is_shooting_debuff = function(){
+        return this.shoot_position;
+    };
 
     return Powerup;
 
