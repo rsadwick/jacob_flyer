@@ -43,25 +43,23 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
     };
 
-    Clown.prototype.update = function () {
+    Clown.prototype.update = function () {};
 
-    };
-
-    Clown.prototype.attack = function(){
+    Clown.prototype.attack = function () {
         //boss picks randomly what attack to use
         var random = Math.random();
-        if(random >= this.charge_start_chance && random <= this.charge_end_chance){
+        if (random >= this.charge_start_chance && random <= this.charge_end_chance) {
             this.attack_charge();
         }
-        else if(random >= this.shoot_start_chance && random <= this.shoot_end_chance){
+        else if (random >= this.shoot_start_chance && random <= this.shoot_end_chance) {
             this.attack_shoot();
         }
-        else{
+        else {
             this.attack_charge();
         }
     };
 
-    Clown.prototype.attack_charge = function(){
+    Clown.prototype.attack_charge = function () {
         this.boss_hit_player = false;
         var oldPositionX = this.boss.x;
         var oldPositionY = this.boss.y;
@@ -71,13 +69,13 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         //affect charge attack based on powerup the player possesses:
 
-        if(this._player.get_powered()){
+        if (this._player.get_powered()) {
 
-            if(this._player.get_powerup_effect().is_weight()){
+            if (this._player.get_powerup_effect().is_weight()) {
                 nextPositionX = this.boss.x;
                 nextPositionY = this._game.height;
             }
-            else if(this._player.get_powerup_effect().is_feather()){
+            else if (this._player.get_powerup_effect().is_feather()) {
                 speed = this.attack_speed * 3;
             }
         }
@@ -97,11 +95,11 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         }
     };
 
-    Clown.prototype.is_charging = function(){
+    Clown.prototype.is_charging = function () {
         return this.charging;
     },
 
-    Clown.prototype.attack_shoot = function(){
+        Clown.prototype.attack_shoot = function () {
             //boss figures out where he is and moves according to top/bottom.
             var bossPosition;
             (this.boss.y < this._game.height / 2) ? bossPosition = 300 : bossPosition = 5;
@@ -123,9 +121,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 bullet.reset(this.boss.x - 8, this.boss.y - 8);
                 var speed = 1500;
 
-                if(this._player.get_powered()){
+                if (this._player.get_powered()) {
                     //feather
-                    if(this._player.get_powerup_effect().is_feather()){
+                    if (this._player.get_powerup_effect().is_feather()) {
                         speed = this._player.get_powerup_effect().get_speed();
                         bullet.body.gravity.y = this._player.get_powerup_effect().get_gravity();
                     }
@@ -139,7 +137,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                     this.attack();
                 }
             }
-    };
+        };
 
     Clown.prototype.on_collide = function (boss, obj) {
         console.log("on collide!")
@@ -159,82 +157,76 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.tween.start();
     };
 
-    Clown.prototype.remove = function(){
+    Clown.prototype.remove = function () {
         console.log("removed")
     };
 
-    Clown.prototype.set_player = function (player){
+    Clown.prototype.set_player = function (player) {
         this._player = player;
     };
 
-    Clown.prototype.set_attack_speed = function (speed){
+    Clown.prototype.set_attack_speed = function (speed) {
         this.attack_speed = speed;
     };
 
-    Clown.prototype.get_attack_speed = function (){
+    Clown.prototype.get_attack_speed = function () {
         return this.attack_speed;
     };
 
-    Clown.prototype.analyze_player = function(){
+    Clown.prototype.analyze_player = function () {
 
         //return obj instances
-        function get_instance(object){;
+        function get_instance(object) {
+
             var instances = [];
             for (var instance_obj = 0; instance_obj < object.length; instance_obj++) {
-                instances.push( object.getAt(instance_obj));
+                instances.push(object.getAt(instance_obj));
             }
 
             return instances;
         }
+
         //if player is powered, adjust boss abilities
-        if(this._player.get_powered()){
+        if (this._player.get_powered()) {
             //feather
-            if(this._player.get_powerup_effect().is_feather()){
+            if (this._player.get_powerup_effect().is_feather()) {
                 //if boss is charging, update
-                if(this.is_charging())
-                {
-                    if(this.tween.isRunning){
+                if (this.is_charging()) {
+                    if (this.tween.isRunning) {
                         console.log("running, slow down")
                         this.tween.updateTweenData("duration", this.attack_speed * 3, 1);
                     }
                 }
-                else{
+                else {
 
                     var instance = get_instance(this.bullets);
-
-                    for(var bullet in instance){
-                            if(bullet.alive){
-                                console.log(bullet)
-                                console.log(this._player.get_powerup_effect().get_gravity())
-                                bullet.body.gravity.y = 500;
-                           // bullet.body.velocity.x = -122.66666666666663;
-                            }
-
-
+                    for (var bullet in instance) {
+                        if (instance[bullet].alive) {
+                            instance[bullet].body.gravity.y = this._player.get_powerup_effect().get_gravity();
+                            instance[bullet].body.velocity.y = 120;
+                            instance[bullet].body.velocity.x += 10;
+                        }
                     }
                 }
             }
         }
-        else{
+        else {
             //if player is not powered - update boss abilities to normal:
             //charging
-            if(this.is_charging()){
-                if(this.tween.isRunning){
+            if (this.is_charging()) {
+                if (this.tween.isRunning) {
                     console.log("back to NORMAL")
                     this.tween.updateTweenData("duration", this.attack_speed, 1);
                 }
             }
             //shooting
-            else{
+            else {
 
-                var instance;
-                for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
-                    instance = this.bullets.getAt(shot_bullet);
-                    if(instance.alive){
-                        instance.body.gravity.y = 0;
-                        console.log("how is it here")
-                        this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, 1500);
-
+                var instance = get_instance(this.bullets);
+                for (var bullet in instance) {
+                    if (instance[bullet].alive) {
+                        instance[bullet].body.gravity.y = 0;
+                        this._game.physics.arcade.moveToObject(instance[bullet], this._player.get_player(), 50, 1500);
                     }
                 }
             }

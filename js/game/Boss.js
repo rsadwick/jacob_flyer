@@ -7,10 +7,12 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         var scope = this;
          //player powered up
         window.addEventListener('power_started', function (event) {
+            console.log("POWER UP STARTED!!!!")
             scope.analyze_player();
         }, false);
 
         window.addEventListener('power_ended', function (event) {
+            console.log("POWER UP ENDDDDD!!!!")
             scope.analyze_player();
         }, false);
 

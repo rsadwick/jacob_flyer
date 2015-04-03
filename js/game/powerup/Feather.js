@@ -39,6 +39,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.feathers.createMultiple(20, 'feather');
         this.feathers.setAll('checkWorldBounds', true);
         this.feathers.setAll('outOfBoundsKill', true)
+        this._game.physics.enable(this.feathers, Phaser.Physics.ARCADE);
     };
 
     Feather.prototype.update = function () {};
@@ -46,7 +47,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     Feather.prototype.on_collect = function (player, powerup) {
         console.log("collect")
         if(player){
-            this._game.physics.enable(powerup, Phaser.Physics.ARCADE);
+
             this.set_affected_player(player);
             this.remove();
 
