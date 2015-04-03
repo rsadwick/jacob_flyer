@@ -6,14 +6,20 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         Powerup.call(this);
         this.duration = 7;
         this.current_time = 0;
-        this.start_chance = -0.81;
-        this.end_chance = -0.99;
+        this.start_chance = 0.0;
+        this.end_chance = 1;
         this.blend_mode = Phaser.blendModes.ADD;
         this.shields;
         this.shield_timer;
         this._player;
         this.effect;
         this.tween;
+        this.is_shield_buff = true;
+
+        var scope = this;
+        window.addEventListener('jump_event', function (e) {
+            scope.affect();
+        }, false);
     }
 
     Shield.prototype = Object.create(Powerup.prototype);
@@ -40,6 +46,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.shields.createMultiple(20, 'shield');
         this.shields.setAll('checkWorldBounds', true);
         this.shields.setAll('outOfBoundsKill', true);
+        this._game.physics.enable(this.shields, Phaser.Physics.ARCADE);
     };
 
     Shield.prototype.update = function () {
@@ -54,14 +61,16 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             this.remove();
 
             this.effect = this._game.add.sprite(0, 0, 'shield_effect');
+            player.set_powered(true);
             this.effect.anchor.setTo(0.5, 0.5);
             this.effect.alpha = 0.6;
             this.effect.blendMode = this.blend_mode;
             this.tween = this._game.add.tween(this.effect).to({ alpha: 0.8}, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
             player.get_player().addChild(this.effect);
+
             player.is_shielded = true;
 
-            this._game.physics.enable(powerup, Phaser.Physics.ARCADE);
+
 
             //how long does it last?
             this.shield_timer = this._game.time.events.loop(Phaser.Timer.SECOND, this.check_duration, this);
@@ -107,6 +116,15 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             player.get_player().body.immovable = false;
             player.get_player().removeChild(this.effect);
             player.is_shielded = false;
+            window.dispatchEvent(this.power_ended);
+        }
+    };
+
+    Shield.prototype.affect = function(){
+        var player = this.get_affected_player();
+        if(player){
+            player.get_player().body.velocity.y = -350;
+            player.get_player().body.gravity.y = 1000;
         }
     };
 

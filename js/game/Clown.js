@@ -19,6 +19,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         this.charging = false;
 
+        this.bullet_hit_shield = false;
+
     }
 
     Clown.prototype = Object.create(Boss.prototype);
@@ -40,10 +42,12 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.bullets.createMultiple(3, 'candy');
         this.bullets.setAll('checkWorldBounds', true);
         this.bullets.setAll('outOfBoundsKill', true);
-
     };
 
-    Clown.prototype.update = function () {};
+    Clown.prototype.update = function () {
+
+        this._game.physics.arcade.overlap(this._player.get_player(), this.bullets, this.on_player_bullet, null, this);
+    };
 
     Clown.prototype.attack = function () {
         //boss picks randomly what attack to use
@@ -99,48 +103,59 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         return this.charging;
     },
 
-        Clown.prototype.attack_shoot = function () {
-            //boss figures out where he is and moves according to top/bottom.
-            var bossPosition;
-            (this.boss.y < this._game.height / 2) ? bossPosition = 300 : bossPosition = 5;
-            this.fireweed = this._game.add.tween(this.boss).to({ y: bossPosition }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
-            this.fireweed.onComplete.add(loadFireBalls, this);
+    Clown.prototype.attack_shoot = function () {
+        //boss figures out where he is and moves according to top/bottom.
+        var bossPosition;
+        (this.boss.y < this._game.height / 2) ? bossPosition = 300 : bossPosition = 5;
+        this.fireweed = this._game.add.tween(this.boss).to({ y: bossPosition }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
+        this.fireweed.onComplete.add(loadFireBalls, this);
 
-            //loads the timer that shoots the fireballs:
-            function loadFireBalls() {
-                this.fireballTimer = this._game.time.create(false);
-                this.fireballTimer = this._game.time.events.loop(Phaser.Timer.SECOND * 2, shootFireballs, this);
-            }
+        //loads the timer that shoots the fireballs:
+        function loadFireBalls() {
+            this.fireballTimer = this._game.time.create(false);
+            this.fireballTimer = this._game.time.events.loop(Phaser.Timer.SECOND * 2, shootFireballs, this);
+        }
 
-            //shots fired!
-            function shootFireballs() {
+        //shots fired!
+        function shootFireballs() {
 
-                var bullet = this.bullets.getFirstDead();
-                //reset bullet gravity:
-                bullet.body.gravity.y = 0;
-                bullet.reset(this.boss.x - 8, this.boss.y - 8);
-                var speed = 1500;
+            var bullet = this.bullets.getFirstDead();
+            //reset bullet gravity:
+            bullet.body.gravity.y = 0;
+            bullet.reset(this.boss.x - 8, this.boss.y - 8);
+            var speed = 1500;
 
-                if (this._player.get_powered()) {
-                    //feather
-                    if (this._player.get_powerup_effect().is_feather()) {
-                        speed = this._player.get_powerup_effect().get_speed();
-                        bullet.body.gravity.y = this._player.get_powerup_effect().get_gravity();
-                    }
-                }
-
-                this._game.physics.arcade.moveToObject(bullet, this._player.get_player(), 50, speed);
-                this.shotsFired++;
-                if (this.shotsFired >= 3) {
-                    this._game.time.events.remove(this.fireballTimer);
-                    this.shotsFired = 0;
-                    this.attack();
+            if (this._player.get_powered()) {
+                //feather
+                if (this._player.get_powerup_effect().is_feather()) {
+                    speed = this._player.get_powerup_effect().get_speed();
+                    bullet.body.gravity.y = this._player.get_powerup_effect().get_gravity();
                 }
             }
-        };
+
+            this._game.physics.arcade.moveToObject(bullet, this._player.get_player(), 50, speed);
+            this.shotsFired++;
+            if (this.shotsFired >= 3) {
+                this._game.time.events.remove(this.fireballTimer);
+                this.shotsFired = 0;
+                this.attack();
+            }
+        }
+    };
 
     Clown.prototype.on_collide = function (boss, obj) {
         console.log("on collide!")
+    };
+
+    Clown.prototype.on_player_bullet = function(player, bullet){
+
+        if(this._player.get_powered()){
+            console.log("power")
+            if(this._player.get_powerup_effect().is_shield()){
+                this.bullet_hit_shield = true;
+                this._game.physics.arcade.moveToObject(bullet, this.boss, 100, 500);
+            }
+        }
     };
 
     Clown.prototype.add = function () {
@@ -186,7 +201,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             return instances;
         }
 
-        //if player is powered, adjust boss abilities
+        //if player is powered, adjust boss abilities that have already happened:
         if (this._player.get_powered()) {
             //feather
             if (this._player.get_powerup_effect().is_feather()) {
@@ -197,14 +212,16 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                         this.tween.updateTweenData("duration", this.attack_speed * 3, 1);
                     }
                 }
+                //if boss is shooting, update
                 else {
 
                     var instance = get_instance(this.bullets);
                     for (var bullet in instance) {
                         if (instance[bullet].alive) {
+                            this._game.physics.arcade.moveToObject(instance[bullet], this._player.get_player(), 50, this._player.get_powerup_effect().get_speed());
                             instance[bullet].body.gravity.y = this._player.get_powerup_effect().get_gravity();
                             instance[bullet].body.velocity.y = 120;
-                            instance[bullet].body.velocity.x += 10;
+                            instance[bullet].body.velocity.x += 29;
                         }
                     }
                 }
