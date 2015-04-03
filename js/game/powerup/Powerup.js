@@ -3,13 +3,10 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     "use strict";
 
     var Powerup = function () {
-        console.log("POWER UP base")
         this._game;
         this._player;
         this.start_chance;
         this.end_chance;
-        this.change_position = false;
-        this.shoot_position = false;
         this.is_feather_buff = false;
         this.is_shield_buff = false;
         this.is_weight_buff = false;

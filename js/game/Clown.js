@@ -6,11 +6,11 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         Boss.call(this);
 
         this.tween;
-        this.charge_start_chance = 0.0;
-        this.charge_end_chance = 0.100;
+        this.charge_start_chance = -0.0;
+        this.charge_end_chance = -0.100;
 
-        this.shoot_start_chance = -0.0;
-        this.shoot_end_chance = -0.50;
+        this.shoot_start_chance = 0.0;
+        this.shoot_end_chance = 0.90;
 
         this.shotsFired = 0;
 
@@ -72,10 +72,13 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         //affect charge attack based on powerup the player possesses:
 
         if(this._player.get_powered()){
-            speed = this.attack_speed * 3;
+
             if(this._player.get_powerup_effect().is_weight()){
                 nextPositionX = this.boss.x;
                 nextPositionY = this._game.height;
+            }
+            else if(this._player.get_powerup_effect().is_feather()){
+                speed = this.attack_speed * 3;
             }
         }
 
@@ -174,6 +177,15 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
     Clown.prototype.analyze_player = function(){
 
+        //return obj instances
+        function get_instance(object){;
+            var instances = [];
+            for (var instance_obj = 0; instance_obj < object.length; instance_obj++) {
+                instances.push( object.getAt(instance_obj));
+            }
+
+            return instances;
+        }
         //if player is powered, adjust boss abilities
         if(this._player.get_powered()){
             //feather
@@ -182,19 +194,23 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 if(this.is_charging())
                 {
                     if(this.tween.isRunning){
-                         console.log("running, slow down")
+                        console.log("running, slow down")
                         this.tween.updateTweenData("duration", this.attack_speed * 3, 1);
                     }
                 }
                 else{
-                    var instance;
-                    for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
-                        instance = this.bullets.getAt(shot_bullet);
-                        if(instance.alive && instance.body.velocity.x <= 0){
-                            instance.body.velocity.x = -122.66666666666663;
-                            this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, this._player.get_powerup_effect().get_speed());
-                            instance.body.gravity.y = this._player.get_powerup_effect().get_gravity();
-                        }
+
+                    var instance = get_instance(this.bullets);
+
+                    for(var bullet in instance){
+                            if(bullet.alive){
+                                console.log(bullet)
+                                console.log(this._player.get_powerup_effect().get_gravity())
+                                bullet.body.gravity.y = 500;
+                           // bullet.body.velocity.x = -122.66666666666663;
+                            }
+
+
                     }
                 }
             }
@@ -210,11 +226,13 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             }
             //shooting
             else{
+
                 var instance;
                 for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
                     instance = this.bullets.getAt(shot_bullet);
                     if(instance.alive){
                         instance.body.gravity.y = 0;
+                        console.log("how is it here")
                         this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, 1500);
 
                     }

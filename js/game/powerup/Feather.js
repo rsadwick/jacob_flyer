@@ -4,7 +4,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Feather = function () {
         Powerup.call(this);
-        this.start_chance = 0.0;
+        this.start_chance = 0.10;
         this.end_chance = 0.90;
         this.velocity = -350;
         this.speed = 9500;
@@ -15,7 +15,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.effect;
         this.tween;
 
-        this.shoot_position = true;
         this.is_feather_buff = true;
     }
 
@@ -42,9 +41,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.feathers.setAll('outOfBoundsKill', true)
     };
 
-    Feather.prototype.update = function () {
-
-    };
+    Feather.prototype.update = function () {};
 
     Feather.prototype.on_collect = function (player, powerup) {
         console.log("collect")
@@ -83,6 +80,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     };
 
     Feather.prototype.remove = function(){
+        console.log("removed")
         this._game.time.events.remove(this.timer);
         var player = this.get_affected_player();
         if(player){

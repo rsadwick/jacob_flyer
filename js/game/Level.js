@@ -210,7 +210,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //background change to denote boss phase starting:
         this._game.stage.backgroundColor = '#999999';
-        this._game.add.tween(this.background).to({ alpha: 0.1 }, 2000, Phaser.Easing.Linear.None, true);
+        this._game.add.tween(this.background).to({ alpha: 0.5 }, 2000, Phaser.Easing.Linear.None, true);
         var boss = this.settings.level.character.BOSS.type;
         boss.add();
     };

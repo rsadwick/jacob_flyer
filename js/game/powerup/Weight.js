@@ -4,8 +4,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Weight = function () {
         Powerup.call(this);
-        this.start_chance = -0.31;
-        this.end_chance = -0.50;
+        this.start_chance = -0.0;
+        this.end_chance = -0.90;
         this.velocity = -350;
 
         this.duration = 7;
@@ -17,7 +17,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         //debuff effects
         this.speed = 1000;
         this.gravity = 100;
-        this.change_position = true;
+        this.is_weight_buff = true;
     }
 
     Weight.prototype = Object.create(Powerup.prototype);
