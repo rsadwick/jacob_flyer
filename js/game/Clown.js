@@ -73,7 +73,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         if(this._player.get_powered()){
             speed = this.attack_speed * 3;
-            if(this._player.get_powerup_effect().is_position_debuff()){
+            if(this._player.get_powerup_effect().is_weight()){
                 nextPositionX = this.boss.x;
                 nextPositionY = this._game.height;
             }
@@ -121,8 +121,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 var speed = 1500;
 
                 if(this._player.get_powered()){
-
-                    if(this._player.get_powerup_effect().is_shooting_debuff()){
+                    //feather
+                    if(this._player.get_powerup_effect().is_feather()){
                         speed = this._player.get_powerup_effect().get_speed();
                         bullet.body.gravity.y = this._player.get_powerup_effect().get_gravity();
                     }
@@ -177,7 +177,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         //if player is powered, adjust boss abilities
         if(this._player.get_powered()){
             //feather
-            if(this._player.get_powerup_effect().is_shooting_debuff()){
+            if(this._player.get_powerup_effect().is_feather()){
                 //if boss is charging, update
                 if(this.is_charging())
                 {

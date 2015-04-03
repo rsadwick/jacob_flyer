@@ -10,6 +10,9 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this.end_chance;
         this.change_position = false;
         this.shoot_position = false;
+        this.is_feather_buff = false;
+        this.is_shield_buff = false;
+        this.is_weight_buff = false;
         this.power_started = new CustomEvent("power_started");
         this.power_ended = new CustomEvent("power_ended");
 
@@ -56,12 +59,16 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         return this.end_chance;
     };
 
-    Powerup.prototype.is_position_debuff = function(){
-        return this.change_position;
+    Powerup.prototype.is_feather = function(){
+        return this.is_feather_buff;
     };
 
-    Powerup.prototype.is_shooting_debuff = function(){
-        return this.shoot_position;
+    Powerup.prototype.is_weight = function(){
+        return this.is_weight_buff;
+    };
+
+    Powerup.prototype.is_shield = function(){
+        return this.is_shield_buff;
     };
 
     return Powerup;
