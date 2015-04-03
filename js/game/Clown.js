@@ -6,16 +6,18 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         Boss.call(this);
 
         this.tween;
-        this.charge_start_chance = 0.51;
+        this.charge_start_chance = 0.0;
         this.charge_end_chance = 0.100;
 
-        this.shoot_start_chance = 0.0;
-        this.shoot_end_chance = 0.50;
+        this.shoot_start_chance = -0.0;
+        this.shoot_end_chance = -0.50;
 
         this.shotsFired = 0;
 
         this._player;
         this.attack_speed = 1000;
+
+        this.charging = false;
 
     }
 
@@ -83,12 +85,18 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             .to({ tint: 0xffffff, x: oldPositionX, y: oldPositionY}, 500, Phaser.Easing.Elastic.In);
         this.tween.onComplete.add(on_attack_complete, this);
         this.tween.start();
+        this.charging = true;
 
         function on_attack_complete() {
             this.tween.stop();
+            this.charging = false;
             this.attack();
         }
     };
+
+    Clown.prototype.is_charging = function(){
+        return this.charging;
+    },
 
     Clown.prototype.attack_shoot = function(){
             //boss figures out where he is and moves according to top/bottom.
@@ -165,29 +173,51 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     };
 
     Clown.prototype.analyze_player = function(){
+
+        //if player is powered, adjust boss abilities
         if(this._player.get_powered()){
-
+            //feather
             if(this._player.get_powerup_effect().is_shooting_debuff()){
-
-                var instance;
-                for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
-                    instance = this.bullets.getAt(shot_bullet);
-                    if(instance.alive && instance.body.velocity.x <= 0){
-                        instance.body.velocity.x = -122.66666666666663;
-                        this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, this._player.get_powerup_effect().get_speed());
-                        instance.body.gravity.y = this._player.get_powerup_effect().get_gravity();
+                //if boss is charging, update
+                if(this.is_charging())
+                {
+                    if(this.tween.isRunning){
+                         console.log("running, slow down")
+                        this.tween.updateTweenData("duration", this.attack_speed * 3, 1);
+                    }
+                }
+                else{
+                    var instance;
+                    for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
+                        instance = this.bullets.getAt(shot_bullet);
+                        if(instance.alive && instance.body.velocity.x <= 0){
+                            instance.body.velocity.x = -122.66666666666663;
+                            this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, this._player.get_powerup_effect().get_speed());
+                            instance.body.gravity.y = this._player.get_powerup_effect().get_gravity();
+                        }
                     }
                 }
             }
         }
         else{
-            var instance;
-            for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
-                instance = this.bullets.getAt(shot_bullet);
-                if(instance.alive){
-                    instance.body.gravity.y = 0;
-                    this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, 1500);
+            //if player is not powered - update boss abilities to normal:
+            //charging
+            if(this.is_charging()){
+                if(this.tween.isRunning){
+                    console.log("back to NORMAL")
+                    this.tween.updateTweenData("duration", this.attack_speed, 1);
+                }
+            }
+            //shooting
+            else{
+                var instance;
+                for (var shot_bullet = 0; shot_bullet < this.bullets.length; shot_bullet++) {
+                    instance = this.bullets.getAt(shot_bullet);
+                    if(instance.alive){
+                        instance.body.gravity.y = 0;
+                        this._game.physics.arcade.moveToObject(instance, this._player.get_player(), 50, 1500);
 
+                    }
                 }
             }
         }

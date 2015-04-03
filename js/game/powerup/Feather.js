@@ -16,7 +16,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.tween;
 
         this.shoot_position = true;
-
     }
 
     Feather.prototype = Object.create(Powerup.prototype);
