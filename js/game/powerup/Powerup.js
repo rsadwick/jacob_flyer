@@ -4,6 +4,7 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     var Powerup = function () {
         this._game;
+        this._level;
         this._player;
         this.start_chance;
         this.end_chance;
@@ -15,8 +16,9 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     }
 
-    Powerup.prototype.init = function (game) {
+    Powerup.prototype.init = function (game, level) {
         this._game = game;
+        this._level = level;
 
     };
 
@@ -24,8 +26,8 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     };
 
-    Powerup.prototype.create = function (player) {
-        console.log("created")
+    Powerup.prototype.create = function (level) {
+        this._level = level;
     };
 
     Powerup.prototype.update = function () {

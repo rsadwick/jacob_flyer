@@ -121,7 +121,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     Shield.prototype.affect = function(){
         var player = this.get_affected_player();
-        console.log(player)
         if(player){
             player.get_player().body.velocity.y = -350;
             player.get_player().body.gravity.y = 1000;

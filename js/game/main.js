@@ -113,7 +113,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 clown.preload();
 
                 for(var powerup in powerups){
-                    powerups[powerup].init(_game);
+                    powerups[powerup].init(_game, level);
                     powerups[powerup].preload();
                 }
             },

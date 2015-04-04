@@ -4,8 +4,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Weight = function () {
         Powerup.call(this);
-        this.start_chance = 0.0;
-        this.end_chance = 0.50;
+        this.start_chance = -0.0;
+        this.end_chance = -0.50;
         this.velocity = -350;
 
         this.duration = 7;
@@ -55,7 +55,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             this.set_affected_player(player);
             player.get_powerup_effect().remove();
 
-
             player.set_powered(true);
             player.get_player().tint = 0x999999;
             // player.get_player().body.velocity.y += 10;
@@ -84,7 +83,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     };
 
     Weight.prototype.remove = function(){
-        console.log("remove")
         window.removeEventListener('jump_event');
         this._game.time.events.remove(this.timer);
         var player = this.get_affected_player();
@@ -93,11 +91,11 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             player.get_player().blendMode = Phaser.blendModes.NORMAL;
             player.get_player().tint = 0xFFFFFF;
             player.get_player().alpha = 1;
+
             //reset
 
             player.get_player().body.velocity.y = -350;
             player.get_player().body.gravity.y = 1000;
-            console.log("-------!!!!!! - " + player.get_player().body.gravity.y)
 
             window.dispatchEvent(this.power_ended);
         }

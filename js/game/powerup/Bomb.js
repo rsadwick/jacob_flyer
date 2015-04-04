@@ -4,21 +4,20 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Bomb = function () {
         Powerup.call(this);
-        this.start_chance = -0.51;
-        this.end_chance = -0.80;
+        this.start_chance = 0.0;
+        this.end_chance = 0.50;
         this.start = false;
         this.emitter;
         this.tween;
         this.timer;
+
+        this.current_bomb = null;
+        this.current_pipe = null;
     }
 
     Bomb.prototype = Object.create(Powerup.prototype);
 
     Bomb.prototype.constructor = Bomb;
-
-    Bomb.prototype.init = function (game) {
-        this._game = game;
-    };
 
     Bomb.prototype.preload = function () {
         this._game.load.image('bomb', 'assets/bomb.png');
@@ -28,8 +27,10 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this._game.load.image('burst_yellow', 'assets/laserYellowBurst.png');
     };
 
-    Bomb.prototype.create = function (player) {
+    Bomb.prototype.create = function (level) {
+
         this.bombs = this._game.add.group();
+        this._game.physics.enable(this.bombs, Phaser.Physics.ARCADE);
         this.bombs.enableBody = true;
         this.bombs.physicsBodyType = Phaser.Physics.ARCADE;
         this.bombs.createMultiple(1, 'bomb');
@@ -40,34 +41,54 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     Bomb.prototype.update = function () {
         if (this.bombs.length >= 1 && this.start == false && this.emitter != null) {
             var current_bomb = this.get_instances();
-
-            if (current_bomb.inWorld) {
-                this.emitter.start(false, 0, 10, 50, true);
-                this.start = true;
+            if(current_bomb){
+                if (current_bomb.inWorld) {
+                    this.emitter.start(false, 0, 10, 50, true);
+                    this.start = true;
+                }
             }
         }
+        if(this.current_bomb && this.current_pipe){
+            this._game.physics.arcade.moveToObject(this.current_bomb, this.current_pipe, 60);
+        }
+
     };
 
     Bomb.prototype.add = function(){
-        var bomb = this.bombs.getFirstDead();
 
-        if(bomb){
-            bomb.reset(this._game.width, 100);
-            bomb.body.gravity.y = 7;
-            bomb.body.velocity.x = -60;
-            bomb.body.velocity.y = 20;
+        //pick a place to explode:
+        var pipe = this._level.get_pipes();
 
-            bomb.body.bounce.y = 0.7 + Math.random() * 0.2;
-            bomb.body.bounce.x = 1.7 + Math.random() * 0.2;
+        if(pipe){
+            var kill_it = pipe.getChildAt(1);
+            if(kill_it.inWorld){
+                kill_it.tint = 0xff9900;
+
+                var bomb = this.bombs.getFirstDead();
+
+                if(bomb){
+                    bomb.reset(this._game.width, 100);
+                    //bomb.body.gravity.y = 7;
+                    //bomb.body.velocity.x = -60;
+                    //bomb.body.velocity.y = 20;
+
+                    //bomb.body.bounce.y = 0.7 + Math.random() * 0.2;
+                    //bomb.body.bounce.x = 1.7 + Math.random() * 0.2;
+
+                     this.tween = this._game.add.tween(bomb)
+                        .to({ tint: 0xf50400 }, 2000, Phaser.Easing.Elastic.InOut, false, 1000)
+                        .to({ tint: 0x0066f5}, 1000, Phaser.Easing.Elastic.InOut)
+                        .to({ tint: 0xffffff}, 1000, Phaser.Easing.Elastic.In);
+
+                    this.tween.start();
+                    this.current_bomb = bomb;
+                    this.current_pipe = kill_it;
+
+                    this.tween.onComplete.add(on_complete, this);
+
+                }
+            }
         }
-
-        this.tween = this._game.add.tween(bomb)
-            .to({ tint: 0xf50400 }, 1000, Phaser.Easing.Elastic.InOut, false, 1000)
-            .to({ tint: 0x0066f5}, 1000, Phaser.Easing.Elastic.InOut)
-            .to({ tint: 0xffffff}, 1000, Phaser.Easing.Elastic.In);
-
-        this.tween.start();
-        this.tween.onComplete.add(on_complete, this);
         var _scope = this;
         function on_complete(){
             _scope.explode();
@@ -113,11 +134,13 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.emitter.setAlpha(1, 0, 500);
 
         var bomb = this.get_instances();
-        bomb.addChild(this.emitter);
-        //bomb.anchor.setTo(0.5, 0.5);
-        bomb.tint = 0xffffff;
-        this.start = false;
+        if(bomb){
+             bomb.addChild(this.emitter);
+            //bomb.anchor.setTo(0.5, 0.5);
+            bomb.tint = 0xffffff;
+        }
 
+        this.start = false;
         //clean up and remove
         this.timer = this._game.time.events.add(500, this.remove, this);
 

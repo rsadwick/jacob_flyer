@@ -7,10 +7,10 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         this.tween;
         this.charge_start_chance = 0.0;
-        this.charge_end_chance = 0.2;
+        this.charge_end_chance = 1;
 
-        this.shoot_start_chance = 0.21;
-        this.shoot_end_chance = 1;
+        this.shoot_start_chance = -0.1;
+        this.shoot_end_chance = -1;
 
         this.shotsFired = 0;
 
@@ -96,6 +96,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.charging = true;
 
         function on_attack_complete() {
+            console.log("ENDED!!!!")
             this.tween.stop();
             this.charging = false;
             this.attack();
@@ -264,6 +265,24 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                     }
                 }
             }
+            else if(this._player.get_powerup_effect().is_weight()){
+                if(this.is_charging()){
+                    if(this.tween.isRunning){
+                        console.log("update!")
+                        //this.tween.pause();
+
+                        //this.tween.to({ tint: 0x0066f5, x: this.boss.x, y: this._game.height }, 1000, Phaser.Easing.Elastic.InOut)
+                        //this.tween.to({ tint: 0xffffff, x: this.boss.x, y: this.boss.y}, 500, Phaser.Easing.Elastic.In);
+
+                        console.log(this.tween.isRunning)
+                        //this.tween.updateTweenData("x", this.boss.x, -1);
+                        //this.tween.updateTweenData("x", 900, -1);
+                        //this.tween.updateTweenData("x", this.boss.x, -1);
+                        this.tween.updateTweenData("x", 9999, -1);
+                        //this.tween.resume();
+                    }
+                }
+            }
         }
         else {
             //if player is not powered - update boss abilities to normal:
@@ -271,7 +290,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             if (this.is_charging()) {
                 if (this.tween.isRunning) {
                     console.log("back to NORMAL")
-                    this.tween.updateTweenData("duration", this.attack_speed, 1);
                 }
             }
             //shooting
