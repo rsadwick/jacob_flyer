@@ -37,6 +37,8 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         //boss picks randomly what attack to use
     };
 
+    Boss.prototype.on_damage = function() {};
+
     Boss.prototype.on_collide = function (boss, obj) {
         console.log("boss on collide!")
     };

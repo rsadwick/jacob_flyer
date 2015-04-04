@@ -6,11 +6,11 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         Boss.call(this);
 
         this.tween;
-        this.charge_start_chance = -0.0;
-        this.charge_end_chance = -0.100;
+        this.charge_start_chance = 0.0;
+        this.charge_end_chance = 1;
 
-        this.shoot_start_chance = 0.0;
-        this.shoot_end_chance = 0.90;
+        this.shoot_start_chance = -0.1;
+        this.shoot_end_chance = -0.90;
 
         this.shotsFired = 0;
 
@@ -20,6 +20,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.charging = false;
 
         this.bullet_hit_shield = false;
+        this.boss_hit_player = false;
 
     }
 
@@ -47,6 +48,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     Clown.prototype.update = function () {
 
         this._game.physics.arcade.overlap(this._player.get_player(), this.bullets, this.on_player_bullet, null, this);
+        this._game.physics.arcade.overlap(this.boss, this.bullets, this.on_boss_bullets, null, this);
+        this._game.physics.arcade.overlap(this.boss, this._player.get_player(), this.on_boss_attack, null, this);
     };
 
     Clown.prototype.attack = function () {
@@ -143,6 +146,21 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         }
     };
 
+    Clown.prototype.on_boss_attack = function(boss, player){
+        if(!this.boss_hit_player){
+            if(this._player.get_powered()){
+                if(this._player.get_powerup_effect().is_shield()){
+                    this.on_damage();
+                    this.boss_hit_player = true;
+                }
+            }
+            else{
+                this.boss_hit_player = true;
+                this._player.on_damage();
+            }
+        }
+    };
+
     Clown.prototype.on_collide = function (boss, obj) {
         console.log("on collide!")
     };
@@ -150,12 +168,31 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     Clown.prototype.on_player_bullet = function(player, bullet){
 
         if(this._player.get_powered()){
-            console.log("power")
             if(this._player.get_powerup_effect().is_shield()){
                 this.bullet_hit_shield = true;
                 this._game.physics.arcade.moveToObject(bullet, this.boss, 100, 500);
             }
         }
+        else{
+            bullet.kill();
+            this._player.on_damage();
+        }
+    };
+
+    Clown.prototype.on_boss_bullets = function(boss, bullet){
+        if(this.bullet_hit_shield){
+           this.bullet_hit_shield = false;
+           bullet.kill();
+           this.on_damage();
+        }
+    };
+
+    Clown.prototype.on_damage = function(){
+        var damage_tween = this._game.add.tween(this.boss)
+            .to({ tint: 0xf50400 }, 100, Phaser.Easing.Elastic.InOut)
+            .to({ tint: 0x0066f5 }, 100, Phaser.Easing.Elastic.InOut)
+            .to({ tint: 0xffffff }, 100, Phaser.Easing.Elastic.In);
+        damage_tween.start();
     };
 
     Clown.prototype.add = function () {

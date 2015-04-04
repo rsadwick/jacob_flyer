@@ -123,14 +123,18 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
 
         //particles
         if(!this.get_hit_wall()){
-            var emitter = this._game.add.emitter(0, 0, 100);
-            emitter.makeParticles(['star']);
-            emitter.start(false, 2000, 0, 10);
-            emitter.x = this.bird.body.x + this.bird.width / 2;
-            emitter.y = this.bird.body.y;
+            this.on_damage();
             window.dispatchEvent(this.death_event);
             this.set_hit_wall(true);
         }
+    };
+
+    Player.prototype.on_damage = function(){
+        var emitter = this._game.add.emitter(0, 0, 100);
+        emitter.makeParticles(['star']);
+        emitter.start(false, 2000, 0, 10);
+        emitter.x = this.bird.body.x + this.bird.width / 2;
+        emitter.y = this.bird.body.y;
     };
 
     return Player;
