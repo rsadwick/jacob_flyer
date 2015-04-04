@@ -6,7 +6,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         Powerup.call(this);
         this.duration = 7;
         this.current_time = 0;
-        this.start_chance = 0.0;
+        this.start_chance = 0.51;
         this.end_chance = 1;
         this.blend_mode = Phaser.blendModes.ADD;
         this.shields;
@@ -15,11 +15,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.effect;
         this.tween;
         this.is_shield_buff = true;
-
-        var scope = this;
-        window.addEventListener('jump_event', function (e) {
-            scope.affect();
-        }, false);
     }
 
     Shield.prototype = Object.create(Powerup.prototype);
@@ -54,11 +49,14 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     };
 
     Shield.prototype.on_collect = function (player, powerup) {
-        console.log("I got a shield")
-        console.log(player)
         if(player){
             this.set_affected_player(player);
-            this.remove();
+            player.get_powerup_effect().remove();
+
+            var scope = this;
+                window.addEventListener('jump_event', function (e) {
+                scope.affect();
+            });
 
             this.effect = this._game.add.sprite(0, 0, 'shield_effect');
             player.set_powered(true);
@@ -69,8 +67,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             player.get_player().addChild(this.effect);
 
             player.is_shielded = true;
-
-
 
             //how long does it last?
             this.shield_timer = this._game.time.events.loop(Phaser.Timer.SECOND, this.check_duration, this);
@@ -107,6 +103,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     Shield.prototype.remove = function(){
         console.log("removed a shield")
+        window.removeEventListener('jump_event');
         this.current_time = 0;
         this._game.time.events.remove(this.shield_timer);
         var player = this.get_affected_player();
@@ -116,15 +113,19 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             player.get_player().body.immovable = false;
             player.get_player().removeChild(this.effect);
             player.is_shielded = false;
+            player.get_player().body.velocity.y = -350;
+            player.get_player().body.gravity.y = 1000;
             window.dispatchEvent(this.power_ended);
         }
     };
 
     Shield.prototype.affect = function(){
         var player = this.get_affected_player();
+        console.log(player)
         if(player){
             player.get_player().body.velocity.y = -350;
             player.get_player().body.gravity.y = 1000;
+
         }
     };
 

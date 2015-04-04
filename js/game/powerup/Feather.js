@@ -4,8 +4,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Feather = function () {
         Powerup.call(this);
-        this.start_chance = -0.10;
-        this.end_chance = -0.90;
+        this.start_chance = -0.3;
+        this.end_chance = -0.50;
         this.velocity = -350;
         this.speed = 9500;
         this.gravity = 100;
@@ -49,12 +49,17 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         if(player){
 
             this.set_affected_player(player);
-            this.remove();
+            player.get_powerup_effect().remove();
+
+            var scope = this;
+                window.addEventListener('jump_event', function (e) {
+                scope.affect();
+            });
 
             player.set_powered(true);
             player.get_player().tint = 0xff9900;
             player.get_player().alpha = 0.4
-            player.get_player().body.velocity.y += 10;
+            //player.get_player().body.velocity.y += 10;
 
             //how long does it last?
             this.timer = this._game.time.events.loop(Phaser.Timer.SECOND * this.duration, this.remove, this);
@@ -74,10 +79,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         feather.rotation = rotationStart;
         this._game.add.tween(feather).to({ rotation: rotationEnd }, 1000, Phaser.Easing.Back.InOut, true, 0, 1000, true);
 
-        var scope = this;
-        window.addEventListener('jump_event', function (e) {
-            scope.affect();
-        }, false);
     };
 
     Feather.prototype.remove = function(){

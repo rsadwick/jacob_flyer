@@ -7,10 +7,10 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         this.tween;
         this.charge_start_chance = 0.0;
-        this.charge_end_chance = 1;
+        this.charge_end_chance = 0.2;
 
-        this.shoot_start_chance = -0.1;
-        this.shoot_end_chance = -0.90;
+        this.shoot_start_chance = 0.21;
+        this.shoot_end_chance = 1;
 
         this.shotsFired = 0;
 
@@ -168,7 +168,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     Clown.prototype.on_player_bullet = function(player, bullet){
 
         if(this._player.get_powered()){
-            if(this._player.get_powerup_effect().is_shield()){
+            if(this._player.get_powerup_effect().is_shield() ||
+                this._player.get_powerup_effect().is_weight()){
                 this.bullet_hit_shield = true;
                 this._game.physics.arcade.moveToObject(bullet, this.boss, 100, 500);
             }

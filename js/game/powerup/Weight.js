@@ -4,8 +4,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Weight = function () {
         Powerup.call(this);
-        this.start_chance = -0.0;
-        this.end_chance = -0.90;
+        this.start_chance = 0.0;
+        this.end_chance = 0.50;
         this.velocity = -350;
 
         this.duration = 7;
@@ -13,6 +13,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this._player;
         this.effect;
         this.tween;
+        this.timer;
 
         //debuff effects
         this.speed = 1000;
@@ -41,6 +42,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.weights.createMultiple(20, 'ton');
         this.weights.setAll('checkWorldBounds', true);
         this.weights.setAll('outOfBoundsKill', true);
+        this._game.physics.enable(this.weights, Phaser.Physics.ARCADE);
     };
 
     Weight.prototype.update = function () {
@@ -49,16 +51,23 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     Weight.prototype.on_collect = function (player, powerup) {
         if(player){
-            this._game.physics.enable(powerup, Phaser.Physics.ARCADE);
+
             this.set_affected_player(player);
-            this.remove();
+            player.get_powerup_effect().remove();
+
 
             player.set_powered(true);
             player.get_player().tint = 0x999999;
-            player.get_player().body.velocity.y += 10;
+            // player.get_player().body.velocity.y += 10;
+
+            var scope = this;
+                window.addEventListener('jump_event', function (e) {
+                scope.affect();
+            });
 
             //how long does it last?
             this.timer = this._game.time.events.loop(Phaser.Timer.SECOND * this.duration, this.remove, this);
+            window.dispatchEvent(this.power_started);
         }
 
     };
@@ -72,22 +81,25 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         //weight.body.rotation.y = 3;
         weight.body.bounce.y = 0.7 + Math.random() * 0.2;
         weight.body.bounce.x = 1.7 + Math.random() * 0.2;
-
-        var scope = this;
-        window.addEventListener('jump_event', function (e) {
-            scope.affect();
-        }, false);
     };
 
     Weight.prototype.remove = function(){
+        console.log("remove")
+        window.removeEventListener('jump_event');
         this._game.time.events.remove(this.timer);
         var player = this.get_affected_player();
         if(player){
             player.set_powered(false);
-            player.get_player().body.gravity.y = 1000;
             player.get_player().blendMode = Phaser.blendModes.NORMAL;
             player.get_player().tint = 0xFFFFFF;
             player.get_player().alpha = 1;
+            //reset
+
+            player.get_player().body.velocity.y = -350;
+            player.get_player().body.gravity.y = 1000;
+            console.log("-------!!!!!! - " + player.get_player().body.gravity.y)
+
+            window.dispatchEvent(this.power_ended);
         }
     };
 
