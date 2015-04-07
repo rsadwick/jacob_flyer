@@ -58,8 +58,10 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //pipes:
         this.pipes = this._game.add.group();
-        this.pipes.enableBody = true;
+        //this._game.physics.enable(this.pipes, Phaser.Physics.ARCADE);
         this.pipes.physicsBodyType = Phaser.Physics.ARCADE;
+        this.pipes.enableBody = true;
+
         this.pipes.createMultiple(25, 'pipe', 0);
         this.pipes.setAll('checkWorldBounds', true);
         this.pipes.setAll('outOfBoundsKill', true);
@@ -105,7 +107,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         //bomb emitters
         if(this.powerup instanceof Bomb)
         {
-            this._game.physics.arcade.collide(this.powerup.get_emitter(), this.pipes, this.powerup.on_collide, null, this.powerup);
+            this._game.physics.arcade.overlap(this.powerup.get_powerup(), this.pipes, this.powerup.on_collide, null, this.powerup);
         }
     };
 
@@ -153,7 +155,6 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
     Level.prototype.choose_powerup = function(){
         this._game.time.events.remove(this.choosePowerupTimer);
-        var _scope = this;
 
         //roll for powerup
         var randomSeed = Math.random();

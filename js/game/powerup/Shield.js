@@ -6,8 +6,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         Powerup.call(this);
         this.duration = 7;
         this.current_time = 0;
-        this.start_chance = 0.51;
-        this.end_chance = 1;
+        this.start_chance = -0.51;
+        this.end_chance = -1;
         this.blend_mode = Phaser.blendModes.ADD;
         this.shields;
         this.shield_timer;
@@ -36,12 +36,14 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     Shield.prototype.create = function (player) {
         console.log("created a shield bra");
         this.shields = this._game.add.group();
-        this.shields.enableBody = true;
+        this._game.physics.enable(this.shields, Phaser.Physics.ARCADE);
         this.shields.physicsBodyType = Phaser.Physics.ARCADE;
+        this.shields.enableBody = true;
+
         this.shields.createMultiple(20, 'shield');
         this.shields.setAll('checkWorldBounds', true);
         this.shields.setAll('outOfBoundsKill', true);
-        this._game.physics.enable(this.shields, Phaser.Physics.ARCADE);
+
     };
 
     Shield.prototype.update = function () {

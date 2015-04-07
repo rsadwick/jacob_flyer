@@ -4,7 +4,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Weight = function () {
         Powerup.call(this);
-        this.start_chance = -0.0;
+        this.start_chance = -1.0;
         this.end_chance = -0.50;
         this.velocity = -350;
 
