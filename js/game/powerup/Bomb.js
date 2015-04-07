@@ -9,6 +9,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.start = false;
         this.emitter;
         this.tween;
+        this.delay_timer;
         this.timer;
     }
 
@@ -37,8 +38,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     };
 
     Bomb.prototype.update = function () {
-
-
         if (this.bombs.length >= 1 && this.start == false && this.emitter != null) {
             var current_bomb = this.get_instances();
 
@@ -60,32 +59,22 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     Bomb.prototype.add = function(){
         //pick a place to explode:
-        var pipe = this._level.get_pipes();
-        if(pipe){
+        console.log("bombs asdded")
+        var bomb = this.bombs.getFirstDead();
 
-            for(var pipe_index = 0; pipe_index < 4; pipe_index++){
-                var pipe_instance = pipe.getChildAt(pipe_index);
-                pipe_instance.name = "current";
-            }
+        if(bomb){
+            bomb.reset(this._game.width / 2, this._game.height / 2);
 
-            var bomb = this.bombs.getFirstDead();
+        this.tween = this._game.add.tween(bomb)
+            .to({ tint: 0xf50400 }, 2000, Phaser.Easing.Elastic.InOut, false, 1000)
+            .to({ tint: 0x0066f5}, 1000, Phaser.Easing.Elastic.InOut)
+            .to({ tint: 0xffffff}, 1000, Phaser.Easing.Elastic.In);
 
-            if(bomb){
-                bomb.reset(this._game.width / 2, this._game.height / 2);
+        this.tween.start();
+        this.tween.repeat(50, 20);
+        this.delay_timer = this._game.time.events.add(5000, this.track_pipes, this);
+       // this.tween.onComplete.add(on_complete, this);
 
-
-                this.tween = this._game.add.tween(bomb)
-                    .to({ tint: 0xf50400 }, 2000, Phaser.Easing.Elastic.InOut, false, 1000)
-                    .to({ tint: 0x0066f5}, 1000, Phaser.Easing.Elastic.InOut)
-                    .to({ tint: 0xffffff}, 1000, Phaser.Easing.Elastic.In);
-
-                this.tween.start();
-                this.tween.onComplete.add(on_complete, this);
-            }
-        }
-        var _scope = this;
-        function on_complete(){
-           // _scope.explode();
         }
     };
 
@@ -112,7 +101,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         for (var currentBombos = 0; currentBombos < this.bombs.length; currentBombos++) {
             instance = this.bombs.getAt(currentBombos);
         }
-        //console.log(instance.alive)
         return (instance.alive) ? instance : null;
     };
 
@@ -155,6 +143,19 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             this.explode();
         }
     };
+
+    Bomb.prototype.track_pipes = function(){
+        console.log("TRCAK PIUPES")
+        var pipe = this._level.get_pipes();
+        if(pipe){
+
+            for(var pipe_index = 0; pipe_index < 4; pipe_index++){
+                var pipe_instance = pipe.getChildAt(pipe_index);
+                pipe_instance.name = "current";
+            }
+        }
+        this._game.time.events.remove(this.delay_timer);
+    }
 
     return Bomb;
 
