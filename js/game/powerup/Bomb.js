@@ -59,7 +59,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     Bomb.prototype.add = function(){
         //pick a place to explode:
-        console.log("bombs asdded")
         var bomb = this.bombs.getFirstDead();
 
         if(bomb){
@@ -71,10 +70,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             .to({ tint: 0xffffff}, 1000, Phaser.Easing.Elastic.In);
 
         this.tween.start();
-        this.tween.repeat(50, 20);
+        this.tween.repeat(-1, 20);
         this.delay_timer = this._game.time.events.add(5000, this.track_pipes, this);
-       // this.tween.onComplete.add(on_complete, this);
-
+        // this.tween.onComplete.add(on_complete, this);
         }
     };
 
@@ -87,6 +85,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         if(bomb && this.emitter){
             if(this.bombs.length >= 1){
                 this.emitter.destroy(true, false);
+                this.tween.stop();
                 bomb.kill();
             }
         }
