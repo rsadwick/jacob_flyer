@@ -149,7 +149,6 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
     };
 
     Level.prototype.create_powerup = function(){
-        this.choose_powerup();
         var powerup_creation = Math.floor(Math.random() * 5) + 2;
         this.choosePowerupTimer = this._game.time.events.add(Phaser.Timer.SECOND * powerup_creation, this.choose_powerup, this);
     };

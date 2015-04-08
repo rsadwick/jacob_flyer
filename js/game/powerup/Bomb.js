@@ -25,7 +25,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this._game.load.image('burst_yellow', 'assets/laserYellowBurst.png');
     };
 
-    Bomb.prototype.create = function (level) {
+    Bomb.prototype.create = function () {
 
         this.bombs = this._game.add.group();
         this.bombs.physicsBodyType = Phaser.Physics.ARCADE;
