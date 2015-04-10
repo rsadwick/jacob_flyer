@@ -119,7 +119,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
             },
 
             create: function() {
-                level.create(player);
+                level.create(player, hud);
                 hud.create();
                 player.create();
                 clown.create();

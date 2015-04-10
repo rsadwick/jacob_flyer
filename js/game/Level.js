@@ -20,6 +20,8 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.death_timer;
         this.boss_timer;
 
+        this.hud;
+
         //events
         this.death_event = new CustomEvent('death');
 
@@ -51,7 +53,9 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._game.load.image('shrooms', this.settings.level.background);
     };
 
-    Level.prototype.create = function (player) {
+    Level.prototype.create = function (player, hud) {
+        this.hud = hud;
+
         this._player = player;
         this.background = this._game.add.tileSprite(0, 0, 600, 800, 'shrooms');
         this._game.input.keyboard.disabled = false;
@@ -82,7 +86,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         //boss timer:
         this.boss_timer = this._game.time.create(false);
         this.boss_timer.add(500, this.summon_boss, this);
-        //this.boss_timer.start();
+        this.boss_timer.start();
 
     };
 
@@ -214,6 +218,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._game.add.tween(this.background).to({ alpha: 0.5 }, 2000, Phaser.Easing.Linear.None, true);
         var boss = this.settings.level.character.BOSS.type;
         boss.add();
+        this.hud.create_boss_lives();
     };
 
     Level.prototype.get_pipes = function(){

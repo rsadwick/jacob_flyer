@@ -42,9 +42,7 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     HUD.prototype.create = function () {
         //lives ui groups for player and boss
-        this.lives = this._game.add.group();
-        this.boss_lives = this._game.add.group();
-
+         this.lives = this._game.add.group();
         //player lives:
         for (var i = 0; i < 3; i++) {
             //  They are evenly spaced out on the X coordinate, with a random Y coordinate
@@ -56,6 +54,8 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this.score = 0;
         var style = { font: "30px Arial", fill: "#ff9900" };
         this.score_label = this._game.add.text(10, this.current_life.y + this.current_life.height + 12, "0", style);
+
+
     };
 
     HUD.prototype.update = function () {
@@ -64,7 +64,18 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     HUD.prototype.score_update = function(){
         this.score_label.text = this.score;
-    }
+    };
+
+    HUD.prototype.create_boss_lives = function(){
+        this.boss_lives = this._game.add.group();
+
+        for (var i = 0; i < 3; i++) {
+            //  They are evenly spaced out on the X coordinate, with a random Y coordinate
+            this.boss_lives = this.lives.create(220 + (60 * i), 20, 'lives');
+            this.boss_lives.frame = 2;
+            this.boss_lives.tint = 0x999999;
+        }
+    };
 
 
     return HUD;
