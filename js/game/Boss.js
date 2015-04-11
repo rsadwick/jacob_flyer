@@ -7,12 +7,10 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         var scope = this;
          //player powered up
         window.addEventListener('power_started', function (event) {
-            console.log("POWER UP STARTED!!!!")
             scope.analyze_player();
         }, false);
 
         window.addEventListener('power_ended', function (event) {
-            console.log("POWER UP ENDDDDD!!!!")
             scope.analyze_player();
         }, false);
 
@@ -34,8 +32,6 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     Boss.prototype.create = function (player) {
         //this._game.events.onBossDamage.add(this.on_damage, this);
-
-
     };
 
     Boss.prototype.update = function () {};
@@ -65,6 +61,18 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     };
 
     Boss.prototype.analyze_player = function(){};
+
+    Boss.prototype.escape = function(){
+
+    };
+
+    Boss.prototype.get_phase = function(){
+        return this.phase;
+    };
+
+    Boss.prototype.set_phase = function(phase){
+        this.phase = phase;
+    };
 
     return Boss;
 

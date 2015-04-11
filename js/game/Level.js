@@ -7,7 +7,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._player;
         this.level = {
              name: "level 1",
-             background: 'assets/bg_desert.png'
+             background: 'assets/hills.png'
         }
         this.background;
         this.pipes;
@@ -21,10 +21,6 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.boss_timer;
 
         this.hud;
-
-        //events
-
-        this.death_event = new CustomEvent('death');
 
     }
 
