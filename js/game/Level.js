@@ -23,6 +23,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.hud;
 
         //events
+
         this.death_event = new CustomEvent('death');
 
     }
@@ -35,6 +36,8 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         window.addEventListener('death_event', function (e) {
             scope.kill_player();
         }, false);
+
+        if (!this._game.events) this._game.events = {};
     };
 
     Level.prototype.preload = function () {

@@ -14,13 +14,11 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         var shield = new Shield();
         var weight = new Weight();
         var feather = new Feather();
-        var bomb = new Bomb();
         var clown = new Clown();
+        var bomb = new Bomb();
         var powerups = [];
 
         powerups.push(shield, weight, feather, bomb);
-        console.log(powerups);
-
 
         var settings = {
             level : {
@@ -103,14 +101,14 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 level.init(_game, settings, powerups);
                 level.preload();
 
-                hud.init(_game);
-                hud.preload();
-
                 player.init(_game, level.get_settings());
                 player.preload();
 
                 clown.init(_game);
                 clown.preload();
+
+                hud.init(_game);
+                hud.preload();
 
                 for(var powerup in powerups){
                     powerups[powerup].init(_game, level);
@@ -119,11 +117,16 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
             },
 
             create: function() {
+
                 level.create(player, hud);
-                hud.create();
+
                 player.create();
+
                 clown.create();
                 clown.set_player(player);
+
+                hud.create();
+
 
                 for(var powerup in powerups){
                     powerups[powerup].create();

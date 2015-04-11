@@ -11,16 +11,21 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         this.settings = {};
         this.space_key;
         this.powerup;
+        this.is_player = true;
 
         //events
+
         this.jump_event = new CustomEvent("jump_event");
         this.death_event = new CustomEvent("death_event");
 
     }
 
+    Player.prototype.constructor = Player;
+
     Player.prototype.init = function (game, settings) {
         this._game = game;
         this.settings = settings;
+        this._game.events.onPlayerDamage = new Phaser.Signal();
 
     };
 
@@ -29,6 +34,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
     };
 
     Player.prototype.create = function () {
+        this._game.events.onPlayerDamage.add(this.on_damage, this);
         this.set_hit_wall(false);
         this._game.physics.startSystem(Phaser.Physics.ARCADE);
         this.bird = this._game.add.sprite(100, 245, 'bird');
@@ -57,7 +63,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         }
 
         if (!this.bird.inWorld) {
-            this.hit();
+            this.kill();
         }
     };
 
@@ -110,9 +116,6 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         if(obj){
             obj.body.gravity.y = 300;
         }
-
-        if(!this.is_shielded)
-            this.kill();
     };
 
     Player.prototype.kill = function(){

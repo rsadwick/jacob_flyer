@@ -28,10 +28,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
     Clown.prototype.constructor = Clown;
 
-    Clown.prototype.init = function (game) {
-        this._game = game;
-    };
-
     Clown.prototype.preload = function () {
         this._game.load.image('clown', 'assets/clown_boss.png');
     };
@@ -96,7 +92,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.charging = true;
 
         function on_attack_complete() {
-            console.log("ENDED!!!!")
             this.tween.stop();
             this.charging = false;
             this.attack();
@@ -152,12 +147,13 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             if(this._player.get_powered()){
                 if(this._player.get_powerup_effect().is_shield()){
                     this.on_damage();
+                    this._game.events.onBossDamage.dispatch(this, this, 1);
                     this.boss_hit_player = true;
                 }
             }
             else{
                 this.boss_hit_player = true;
-                this._player.on_damage();
+                this._game.events.onPlayerDamage.dispatch(this, this._player, 1);
             }
         }
     };
@@ -177,7 +173,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         }
         else{
             bullet.kill();
-            this._player.on_damage();
+            //this._player.on_damage();
+            this._game.events.onPlayerDamage.dispatch(this, this._player, 1);
         }
     };
 
@@ -186,6 +183,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
            this.bullet_hit_shield = false;
            bullet.kill();
            this.on_damage();
+           this._game.events.onBossDamage.dispatch(this, this, 1);
         }
     };
 

@@ -21,15 +21,22 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this.lives;
         this.boss;
         this.phase = 0;
+        this.is_player = false;
     }
 
     Boss.prototype.init = function (game) {
         this._game = game;
+        this._game.events.onBossDamage = new Phaser.Signal();
+
     };
 
     Boss.prototype.preload = function () {};
 
-    Boss.prototype.create = function (player) {};
+    Boss.prototype.create = function (player) {
+        //this._game.events.onBossDamage.add(this.on_damage, this);
+
+
+    };
 
     Boss.prototype.update = function () {};
 
