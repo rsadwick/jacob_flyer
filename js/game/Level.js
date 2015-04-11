@@ -34,7 +34,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.powerups = powerups;
         var scope = this;
         window.addEventListener('death_event', function (e) {
-            scope.kill_player();
+          //  scope.kill_player();
         }, false);
 
         if (!this._game.events) this._game.events = {};
@@ -57,6 +57,10 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
     };
 
     Level.prototype.create = function (player, hud) {
+
+        //events
+        this._game.events.onPlayerDeath.add(this.kill_player, this);
+
         this.hud = hud;
 
         this._player = player;
@@ -193,6 +197,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._game.time.events.remove(this.death_timer);
         this._game.time.events.remove(this.choosePowerupTimer);
         this._game.time.events.remove(this.powerup_timer);
+        this.hud.reset();
 
         for(var powerup in this.powerups){
             this.powerups[powerup].remove();

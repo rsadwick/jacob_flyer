@@ -14,14 +14,10 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this.score = 0;
         this.score_label;
 
-
         //boss
         this.boss_max_life = 3;
         this.player_group;
         this.boss_group;
-
-        //events
-
     }
 
     HUD.prototype.init = function (game, settings) {
@@ -110,7 +106,7 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
                 (this.get_entity_type(obj)) ? this.player_max_life -= 1 : this.boss_max_life -=1;
 
                 if(this.player_max_life == 0){
-                    window.dispatchEvent(this.death_event);
+                    this._game.events.onPlayerKilled.dispatch();
                 }
             }
         }
@@ -120,6 +116,12 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         var ret = false;
         if(entity.is_player ){ ret = true; }
         return ret;
+    };
+
+    HUD.prototype.reset = function(){
+        //todo: call server to get max lives
+        this.player_max_life = 3;
+        this.boss_max_life = 3;
     }
 
     return HUD;

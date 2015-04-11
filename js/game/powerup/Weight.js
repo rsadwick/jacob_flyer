@@ -4,8 +4,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     var Weight = function () {
         Powerup.call(this);
-        this.start_chance = -1.0;
-        this.end_chance = -0.50;
+        this.start_chance = 0.0;
+        this.end_chance = 1;
         this.velocity = -350;
 
         this.duration = 7;
@@ -57,7 +57,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
             player.set_powered(true);
             player.get_player().tint = 0x999999;
-            // player.get_player().body.velocity.y += 10;
 
             var scope = this;
                 window.addEventListener('jump_event', function (e) {

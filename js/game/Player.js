@@ -26,6 +26,8 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         this._game = game;
         this.settings = settings;
         this._game.events.onPlayerDamage = new Phaser.Signal();
+        this._game.events.onPlayerKilled = new Phaser.Signal();
+        this._game.events.onPlayerDeath = new Phaser.Signal();
 
     };
 
@@ -35,6 +37,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
 
     Player.prototype.create = function () {
         this._game.events.onPlayerDamage.add(this.on_damage, this);
+        this._game.events.onPlayerKilled.add(this.kill, this);
         this.set_hit_wall(false);
         this._game.physics.startSystem(Phaser.Physics.ARCADE);
         this.bird = this._game.add.sprite(100, 245, 'bird');
@@ -127,7 +130,8 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         //particles
         if(!this.get_hit_wall()){
             this.on_damage();
-            window.dispatchEvent(this.death_event);
+            //window.dispatchEvent(this.death_event);
+            this._game.events.onPlayerDeath.dispatch();
             this.set_hit_wall(true);
         }
     };
