@@ -3,6 +3,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
     "use strict";
 
     var Player = function () {
+        this.lives = 3;
         this._game;
         this.bird;
         this.player_hit_wall = false;
@@ -16,8 +17,6 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         //events
 
         this.jump_event = new CustomEvent("jump_event");
-        this.death_event = new CustomEvent("death_event");
-
     }
 
     Player.prototype.constructor = Player;
@@ -57,6 +56,10 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         //controls:
         this.space_key = this._game.input.keyboard.addKey(Phaser.Keyboard.SPACEBAR);
         this.space_key.onDown.add(this.jump, this);
+
+        //temperary heal
+        this.heal_key = this._game.input.keyboard.addKey(Phaser.Keyboard.H);
+        this.heal_key.onDown.add(this.heal, this);
     };
 
     Player.prototype.update = function () {
@@ -142,6 +145,18 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         emitter.start(false, 2000, 0, 10);
         emitter.x = this.bird.body.x + this.bird.width / 2;
         emitter.y = this.bird.body.y;
+    };
+
+    Player.prototype.heal = function(){
+        this._game.events.onPlayerDamage.dispatch(this, this, 1, true);
+    };
+
+    Player.prototype.set_lives = function(life){
+        this.lives = life;
+    };
+
+    Player.prototype.get_lives = function(){
+        return this.lives;
     };
 
     return Player;

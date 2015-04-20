@@ -7,9 +7,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         this.tween;
         this.charge_start_chance = 0.0;
-        this.charge_end_chance = 0.50;
+        this.charge_end_chance = 0.70;
 
-        this.shoot_start_chance = 0.51;
+        this.shoot_start_chance = 0.71;
         this.shoot_end_chance = 1;
 
         this.shotsFired = 0;
@@ -153,7 +153,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             }
             else{
                 this.boss_hit_player = true;
-                this._game.events.onPlayerDamage.dispatch(this, this._player, 1);
+                this._game.events.onPlayerDamage.dispatch(this, this._player, 1, false);
             }
         }
     };
@@ -174,7 +174,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         else{
             bullet.kill();
             //this._player.on_damage();
-            this._game.events.onPlayerDamage.dispatch(this, this._player, 1);
+            this._game.events.onPlayerDamage.dispatch(this, this._player, 1, false);
         }
     };
 

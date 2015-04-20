@@ -63,11 +63,11 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     };
 
-    HUD.prototype.score_update = function(){
+    HUD.prototype.score_update = function () {
         this.score_label.text = this.score;
     };
 
-    HUD.prototype.create_boss_lives = function(){
+    HUD.prototype.create_boss_lives = function () {
         this.boss_group = this._game.add.group();
         for (var i = 0; i < 3; i++) {
             //  They are evenly spaced out on the X coordinate, with a random Y coordinate
@@ -77,48 +77,71 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         }
     };
 
-    HUD.prototype.update_lives = function(e, obj, amount){
+    HUD.prototype.update_lives = function (e, obj, amount, isAdding) {
         var lives = 0;
         var life_sprite;
         var life_group;
 
-        if(this.get_entity_type(obj)){
+        if (this.get_entity_type(obj)) {
             lives = this.player_max_life;
             life_sprite = this.player_group;
         }
-        else{
+        else {
             lives = this.boss_max_life;
             life_sprite = this.boss_group;
         }
+        console.log("CURRENT LIVES : " + lives);
 
-        if(amount >= 3){
+        if (amount >= 3) {
             life_sprite.setAll("frame", 0);
         }
-        else{
+        else {
             life_group = life_sprite.getAt(lives - 1);
 
-            if(life_group.frame == 2){
-                life_group.frame = 1;
+            if (isAdding) {
+                console.log("Adding " + lives)
+                if (life_group.frame == 1) {
+                    life_group.frame = 2;
+                }
+
+                else {
+                    life_group.frame = 1;
+                    console.log( this.player_max_life);
+                    if(this.player_max_life < 3)
+                        (this.get_entity_type(obj)) ? this.player_max_life += 1 : this.boss_max_life += 1;
+
+                }
+
+                console.log("NOW LIVES : " + this.player_max_life);
             }
-            else{
-                life_group.frame = 0;
 
-                (this.get_entity_type(obj)) ? this.player_max_life -= 1 : this.boss_max_life -=1;
+            else if (!isAdding) {
 
-                if(this.player_max_life == 0){
-                    this._game.events.onPlayerKilled.dispatch();
+                if (life_group.frame == 2) {
+                    life_group.frame = 1;
+                }
+                else {
+                    life_group.frame = 0;
+
+                    (this.get_entity_type(obj)) ? this.player_max_life -= 1 : this.boss_max_life -= 1;
+
+                    if (this.player_max_life == 0) {
+                        this._game.events.onPlayerKilled.dispatch();
+                    }
                 }
             }
         }
     };
 
-    HUD.prototype.get_entity_type = function(entity){
+    HUD.prototype.get_entity_type = function (entity) {
         var ret = false;
-        if(entity.is_player ){ ret = true; }
+        if (entity.is_player) {
+            ret = true;
+        }
         return ret;
     };
 
-    HUD.prototype.reset = function(){
+    HUD.prototype.reset = function () {
         //todo: call server to get max lives
         this.player_max_life = 3;
         this.boss_max_life = 3;
