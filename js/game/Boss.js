@@ -18,14 +18,12 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this._player;
         this.lives;
         this.boss;
-        this.phase = 0;
         this.is_player = false;
     }
 
     Boss.prototype.init = function (game) {
         this._game = game;
         this._game.events.onBossDamage = new Phaser.Signal();
-
     };
 
     Boss.prototype.preload = function () {};
@@ -61,18 +59,6 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     };
 
     Boss.prototype.analyze_player = function(){};
-
-    Boss.prototype.escape = function(){
-
-    };
-
-    Boss.prototype.get_phase = function(){
-        return this.phase;
-    };
-
-    Boss.prototype.set_phase = function(phase){
-        this.phase = phase;
-    };
 
     return Boss;
 

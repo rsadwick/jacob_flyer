@@ -22,16 +22,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.bullet_hit_shield = false;
         this.boss_hit_player = false;
 
-        this.phase_attack = {
-            attack : 0,
-            shoot : 1
-        };
-
-        this.phase_state = null;
-
-        this.run = false;
-
-
     }
 
     Clown.prototype = Object.create(Boss.prototype);
@@ -59,35 +49,11 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     };
 
     Clown.prototype.attack = function () {
-        //boss picks randomly what attack to use
-        if(this.phase_state && this.get_phase() == 0){
-            switch(this.phase_state){
-                case this.phase_attack.attack:
-                    this.attack_charge();
-                    break;
-                case this.phase_attack.shoot:
-                    this.attack_shoot();
-                    break;
-            }
-            return;
-        }
-
-
         var random = Math.random();
-        console.log("pickl")
         if (random >= this.charge_start_chance && random <= this.charge_end_chance) {
-
-            if(this.get_phase() == 0){
-                this.phase_state = this.phase_attack.attack;
-            }
-
             this.attack_charge();
-
         }
         else if (random >= this.shoot_start_chance && random <= this.shoot_end_chance) {
-            if(this.get_phase() == 0){
-                this.phase_state = this.phase_attack.shoot;
-            }
 
             this.attack_shoot();
         }
@@ -336,18 +302,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 }
             }
         }
-    };
-
-    Clown.prototype.escape = function(){
-        //escape method that will kick off next phase
-    };
-
-    Clown.prototype.get_phase = function(){
-        return this.phase;
-    };
-
-    Clown.prototype.set_phase = function(phase){
-        this.phase = phase;
     };
 
     return Clown;
