@@ -148,6 +148,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
     };
 
     Player.prototype.heal = function(){
+        console.log("heal")
         this._game.events.onPlayerDamage.dispatch(this, this, 1, true);
     };
 

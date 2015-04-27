@@ -9,8 +9,8 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         var _game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div', { preload: game_state.preload, create: game_state.create, update: game_state.update });
 
         var level = new Level();
-        var hud = new HUD();
         var player = new Player();
+        var hud = new HUD();
         var shield = new Shield();
         var weight = new Weight();
         var feather = new Feather();
