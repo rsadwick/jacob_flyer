@@ -81,8 +81,6 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         var lives = 0;
         var life_sprite;
         var life_group;
-        console.log("sdfsdf--" + isAdding)
-
 
         if (this.get_entity_type(obj)) {
             lives = this.player_max_life;
@@ -97,31 +95,52 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
             life_sprite.setAll("frame", 0);
         }
         else {
-            life_group = life_sprite.getAt(lives - 1);
+
 
             if (isAdding) {
+
+                if (lives < 3) {
+
+                    (this.get_entity_type(obj)) ? this.player_max_life += 1 : this.boss_max_life += 1;
+                }
+
+
+                if (this.get_entity_type(obj)) {
+                    lives = this.player_max_life;
+
+                }
+                else {
+                    lives = this.boss_max_life;
+
+                }
+
+                 life_group = life_sprite.getAt(lives - 1);
+
+                //life_sprite.getAt(lives - 1);
                 console.log("IS ADDING!")
                 console.log("framer-------------------------------- : " + life_group.frame);
                 if (life_group.frame == 1) {
                     life_group.frame = 2;
                 }
-                else if(life_group.frame == 0){
+                else if (life_group.frame == 0) {
                     life_group.frame = 1;
                 }
 
                 else {
-                   // life_group = life_sprite.getAt(lives);
+                   // life_group = life_sprite.getAt(lives - 1);
                     life_group.frame = 2;
-                    if(this.player_max_life < 3){
-                        (this.get_entity_type(obj)) ? this.player_max_life += 1 : this.boss_max_life += 1;
-                    }
+
+                    console.log("!!!!!!!!!!!!!!!!!!!!!!!!!!!!! : :  : : two")
+
                 }
+
+                //life_group = life_sprite.getAt(lives - 1);
 
                 console.log("NOW LIVES : " + this.player_max_life);
             }
 
             else if (!isAdding) {
-
+                life_group = life_sprite.getAt(lives - 1);
                 if (life_group.frame == 2) {
                     life_group.frame = 1;
                 }
