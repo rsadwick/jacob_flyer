@@ -92,10 +92,30 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
             }
         }
 
+        //title screen state
+        game_state.title = function (_game) {};
+        game_state.title.prototype = {
+
+            preload: function () {
+                _game.load.image("titlescreen", "assets/titlescreen.png");
+            },
+
+            create: function () {
+                var gameTitle = _game.add.button(160, 160, "titlescreen", this.startup, this);
+                gameTitle.anchor.setTo(0.5, 0.5);
+            },
+
+            update: function () {},
+
+            startup: function(){
+                _game.state.start('main');
+            }
+        }
+
+        //main gameplay state:
         game_state.main = function () {};
 
         game_state.main.prototype = {
-
 
             preload: function() {
                 level.init(_game, settings, powerups);
@@ -145,6 +165,8 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
             }
         }
 
+        //add and boot states:
         _game.state.add('main', game_state.main);
-        _game.state.start('main');
+        _game.state.add('title', game_state.title);
+        _game.state.start('title');
     });
