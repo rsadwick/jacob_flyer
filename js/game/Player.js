@@ -24,6 +24,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
     Player.prototype.init = function (game, settings) {
         this._game = game;
         this.settings = settings;
+        this._game.events.onPlayerJump = new Phaser.Signal();
         this._game.events.onPlayerDamage = new Phaser.Signal();
         this._game.events.onPlayerHeal = new Phaser.Signal();
         this._game.events.onPlayerKilled = new Phaser.Signal();
@@ -98,7 +99,8 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
 
         this.bird.animations.play('up');
 
-        window.dispatchEvent(this.jump_event);
+        this._game.events.onPlayerJump.dispatch();
+      //  window.dispatchEvent(this.jump_event);
         if(this.get_powered()){
             return;
         }
@@ -134,7 +136,6 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         //particles
         if(!this.get_hit_wall()){
             this.on_damage();
-            //window.dispatchEvent(this.death_event);
             this._game.events.onPlayerDeath.dispatch();
             this.set_hit_wall(true);
         }
@@ -154,19 +155,23 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         emitter.start(false, 1200, 0, 20);
         emitter.x = this.bird.body.x + this.bird.width / 2;
         emitter.y = this.bird.body.y;
+
+        var heal_tween = this._game.add.tween(this.bird)
+            .to({ tint: 0x00FF00 }, 400)
+            .to({ tint: 0xfdff00}, 400)
+            .to({ tint: 0x1ad013}, 400);
+
+        heal_tween.onComplete.add(reset_heal_effect, this);
+        heal_tween.start();
+
+        function reset_heal_effect(){
+            this._game.time.events.remove(this.heal_effect_timer);
+            this.bird.tint = 0xFFFFFF;
+        }
     }
 
     Player.prototype.heal = function(){
-        console.log("heal")
         this._game.events.onPlayerHeal.dispatch(this, this, 1, true);
-    };
-
-    Player.prototype.set_lives = function(life){
-        this.lives = life;
-    };
-
-    Player.prototype.get_lives = function(){
-        return this.lives;
     };
 
     return Player;

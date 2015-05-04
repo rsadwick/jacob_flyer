@@ -55,10 +55,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             this.set_affected_player(player);
             player.get_powerup_effect().remove();
 
-            var scope = this;
-                window.addEventListener('jump_event', function (e) {
-                scope.affect();
-            });
+            this._game.events.onPlayerJump.add(this.affect, this);
 
             this.effect = this._game.add.sprite(0, 0, 'shield_effect');
             player.set_powered(true);
@@ -104,8 +101,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     };
 
     Shield.prototype.remove = function(){
-        console.log("removed a shield")
-        window.removeEventListener('jump_event');
+        this._game.events.onPlayerJump.removeAll();
         this.current_time = 0;
         this._game.time.events.remove(this.shield_timer);
         var player = this.get_affected_player();

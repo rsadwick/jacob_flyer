@@ -44,8 +44,6 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     Powerup.prototype.remove = function(){
         window.dispatchEvent(this.power_ended);
-        console.log("removed")
-
     };
 
     Powerup.prototype.get_powerup = function(){};
