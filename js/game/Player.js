@@ -25,9 +25,9 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         this._game = game;
         this.settings = settings;
         this._game.events.onPlayerDamage = new Phaser.Signal();
+        this._game.events.onPlayerHeal = new Phaser.Signal();
         this._game.events.onPlayerKilled = new Phaser.Signal();
         this._game.events.onPlayerDeath = new Phaser.Signal();
-
     };
 
     Player.prototype.preload = function () {
@@ -36,6 +36,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
 
     Player.prototype.create = function () {
         this._game.events.onPlayerDamage.add(this.on_damage, this);
+        this._game.events.onPlayerHeal.add(this.on_heal, this);
         this._game.events.onPlayerKilled.add(this.kill, this);
         this.set_hit_wall(false);
         this._game.physics.startSystem(Phaser.Physics.ARCADE);
@@ -147,9 +148,17 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         emitter.y = this.bird.body.y;
     };
 
+    Player.prototype.on_heal = function(){
+        var emitter = this._game.add.emitter(0, 0, 100);
+        emitter.makeParticles(['leaf']);
+        emitter.start(false, 1200, 0, 20);
+        emitter.x = this.bird.body.x + this.bird.width / 2;
+        emitter.y = this.bird.body.y;
+    }
+
     Player.prototype.heal = function(){
         console.log("heal")
-        this._game.events.onPlayerDamage.dispatch(this, this, 1, true);
+        this._game.events.onPlayerHeal.dispatch(this, this, 1, true);
     };
 
     Player.prototype.set_lives = function(life){

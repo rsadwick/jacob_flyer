@@ -53,6 +53,7 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         var style = { font: "30px Arial", fill: "#ff9900" };
         this.score_label = this._game.add.text(10, this.current_life.y + this.current_life.height + 12, "0", style);
         this._game.events.onPlayerDamage.add(this.update_lives, this);
+        this._game.events.onPlayerHeal.add(this.update_lives, this);
         this._game.events.onBossDamage.add(this.update_lives, this);
 
     };

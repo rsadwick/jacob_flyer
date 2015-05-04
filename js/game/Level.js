@@ -45,6 +45,9 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         //star powerup
         this._game.load.image('star', 'assets/star.png');
 
+        //leaf heal
+        this._game.load.image('leaf', 'assets/leaf.png');
+
         //candy
         this._game.load.image('candy', 'assets/cherry.png');
 
