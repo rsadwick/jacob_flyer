@@ -152,20 +152,19 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
     Player.prototype.on_heal = function(){
         var emitter = this._game.add.emitter(0, 0, 100);
         emitter.makeParticles(['leaf']);
-        emitter.start(false, 1200, 0, 20);
+        emitter.start(false, 1200, 0, 6);
         emitter.x = this.bird.body.x + this.bird.width / 2;
-        emitter.y = this.bird.body.y;
+        emitter.y = this.bird.body.y + this.bird.height / 2;
 
         var heal_tween = this._game.add.tween(this.bird)
-            .to({ tint: 0x00FF00 }, 400)
-            .to({ tint: 0xfdff00}, 400)
-            .to({ tint: 0x1ad013}, 400);
+            .to({ tint: 0x00ff00 }, 400)
+            .to({ tint: 0x00CC00}, 400)
+            .to({ tint: 0xe3ff00}, 400);
 
         heal_tween.onComplete.add(reset_heal_effect, this);
         heal_tween.start();
 
         function reset_heal_effect(){
-            this._game.time.events.remove(this.heal_effect_timer);
             this.bird.tint = 0xFFFFFF;
         }
     }

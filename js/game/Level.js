@@ -28,10 +28,6 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._game = game;
         this.settings = settings;
         this.powerups = powerups;
-        var scope = this;
-        window.addEventListener('death_event', function (e) {
-          //  scope.kill_player();
-        }, false);
 
         if (!this._game.events) this._game.events = {};
     };

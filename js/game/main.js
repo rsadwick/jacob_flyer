@@ -147,7 +147,6 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
 
                 hud.create();
 
-
                 for(var powerup in powerups){
                     powerups[powerup].create();
                 }
