@@ -21,6 +21,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         this.bullet_hit_shield = false;
         this.boss_hit_player = false;
+        this.is_dead = false;
     }
 
     Clown.prototype = Object.create(Boss.prototype);
@@ -38,6 +39,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.bullets.createMultiple(3, 'candy');
         this.bullets.setAll('checkWorldBounds', true);
         this.bullets.setAll('outOfBoundsKill', true);
+        this._game.events.onBossDeath = new Phaser.Signal();
+        this._game.events.onBossDeath.add(this.on_death, this);
     };
 
     Clown.prototype.update = function () {
@@ -48,6 +51,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     };
 
     Clown.prototype.attack = function () {
+        if(this.is_dead)
+            return false;
+
         var random = Math.random();
         if (random >= this.charge_start_chance && random <= this.charge_end_chance) {
             this.attack_charge();
@@ -170,7 +176,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         }
         else{
             bullet.kill();
-            //this._player.on_damage();
             this._game.events.onPlayerDamage.dispatch(this, this._player, 1, false);
         }
     };
@@ -299,6 +304,17 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 }
             }
         }
+    };
+
+    Clown.prototype.on_death = function(){
+        this.is_dead = true;
+        this.tween.stop();
+
+        var damage_tween = this._game.add.tween(this.boss)
+            .to({ tint: 0xf50400 }, 200, Phaser.Easing.Elastic.InOut)
+            .to({ tint: 0x0066f5 }, 1000, Phaser.Easing.Elastic.InOut)
+            .to({ tint: 0xffffff }, 2000, Phaser.Easing.Elastic.In);
+        damage_tween.start();
     };
 
     return Clown;

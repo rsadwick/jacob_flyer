@@ -60,6 +60,10 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
 
     Boss.prototype.analyze_player = function(){};
 
+    Boss.prototype.on_death = function(){
+
+    };
+
     return Boss;
 
 });

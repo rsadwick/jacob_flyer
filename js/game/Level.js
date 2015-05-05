@@ -188,15 +188,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
     };
 
     Level.prototype.restart = function(){
-        this._game.time.events.remove(this.death_timer);
-        this._game.time.events.remove(this.choosePowerupTimer);
-        this._game.time.events.remove(this.powerup_timer);
-        this.hud.reset();
-
-        for(var powerup in this.powerups){
-            this.powerups[powerup].remove();
-        }
-
+        this.dispose();
         this._game.state.start('main');
     };
 
@@ -225,6 +217,17 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
     Level.prototype.get_pipes = function(){
         return this.pipes;
+    };
+
+    Level.prototype.dispose = function(){
+        this._game.time.events.remove(this.death_timer);
+        this._game.time.events.remove(this.choosePowerupTimer);
+        this._game.time.events.remove(this.powerup_timer);
+        this.hud.reset();
+
+        for(var powerup in this.powerups){
+            this.powerups[powerup].remove();
+        }
     };
 
     return Level;
