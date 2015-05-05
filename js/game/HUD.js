@@ -129,6 +129,10 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
                     if (this.player_max_life == 0) {
                         this._game.events.onPlayerKilled.dispatch();
                     }
+
+                    if (this.boss_max_life == 0) {
+                        this._game.events.onBossDeath.dispatch();
+                    }
                 }
             }
         }

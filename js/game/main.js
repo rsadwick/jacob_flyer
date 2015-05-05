@@ -148,4 +148,18 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         _game.state.add('main', game_state.main);
         _game.state.add('title', game_state.title);
         _game.state.start('title');
+
+        if (!_game.events) _game.events = {};
+
+        _game.events.onLevelComplete = new Phaser.Signal();
+        _game.events.onLevelComplete.add(change_level, this);
+
+        function change_level(){
+            _game.input.keyboard.disabled = false;
+            console.log("change Level");
+            _game.state.start('title');
+
+        }
+
+
     });

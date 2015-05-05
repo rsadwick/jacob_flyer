@@ -29,7 +29,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.settings = settings;
         this.powerups = powerups;
 
-        if (!this._game.events) this._game.events = {};
+
     };
 
     Level.prototype.preload = function () {

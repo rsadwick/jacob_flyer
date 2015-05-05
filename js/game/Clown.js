@@ -309,12 +309,17 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     Clown.prototype.on_death = function(){
         this.is_dead = true;
         this.tween.stop();
+        this.bullets.destroy();
 
         var damage_tween = this._game.add.tween(this.boss)
             .to({ tint: 0xf50400 }, 200, Phaser.Easing.Elastic.InOut)
             .to({ tint: 0x0066f5 }, 1000, Phaser.Easing.Elastic.InOut)
             .to({ tint: 0xffffff }, 2000, Phaser.Easing.Elastic.In);
         damage_tween.start();
+        var scope = this;
+        damage_tween.onComplete.add(function(){
+             scope._game.events.onLevelComplete.dispatch(this);
+        });
     };
 
     return Clown;
