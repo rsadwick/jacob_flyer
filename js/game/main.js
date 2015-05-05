@@ -26,23 +26,20 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 background: 'assets/bg_shroom.png',
 
                 character : {
-                    PLAYER: {
-                        name: "player"
-                    },
                     BOSS: {
                         type: clown,
-                        name: "boss",
+                        name: "clowner",
                         bossAbilties: {
                             UP_ATTACK: {
-                                chance: 0.10,
-                                damage: 1,
-                                ease: Phaser.Easing.Bounce.InOut
+                                start: 0.10,
+                                end: 0.50,
+                                damage: 1
                             },
 
                             CHARGE_ATTACK: {
-                                chance: 0.90,
-                                damage: 2,
-                                ease: Phaser.Easing.Elastic.Out,
+                                start: 0.51,
+                                end: 0.100,
+                                damage: 1,
                                 speed: 1000
                             }
                         }
@@ -51,21 +48,12 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
 
                 powerUpTypes : {
                     OVERWEIGHT: {
-                        velocity: -350,
-                        gravity: 2500,
-                        creation: 5,
-                        duration: 7,
-                        chance: -1,
-                        tint: 0x999999,
-                        graphic: 'assets/weight.png'
+                        start: 0.0,
+                        end: 0.20
                     },
                     FEATHERWEIGHT: {
-                        velocity: -250,
-                        gravity: 500,
-                        creation: 2,
-                        duration: 7,
-                        chance: -1,
-                        tint: 0xff9900
+                         start: 0.21,
+                         end: 0.40
                     },
                     NORMAL: {
                         velocity: -350,
@@ -73,21 +61,13 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
 
                     },
                     SHIELD: {
-                        duration: 7,
-                        currentTime: 0,
-                        chance: 0.9,
-                        blendMode: Phaser.blendModes.ADD
+                        start: 0.41,
+                        end: 0.60
                     },
                     BOMBOS: {
-                        velocity: -350,
-                        gravity: 2500,
-                        creation: 5,
-                        duration: 7,
-                        chance: 0.9,
-                        tint: 0x999999,
-                        graphic: 'assets/bomb.png'
+                         start: 0.61,
+                         end: 0.90
                     }
-
                 }
             }
         }
@@ -101,7 +81,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
             },
 
             create: function () {
-                var gameTitle = _game.add.button(160, 160, "titlescreen", this.startup, this);
+                var gameTitle = _game.add.button(0, 0, "titlescreen", this.startup, this);
                 gameTitle.anchor.setTo(0.5, 0.5);
             },
 
@@ -131,7 +111,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 hud.preload();
 
                 for(var powerup in powerups){
-                    powerups[powerup].init(_game, level);
+                    powerups[powerup].init(_game, level, settings);
                     powerups[powerup].preload();
                 }
             },

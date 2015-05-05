@@ -23,16 +23,13 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     Weight.prototype = Object.create(Powerup.prototype);
 
-    // Set the "constructor" property to refer to Shield
     Weight.prototype.constructor = Weight;
-
-    Weight.prototype.init = function (game) {
-        this._game = game;
-    };
 
     Weight.prototype.preload = function () {
         this._game.load.image('ton', 'assets/weight.png');
 
+        this.start_chance = this._settings.level.powerUpTypes.OVERWEIGHT.start;
+        this.end_chance = this._settings.level.powerUpTypes.OVERWEIGHT.end;
     };
 
     Weight.prototype.create = function (player) {

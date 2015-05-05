@@ -13,13 +13,14 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this.is_weight_buff = false;
         this.power_started = new CustomEvent("power_started");
         this.power_ended = new CustomEvent("power_ended");
+        this._settings = null;
 
     }
 
-    Powerup.prototype.init = function (game, level) {
+    Powerup.prototype.init = function (game, level, settings) {
         this._game = game;
         this._level = level;
-
+        this._settings = settings;
     };
 
     Powerup.prototype.preload = function () {

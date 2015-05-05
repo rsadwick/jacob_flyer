@@ -64,7 +64,6 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //pipes:
         this.pipes = this._game.add.group();
-        //this._game.physics.enable(this.pipes, Phaser.Physics.ARCADE);
         this.pipes.physicsBodyType = Phaser.Physics.ARCADE;
         this.pipes.enableBody = true;
 

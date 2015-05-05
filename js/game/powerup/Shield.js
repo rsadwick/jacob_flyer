@@ -22,19 +22,16 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     // Set the "constructor" property to refer to Shield
     Shield.prototype.constructor = Shield;
 
-    Shield.prototype.init = function (game) {
-        this._game = game;
-
-    };
-
     Shield.prototype.preload = function () {
         this._game.load.image('shield', 'assets/shield.png');
         this._game.load.image('shield_effect', 'assets/shield_effect.png');
 
+        this.start_chance = this._settings.level.powerUpTypes.SHIELD.start;
+        this.end_chance = this._settings.level.powerUpTypes.SHIELD.end;
+
     };
 
-    Shield.prototype.create = function (player) {
-        console.log("created a shield bra");
+    Shield.prototype.create = function () {
         this.shields = this._game.add.group();
         this._game.physics.enable(this.shields, Phaser.Physics.ARCADE);
         this.shields.physicsBodyType = Phaser.Physics.ARCADE;

@@ -23,16 +23,15 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     // Set the "constructor" property to refer to Shield
     Feather.prototype.constructor = Feather;
 
-    Feather.prototype.init = function (game) {
-        this._game = game;
-    };
-
     Feather.prototype.preload = function () {
         this._game.load.image('feather', 'assets/feather.png');
 
+        //get chance from settings:
+        this.start_chance = this._settings.level.powerUpTypes.FEATHERWEIGHT.start;
+        this.end_chance = this._settings.level.powerUpTypes.FEATHERWEIGHT.end;
     };
 
-    Feather.prototype.create = function (player) {
+    Feather.prototype.create = function () {
         this.feathers = this._game.add.group();
         this.feathers.enableBody = true;
         this.feathers.physicsBodyType = Phaser.Physics.ARCADE;
@@ -60,7 +59,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
             this.timer = this._game.time.events.loop(Phaser.Timer.SECOND * this.duration, this.remove, this);
             window.dispatchEvent(this.power_started);
         }
-
     };
 
     Feather.prototype.add = function(){

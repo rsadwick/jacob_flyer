@@ -21,7 +21,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
 
         this.bullet_hit_shield = false;
         this.boss_hit_player = false;
-
     }
 
     Clown.prototype = Object.create(Boss.prototype);
@@ -32,7 +31,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this._game.load.image('clown', 'assets/clown_boss.png');
     };
 
-    Clown.prototype.create = function (player) {
+    Clown.prototype.create = function () {
         this.bullets = this._game.add.group();
         this.bullets.enableBody = true;
         this.bullets.physicsBodyType = Phaser.Physics.ARCADE;
@@ -54,11 +53,10 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             this.attack_charge();
         }
         else if (random >= this.shoot_start_chance && random <= this.shoot_end_chance) {
-
             this.attack_shoot();
         }
         else{
-            console.log("dfdf")
+            this.attack_shoot();
         }
     };
 
@@ -71,7 +69,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         var speed = this.get_attack_speed();
 
         //affect charge attack based on powerup the player possesses:
-
         if (this._player.get_powered()) {
 
             if (this._player.get_powerup_effect().is_weight()) {
