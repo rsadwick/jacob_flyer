@@ -23,7 +23,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         var settings = {
             level : [{
                 name: "level 1",
-                background: 'assets/bg_shroom.png',
+                background: 'assets/bg_grasslands.png',
 
                 character : {
                     BOSS: {
@@ -71,6 +71,8 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 }
             }]
         }
+
+        console.log(settings)
 
         //title screen state
         game_state.title = function (_game) {};

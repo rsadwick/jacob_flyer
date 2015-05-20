@@ -100,13 +100,11 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         this.bird.animations.play('up');
 
         this._game.events.onPlayerJump.dispatch();
-      //  window.dispatchEvent(this.jump_event);
         if(this.get_powered()){
             return;
         }
-        this.bird.body.velocity.y = this.settings.level.powerUpTypes.NORMAL.velocity;
-        this.bird.body.gravity.y = this.settings.level.powerUpTypes.NORMAL.gravity;
-
+        this.bird.body.velocity.y = this.settings.level[0].powerUpTypes.NORMAL.velocity;
+        this.bird.body.gravity.y = this.settings.level[0].powerUpTypes.NORMAL.gravity;
     };
 
     Player.prototype.set_powerup_effect = function(powerup, old_powerup){

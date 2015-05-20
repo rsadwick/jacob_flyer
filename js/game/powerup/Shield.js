@@ -42,9 +42,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
     };
 
-    Shield.prototype.update = function () {
-
-    };
+    Shield.prototype.update = function () {};
 
     Shield.prototype.on_collect = function (player, powerup) {
         if(player){
