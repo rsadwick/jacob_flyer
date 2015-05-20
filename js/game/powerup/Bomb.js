@@ -24,8 +24,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this._game.load.image('burst_red', 'assets/laserRedBurst.png');
         this._game.load.image('burst_yellow', 'assets/laserYellowBurst.png');
 
-        this.start_chance = this._settings.level.powerUpTypes.BOMBOS.start;
-        this.end_chance = this._settings.level.powerUpTypes.BOMBOS.end;
+        this.start_chance = this._settings.level[this._level.get_level()].powerUpTypes.BOMBOS.start;
+        this.end_chance = this._settings.level[this._level.get_level()].powerUpTypes.BOMBOS.end;
     };
 
     Bomb.prototype.create = function () {

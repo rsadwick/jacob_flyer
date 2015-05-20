@@ -26,9 +26,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this._game.load.image('shield', 'assets/shield.png');
         this._game.load.image('shield_effect', 'assets/shield_effect.png');
 
-        this.start_chance = this._settings.level.powerUpTypes.SHIELD.start;
-        this.end_chance = this._settings.level.powerUpTypes.SHIELD.end;
-
+        this.start_chance = this._settings.level[this._level.get_level()].powerUpTypes.SHIELD.start;
+        this.end_chance = this._settings.level[this._level.get_level()].powerUpTypes.SHIELD.end;
     };
 
     Shield.prototype.create = function () {

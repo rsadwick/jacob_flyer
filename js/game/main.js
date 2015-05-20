@@ -21,7 +21,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         powerups.push(shield, weight, feather, bomb);
 
         var settings = {
-            level : {
+            level : [{
                 name: "level 1",
                 background: 'assets/bg_shroom.png',
 
@@ -69,7 +69,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                          end: -0.90
                     }
                 }
-            }
+            }]
         }
 
         //title screen state

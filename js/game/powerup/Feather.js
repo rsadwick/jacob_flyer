@@ -27,8 +27,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this._game.load.image('feather', 'assets/feather.png');
 
         //get chance from settings:
-        this.start_chance = this._settings.level.powerUpTypes.FEATHERWEIGHT.start;
-        this.end_chance = this._settings.level.powerUpTypes.FEATHERWEIGHT.end;
+        this.start_chance = this._settings.level[this._level.get_level()].powerUpTypes.FEATHERWEIGHT.start;
+        this.end_chance = this._settings.level[this._level.get_level()].powerUpTypes.FEATHERWEIGHT.end;
     };
 
     Feather.prototype.create = function () {

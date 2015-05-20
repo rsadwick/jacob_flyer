@@ -5,10 +5,6 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
     var Level = function () {
         this._game;
         this._player;
-        this.level = {
-             name: "level 1",
-             background: 'assets/hills.png'
-        }
         this.background;
         this.pipes;
         this.settings;
@@ -19,6 +15,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.choosePowerupTimer;
         this.death_timer;
         this.boss_timer;
+        this.current_level = 0;
 
         this.hud;
 
@@ -217,6 +214,14 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
     Level.prototype.get_pipes = function(){
         return this.pipes;
+    };
+
+    Level.prototype.get_level = function(){
+        return this.current_level;
+    };
+
+    Level.prototype.set_level = function(level){
+        this.current_level = level;
     };
 
     Level.prototype.dispose = function(){

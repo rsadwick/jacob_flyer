@@ -28,8 +28,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     Weight.prototype.preload = function () {
         this._game.load.image('ton', 'assets/weight.png');
 
-        this.start_chance = this._settings.level.powerUpTypes.OVERWEIGHT.start;
-        this.end_chance = this._settings.level.powerUpTypes.OVERWEIGHT.end;
+        this.start_chance = this._settings.level[this._level.get_level()].powerUpTypes.OVERWEIGHT.start;
+        this.end_chance = this._settings.level[this._level.get_level()].powerUpTypes.OVERWEIGHT.end;
     };
 
     Weight.prototype.create = function (player) {
