@@ -13,10 +13,6 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         this.space_key;
         this.powerup;
         this.is_player = true;
-
-        //events
-
-        this.jump_event = new CustomEvent("jump_event");
     }
 
     Player.prototype.constructor = Player;

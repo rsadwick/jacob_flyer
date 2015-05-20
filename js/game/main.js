@@ -69,6 +69,55 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                          end: -0.90
                     }
                 }
+            },
+            {
+            name: "level 2",
+                background: 'assets/bg_shroom.png',
+
+                character : {
+                    BOSS: {
+                        type: clown,
+                        name: "clowner",
+                        bossAbilties: {
+                            UP_ATTACK: {
+                                start: 0.10,
+                                end: 0.50,
+                                damage: 1
+                            },
+
+                            CHARGE_ATTACK: {
+                                start: 0.51,
+                                end: 0.100,
+                                damage: 1,
+                                speed: 1000
+                            }
+                        }
+                    }
+                },
+
+                powerUpTypes : {
+                    OVERWEIGHT: {
+                        start: -0.0,
+                        end: -0.20
+                    },
+                    FEATHERWEIGHT: {
+                         start: -0.21,
+                         end: -0.40
+                    },
+                    NORMAL: {
+                        velocity: -350,
+                        gravity: 1000
+
+                    },
+                    SHIELD: {
+                        start: 0.0,
+                        end: 0.90
+                    },
+                    BOMBOS: {
+                         start: -0.61,
+                         end: -0.90
+                    }
+                }
             }]
         }
 
@@ -135,7 +184,6 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
             },
 
             update: function() {
-
                 level.update();
                 player.update();
                 clown.update();
@@ -159,7 +207,11 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         function change_level(){
             _game.input.keyboard.disabled = false;
             console.log("change Level");
-            _game.state.start('title');
+            var next_level = level.get_level() + 1;
+            level.dispose();
+            level = null;
+            level = new Level();
+            level.set_level(next_level);
 
         }
 
