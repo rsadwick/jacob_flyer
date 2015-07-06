@@ -81,7 +81,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //boss timer:
         this.boss_timer = this._game.time.create(false);
-        this.boss_timer.add(500, this.summon_boss, this);
+        this.boss_timer.add(20000, this.summon_boss, this);
         this.boss_timer.start();
 
     };
@@ -94,7 +94,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
             this.background.tilePosition.x += 0.3;
 
         //player and pipe collision
-        //this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
+        this._game.physics.arcade.collide(this._player.get_player(), this.pipes, this._player.hit, null, this._player);
         this._game.physics.arcade.collide(this.pipes, this.pipes, this.on_pipe_on_pipe, null, this);
 
         //collect cherries:
@@ -149,7 +149,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
     };
 
     Level.prototype.create_powerup = function(){
-        var powerup_creation = Math.floor(Math.random() * 5) + 2;
+        var powerup_creation = Math.floor(Math.random() * 2) + 2;
         this.choosePowerupTimer = this._game.time.events.add(Phaser.Timer.SECOND * powerup_creation, this.choose_powerup, this);
     };
 

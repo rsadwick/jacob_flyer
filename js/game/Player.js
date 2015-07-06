@@ -119,6 +119,15 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         if(obj){
             obj.body.gravity.y = 300;
         }
+
+        if (!this.player_hit_wall && !this.get_powerup_effect()) {
+            this.kill();
+        }
+        else if(this.get_powerup_effect() && !this.get_powerup_effect().is_shield_buff){
+            this.kill();
+        }
+
+
     };
 
     Player.prototype.kill = function(){
@@ -130,6 +139,7 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         //particles
         if(!this.get_hit_wall()){
             this.on_damage();
+
             this._game.events.onPlayerDeath.dispatch();
             this.set_hit_wall(true);
         }
