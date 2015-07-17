@@ -81,7 +81,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //boss timer:
         this.boss_timer = this._game.time.create(false);
-        this.boss_timer.add(20000, this.summon_boss, this);
+        this.boss_timer.add(1000, this.summon_boss, this);
         this.boss_timer.start();
 
     };
@@ -184,6 +184,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
     Level.prototype.restart = function(){
         this.dispose();
+        //do the changing here and restart the state
         this._game.state.start('main');
     };
 
@@ -206,6 +207,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._game.stage.backgroundColor = '#999999';
         this._game.add.tween(this.background).to({ alpha: 0.5 }, 2000, Phaser.Easing.Linear.None, true);
         var boss = this.settings.level[this.get_level()].character.BOSS.type;
+        boss.is_dead = false;
         boss.add();
         this.hud.create_boss_lives();
     };

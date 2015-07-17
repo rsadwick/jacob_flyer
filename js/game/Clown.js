@@ -51,7 +51,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     };
 
     Clown.prototype.attack = function () {
-        if(this.is_dead)
+        if (this.is_dead)
             return false;
 
         var random = Math.random();
@@ -61,7 +61,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         else if (random >= this.shoot_start_chance && random <= this.shoot_end_chance) {
             this.attack_shoot();
         }
-        else{
+        else {
             this.attack_shoot();
         }
     };
@@ -105,56 +105,58 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         return this.charging;
     },
 
-    Clown.prototype.attack_shoot = function () {
-        //boss figures out where he is and moves according to top/bottom.
-        var bossPosition;
-        (this.boss.y < this._game.height / 2) ? bossPosition = 300 : bossPosition = 5;
-        this.fireweed = this._game.add.tween(this.boss).to({ y: bossPosition }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
-        this.fireweed.onComplete.add(loadFireBalls, this);
+        Clown.prototype.attack_shoot = function () {
+            //boss figures out where he is and moves according to top/bottom.
+            var bossPosition;
+            (this.boss.y < this._game.height / 2) ? bossPosition = 300 : bossPosition = 5;
+            this.fireweed = this._game.add.tween(this.boss).to({ y: bossPosition }, 2000, Phaser.Easing.Elastic.InOut, true, 500);
+            this.fireweed.onComplete.add(loadFireBalls, this);
 
-        //loads the timer that shoots the fireballs:
-        function loadFireBalls() {
-            this.fireballTimer = this._game.time.create(false);
-            this.fireballTimer = this._game.time.events.loop(Phaser.Timer.SECOND * 2, shootFireballs, this);
-        }
+            //loads the timer that shoots the fireballs:
+            function loadFireBalls() {
+                this.fireballTimer = this._game.time.create(false);
+                this.fireballTimer = this._game.time.events.loop(Phaser.Timer.SECOND * 2, shootFireballs, this);
+            }
 
-        //shots fired!
-        function shootFireballs() {
+            //shots fired!
+            function shootFireballs() {
 
-            var bullet = this.bullets.getFirstDead();
-            //reset bullet gravity:
-            bullet.body.gravity.y = 0;
-            bullet.reset(this.boss.x - 8, this.boss.y - 8);
-            var speed = 1500;
+                var bullet = this.bullets.getFirstDead();
+                if (!this.is_dead) {
+                    //reset bullet gravity:
+                    bullet.body.gravity.y = 0;
+                    bullet.reset(this.boss.x - 8, this.boss.y - 8);
+                    var speed = 1500;
 
-            if (this._player.get_powered()) {
-                //feather
-                if (this._player.get_powerup_effect().is_feather()) {
-                    speed = this._player.get_powerup_effect().get_speed();
-                    bullet.body.gravity.y = this._player.get_powerup_effect().get_gravity();
+                    if (this._player.get_powered()) {
+                        //feather
+                        if (this._player.get_powerup_effect().is_feather()) {
+                            speed = this._player.get_powerup_effect().get_speed();
+                            bullet.body.gravity.y = this._player.get_powerup_effect().get_gravity();
+                        }
+                    }
+
+                    this._game.physics.arcade.moveToObject(bullet, this._player.get_player(), 50, speed);
+                    this.shotsFired++;
+                    if (this.shotsFired >= 3) {
+                        this._game.time.events.remove(this.fireballTimer);
+                        this.shotsFired = 0;
+                        this.attack();
+                    }
                 }
             }
+        };
 
-            this._game.physics.arcade.moveToObject(bullet, this._player.get_player(), 50, speed);
-            this.shotsFired++;
-            if (this.shotsFired >= 3) {
-                this._game.time.events.remove(this.fireballTimer);
-                this.shotsFired = 0;
-                this.attack();
-            }
-        }
-    };
-
-    Clown.prototype.on_boss_attack = function(boss, player){
-        if(!this.boss_hit_player){
-            if(this._player.get_powered()){
-                if(this._player.get_powerup_effect().is_shield()){
+    Clown.prototype.on_boss_attack = function (boss, player) {
+        if (!this.boss_hit_player) {
+            if (this._player.get_powered()) {
+                if (this._player.get_powerup_effect().is_shield()) {
                     this.on_damage();
                     this._game.events.onBossDamage.dispatch(this, this, 1);
                     this.boss_hit_player = true;
                 }
             }
-            else{
+            else {
                 this.boss_hit_player = true;
                 this._game.events.onPlayerDamage.dispatch(this, this._player, 1, false);
             }
@@ -165,31 +167,31 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         console.log("on collide!")
     };
 
-    Clown.prototype.on_player_bullet = function(player, bullet){
+    Clown.prototype.on_player_bullet = function (player, bullet) {
 
-        if(this._player.get_powered()){
-            if(this._player.get_powerup_effect().is_shield() ||
-                this._player.get_powerup_effect().is_weight()){
+        if (this._player.get_powered()) {
+            if (this._player.get_powerup_effect().is_shield() ||
+                this._player.get_powerup_effect().is_weight()) {
                 this.bullet_hit_shield = true;
                 this._game.physics.arcade.moveToObject(bullet, this.boss, 100, 500);
             }
         }
-        else{
+        else {
             bullet.kill();
             this._game.events.onPlayerDamage.dispatch(this, this._player, 1, false);
         }
     };
 
-    Clown.prototype.on_boss_bullets = function(boss, bullet){
-        if(this.bullet_hit_shield){
-           this.bullet_hit_shield = false;
-           bullet.kill();
-           this.on_damage();
-           this._game.events.onBossDamage.dispatch(this, this, 1);
+    Clown.prototype.on_boss_bullets = function (boss, bullet) {
+        if (this.bullet_hit_shield) {
+            this.bullet_hit_shield = false;
+            bullet.kill();
+            this.on_damage();
+            this._game.events.onBossDamage.dispatch(this, this, 1);
         }
     };
 
-    Clown.prototype.on_damage = function(){
+    Clown.prototype.on_damage = function () {
         var damage_tween = this._game.add.tween(this.boss)
             .to({ tint: 0xf50400 }, 100, Phaser.Easing.Elastic.InOut)
             .to({ tint: 0x0066f5 }, 100, Phaser.Easing.Elastic.InOut)
@@ -265,9 +267,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                     }
                 }
             }
-            else if(this._player.get_powerup_effect().is_weight()){
-                if(this.is_charging()){
-                    if(this.tween.isRunning){
+            else if (this._player.get_powerup_effect().is_weight()) {
+                if (this.is_charging()) {
+                    if (this.tween.isRunning) {
                         console.log("update!")
                         //this.tween.pause();
 
@@ -306,7 +308,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         }
     };
 
-    Clown.prototype.on_death = function(){
+    Clown.prototype.on_death = function () {
         this.is_dead = true;
         this.tween.stop();
         this.bullets.destroy();
@@ -317,8 +319,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             .to({ tint: 0xffffff }, 2000, Phaser.Easing.Elastic.In);
         damage_tween.start();
         var scope = this;
-        damage_tween.onComplete.add(function(){
-             scope._game.events.onLevelComplete.dispatch(this);
+        damage_tween.onComplete.add(function () {
+            scope._game.events.onLevelComplete.dispatch(this);
         });
     };
 

@@ -205,13 +205,11 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         _game.events.onLevelComplete.add(change_level, this);
 
         function change_level(){
-            _game.input.keyboard.disabled = false;
-            console.log("change Level");
-            var next_level = level.get_level() + 1;
             level.dispose();
-            level = null;
-            level = new Level();
-            level.set_level(next_level);
+
+            level.set_level(1);
+            _game.state.start('main');
+
 
         }
 
