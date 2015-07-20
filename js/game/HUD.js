@@ -77,6 +77,10 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         }
     };
 
+    HUD.prototype.get_boss_lives = function(){
+        return this.boss_max_life;
+    }
+
     HUD.prototype.update_lives = function (e, obj, amount, isAdding) {
         var lives = 0;
         var life_sprite;

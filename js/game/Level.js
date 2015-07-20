@@ -14,9 +14,9 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.powerup_timer;
         this.choosePowerupTimer;
         this.death_timer;
+        this.boss;
         this.boss_timer;
         this.current_level = 0;
-
         this.hud;
 
     }
@@ -50,6 +50,9 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //events
         this._game.events.onPlayerDeath.add(this.kill_player, this);
+
+        this._game.events.shouldBossHeal = new Phaser.Signal();
+        this._game.events.shouldBossHeal.add(this.should_boss_heal, this);
 
         this.hud = hud;
 
@@ -206,9 +209,9 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         //background change to denote boss phase starting:
         this._game.stage.backgroundColor = '#999999';
         this._game.add.tween(this.background).to({ alpha: 0.5 }, 2000, Phaser.Easing.Linear.None, true);
-        var boss = this.settings.level[this.get_level()].character.BOSS.type;
-        boss.is_dead = false;
-        boss.add();
+        this.boss = this.settings.level[this.get_level()].character.BOSS.type;
+        this.boss.is_dead = false;
+        this.boss.add();
         this.hud.create_boss_lives();
     };
 
@@ -232,6 +235,15 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         for(var powerup in this.powerups){
             this.powerups[powerup].remove();
+        }
+    };
+
+    Level.prototype.should_boss_heal = function(){
+        if(this.hud.get_boss_lives() < 3){
+            this.boss.heal();
+        }
+        else{
+            this.boss.attack();
         }
     };
 

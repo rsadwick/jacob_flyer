@@ -6,14 +6,14 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         Boss.call(this);
 
         this.tween;
-        //this.charge_start_chance = 0.0;
-        //this.charge_end_chance = 0.70;
+        this.charge_start_chance = 0.0;
+        this.charge_end_chance = 0.10;
 
-        this.shoot_start_chance = 0.81;
-        this.shoot_end_chance = 1;
+        this.shoot_start_chance = 0.11;
+        this.shoot_end_chance = 0.20;
 
-        this.heal_start_chance = 0.0;
-        this.heal_end_chance = 0.80
+        this.heal_start_chance = 0.21;
+        this.heal_end_chance = 1
 
         this.shotsFired = 0;
 
@@ -66,10 +66,10 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             this.attack_shoot();
         }
         else if (random >= this.heal_start_chance && random <= this.heal_end_chance) {
-            this.heal();
+            this._game.events.shouldBossHeal.dispatch(this);
         }
         else {
-            this.attack_shoot();
+            this._game.events.shouldBossHeal.dispatch(this);
         }
     };
 
@@ -104,6 +104,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         function on_attack_complete() {
             this.tween.stop();
             this.charging = false;
+            //try to heal again
+           // this._game.events.shouldBossHeal.dispatch(this);
             this.attack();
         }
     };

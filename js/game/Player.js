@@ -126,8 +126,6 @@ define(['/js/game/HUD.js', '/js/game/Level.js', '/js/game/powerup/Shield.js'], f
         else if(this.get_powerup_effect() && !this.get_powerup_effect().is_shield_buff){
             this.kill();
         }
-
-
     };
 
     Player.prototype.kill = function(){
