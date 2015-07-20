@@ -55,6 +55,7 @@ define([ '/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
         this._game.events.onPlayerDamage.add(this.update_lives, this);
         this._game.events.onPlayerHeal.add(this.update_lives, this);
         this._game.events.onBossDamage.add(this.update_lives, this);
+        this._game.events.onBossHeal.add(this.update_lives, this);
 
     };
 

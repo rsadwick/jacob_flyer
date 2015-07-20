@@ -15,6 +15,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
         this.effect;
         this.tween;
         this.is_shield_buff = true;
+        this.velocityY = -350;
+        this.gravityY  = 1000;
     }
 
     Shield.prototype = Object.create(Powerup.prototype);
@@ -114,9 +116,8 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     Shield.prototype.affect = function(){
         var player = this.get_affected_player();
         if(player){
-            player.get_player().body.velocity.y = -350;
-            player.get_player().body.gravity.y = 1000;
-
+            player.get_player().body.velocity.y = this.velocityY;
+            player.get_player().body.gravity.y = this.gravityY;
         }
     };
 

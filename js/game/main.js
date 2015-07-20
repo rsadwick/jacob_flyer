@@ -3,8 +3,8 @@
  */
 require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game/powerup/Powerup.js',
     'js/game/powerup/Shield.js', 'js/game/powerup/Weight.js', 'js/game/powerup/Feather.js',
-    'js/game/powerup/Bomb.js', '/js/game/HUD.js', '/js/game/Boss.js', '/js/game/Clown.js'],
-    function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather, Bomb, HUD, Boss, Clown) {
+    'js/game/powerup/Bomb.js', '/js/game/HUD.js', '/js/game/Boss.js', '/js/game/Clown.js', '/js/game/Tweeter.js'],
+    function (PhaserLib, Player, Level, Powerup, Shield, Weight, Feather, Bomb, HUD, Boss, Clown, Tweeter) {
         var game_state = {};
         var _game = new Phaser.Game(400, 490, Phaser.AUTO, 'game_div', { preload: game_state.preload, create: game_state.create, update: game_state.update });
 
@@ -14,117 +14,20 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         var shield = new Shield();
         var weight = new Weight();
         var feather = new Feather();
-        var clown = new Clown();
+        var boss = null;
+
         var bomb = new Bomb();
         var powerups = [];
+        var currentLevel = 0;
+        var settings = null;
+
+        generateBoss();
 
         powerups.push(shield, weight, feather, bomb);
 
-        var settings = {
-            level : [{
-                name: "level 1",
-                background: 'assets/bg_grasslands.png',
-
-                character : {
-                    BOSS: {
-                        type: clown,
-                        name: "clowner",
-                        bossAbilties: {
-                            UP_ATTACK: {
-                                start: 0.10,
-                                end: 0.50,
-                                damage: 1
-                            },
-
-                            CHARGE_ATTACK: {
-                                start: 0.51,
-                                end: 0.100,
-                                damage: 1,
-                                speed: 1000
-                            }
-                        }
-                    }
-                },
-
-                powerUpTypes : {
-                    OVERWEIGHT: {
-                        start: 0.51,
-                        end: 0.90
-                    },
-                    FEATHERWEIGHT: {
-                         start: -0.21,
-                         end: -0.40
-                    },
-                    NORMAL: {
-                        velocity: -350,
-                        gravity: 1000
-
-                    },
-                    SHIELD: {
-                        start: 0.0,
-                        end: 0.50
-                    },
-                    BOMBOS: {
-                         start: -0.61,
-                         end: -0.90
-                    }
-                }
-            },
-            {
-            name: "level 2",
-                background: 'assets/bg_shroom.png',
-
-                character : {
-                    BOSS: {
-                        type: clown,
-                        name: "clowner",
-                        bossAbilties: {
-                            UP_ATTACK: {
-                                start: 0.10,
-                                end: 0.50,
-                                damage: 1
-                            },
-
-                            CHARGE_ATTACK: {
-                                start: 0.51,
-                                end: 0.100,
-                                damage: 1,
-                                speed: 1000
-                            }
-                        }
-                    }
-                },
-
-                powerUpTypes : {
-                    OVERWEIGHT: {
-                        start: 0.0,
-                        end: 0.40
-                    },
-                    FEATHERWEIGHT: {
-                         start: 0.41,
-                         end: 0.70
-                    },
-                    NORMAL: {
-                        velocity: -350,
-                        gravity: 1000
-
-                    },
-                    SHIELD: {
-                        start: 0.71,
-                        end: 0.99
-                    },
-                    BOMBOS: {
-                         start:- 0.41,
-                         end: -0.80
-                    }
-                }
-            }]
-        }
-
-        console.log(settings)
-
         //title screen state
-        game_state.title = function (_game) {};
+        game_state.title = function (_game) {
+        };
         game_state.title.prototype = {
 
             preload: function () {
@@ -136,59 +39,61 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                 gameTitle.anchor.setTo(0.5, 0.5);
             },
 
-            update: function () {},
+            update: function () {
+            },
 
-            startup: function(){
+            startup: function () {
                 _game.state.start('main');
             }
         }
 
         //main gameplay state:
-        game_state.main = function () {};
+        game_state.main = function () {
+        };
 
         game_state.main.prototype = {
 
-            preload: function() {
+            preload: function () {
                 level.init(_game, settings, powerups);
                 level.preload();
 
                 player.init(_game, level.get_settings());
                 player.preload();
 
-                clown.init(_game);
-                clown.preload();
+                boss.init(_game);
+                boss.preload();
 
                 hud.init(_game);
                 hud.preload();
 
-                for(var powerup in powerups){
+                for (var powerup in powerups) {
                     powerups[powerup].init(_game, level, settings);
                     powerups[powerup].preload();
                 }
             },
 
-            create: function() {
+            create: function () {
 
                 level.create(player, hud);
 
                 player.create();
 
-                clown.create();
-                clown.set_player(player);
+                boss.create();
+                boss.set_player(player);
 
                 hud.create();
 
-                for(var powerup in powerups){
+                for (var powerup in powerups) {
                     powerups[powerup].create();
                 }
             },
 
-            update: function() {
+            update: function () {
                 level.update();
                 player.update();
-                clown.update();
+                boss.update();
 
-                for(var powerup in powerups){
+                for (var powerup in powerups) {
                     powerups[powerup].update();
                 }
             }
@@ -204,14 +109,126 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         _game.events.onLevelComplete = new Phaser.Signal();
         _game.events.onLevelComplete.add(change_level, this);
 
-        function change_level(){
+        function change_level() {
             level.dispose();
-
-            level.set_level(1);
+            currentLevel++;
+            generateBoss();
+            level.set_level(currentLevel);
             _game.state.start('main');
-
 
         }
 
+        function generateBoss() {
+            switch (currentLevel) {
+                case 1:
+                    boss = new Clown();
+                    break;
+                case 0:
+                    boss = new Tweeter();
+                    break;
+            }
 
+            settings = {
+                level: [
+                    {
+                        name: "level 1",
+                        background: 'assets/bg_grasslands.png',
+
+                        character: {
+                            BOSS: {
+                                type: boss,
+                                name: "clowner",
+                                bossAbilties: {
+                                    UP_ATTACK: {
+                                        start: 0.10,
+                                        end: 0.50,
+                                        damage: 1
+                                    },
+
+                                    CHARGE_ATTACK: {
+                                        start: 0.51,
+                                        end: 0.100,
+                                        damage: 1,
+                                        speed: 1000
+                                    }
+                                }
+                            }
+                        },
+
+                        powerUpTypes: {
+                            OVERWEIGHT: {
+                                start: 0.51,
+                                end: 0.90
+                            },
+                            FEATHERWEIGHT: {
+                                start: -0.21,
+                                end: -0.40
+                            },
+                            NORMAL: {
+                                velocity: -350,
+                                gravity: 1000
+
+                            },
+                            SHIELD: {
+                                start: 0.0,
+                                end: 0.50
+                            },
+                            BOMBOS: {
+                                start: -0.61,
+                                end: -0.90
+                            }
+                        }
+                    },
+                    {
+                        name: "level 2",
+                        background: 'assets/bg_shroom.png',
+
+                        character: {
+                            BOSS: {
+                                type: boss,
+                                name: "tweeter",
+                                bossAbilties: {
+                                    UP_ATTACK: {
+                                        start: 0.10,
+                                        end: 0.50,
+                                        damage: 1
+                                    },
+
+                                    CHARGE_ATTACK: {
+                                        start: 0.51,
+                                        end: 0.100,
+                                        damage: 1,
+                                        speed: 1000
+                                    }
+                                }
+                            }
+                        },
+
+                        powerUpTypes: {
+                            OVERWEIGHT: {
+                                start: 0.0,
+                                end: 0.40
+                            },
+                            FEATHERWEIGHT: {
+                                start: 0.41,
+                                end: 0.70
+                            },
+                            NORMAL: {
+                                velocity: -350,
+                                gravity: 1000
+
+                            },
+                            SHIELD: {
+                                start: 0.71,
+                                end: 0.99
+                            },
+                            BOMBOS: {
+                                start: -0.41,
+                                end: -0.80
+                            }
+                        }
+                    }
+                ]
+            }
+        }
     });

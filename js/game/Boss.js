@@ -24,6 +24,7 @@ define(['/js/game/Level.js', '/js/game/Player.js'], function (Level, Player) {
     Boss.prototype.init = function (game) {
         this._game = game;
         this._game.events.onBossDamage = new Phaser.Signal();
+        this._game.events.onBossHeal = new Phaser.Signal();
     };
 
     Boss.prototype.preload = function () {};
