@@ -52,6 +52,16 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this._game.physics.arcade.overlap(this._player.get_player(), this.bullets, this.on_player_bullet, null, this);
         this._game.physics.arcade.overlap(this.boss, this.bullets, this.on_boss_bullets, null, this);
         this._game.physics.arcade.overlap(this.boss, this._player.get_player(), this.on_boss_attack, null, this);
+
+        //update direction of boss bullets:
+        if (!this._player.get_powered()) {
+            for (var currentBullet = 0; currentBullet < this.bullets.length; currentBullet++) {
+                var instance = this.bullets.getAt(currentBullet);
+                if (instance.alive) {
+                    instance.body.velocity.y = Math.sin(this._game.time.now / 100) * this._player.get_player().y;
+                }
+            }
+        }
     };
 
     Tweeter.prototype.attack = function () {
@@ -104,8 +114,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         function on_attack_complete() {
             this.tween.stop();
             this.charging = false;
-            //try to heal again
-           // this._game.events.shouldBossHeal.dispatch(this);
+
             this.attack();
         }
     };
@@ -115,16 +124,15 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
     },
 
         Tweeter.prototype.attack_shoot = function () {
-            //boss figures out where he is and moves according to top/bottom.
-            var bossPosition;
-            (this.boss.y < this._game.height / 2) ? bossPosition = 300 : bossPosition = 5;
-            this.fireweed = this._game.add.tween(this.boss).to({ y: bossPosition }, 1100, Phaser.Easing.Elastic.InOut, true, 300);
+            //boss jumps to player's y position and starts shooting
+            var bossPosition = this._player.get_player().y;
+            this.fireweed = this._game.add.tween(this.boss).to({ y: bossPosition }, 500, Phaser.Easing.Elastic.InOut, true, 300);
             this.fireweed.onComplete.add(loadFireBalls, this);
 
             //loads the timer that shoots the fireballs:
             function loadFireBalls() {
                 this.fireballTimer = this._game.time.create(false);
-                this.fireballTimer = this._game.time.events.loop(Phaser.Timer.SECOND, shootFireballs, this);
+                this.fireballTimer = this._game.time.events.loop(Phaser.Timer.SECOND / 3, shootFireballs, this);
             }
 
             //shots fired!
@@ -325,26 +333,35 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         });
     };
 
-    Tweeter.prototype.heal = function(){
-        var emitter = this._game.add.emitter(0, 0, 100);
-        emitter.makeParticles(['leaf']);
-        emitter.start(false, 1200, 0, 6);
-        emitter.x = this.boss.x + this.boss.width / 2;
-        emitter.y = this.boss.y + this.boss.height / 2;
+    Tweeter.prototype.heal = function () {
 
-        var heal_tween = this._game.add.tween(this.boss)
-            .to({ tint: 0x00ff00 }, 400)
-            .to({ tint: 0x00CC00}, 400)
-            .to({ tint: 0xe3ff00}, 400);
+        var bossPosition;
+        (this.boss.y < this._game.height / 2) ? bossPosition = 300 : bossPosition = 5;
+        this.fireweed = this._game.add.tween(this.boss).to({ y: bossPosition }, 2000, Phaser.Easing.Elastic.Out, true, 300);
+        this.fireweed.onComplete.add(queueHeal, this);
 
-        heal_tween.onComplete.add(reset_heal_effect, this);
-        heal_tween.start();
+        function queueHeal() {
+            var emitter = this._game.add.emitter(0, 0, 100);
+            emitter.makeParticles(['leaf']);
+            emitter.start(false, 1200, 0, 6);
+            emitter.x = this.boss.x + this.boss.width / 2;
+            emitter.y = this.boss.y + this.boss.height / 2;
 
-        function reset_heal_effect(){
-            this.boss.tint = 0xFFFFFF;
-            this.attack();
+            var heal_tween = this._game.add.tween(this.boss)
+                .to({ tint: 0x00ff00 }, 400)
+                .to({ tint: 0x00CC00}, 400)
+                .to({ tint: 0xe3ff00}, 400);
+
+            heal_tween.onComplete.add(reset_heal_effect, this);
+            heal_tween.start();
+
+            function reset_heal_effect() {
+                this.boss.tint = 0xFFFFFF;
+                this.attack();
+            }
+
+            this._game.events.onBossHeal.dispatch(this, this, 1, true);
         }
-        this._game.events.onBossHeal.dispatch(this, this, 1, true);
     };
 
     return Tweeter;
