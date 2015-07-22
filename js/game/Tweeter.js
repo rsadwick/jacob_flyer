@@ -54,14 +54,14 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this._game.physics.arcade.overlap(this.boss, this._player.get_player(), this.on_boss_attack, null, this);
 
         //update direction of boss bullets:
-        if (!this._player.get_powered()) {
+
             for (var currentBullet = 0; currentBullet < this.bullets.length; currentBullet++) {
                 var instance = this.bullets.getAt(currentBullet);
                 if (instance.alive) {
                     instance.body.velocity.y = Math.sin(this._game.time.now / 100) * this._player.get_player().y;
                 }
             }
-        }
+
     };
 
     Tweeter.prototype.attack = function () {
@@ -269,7 +269,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 //if boss is charging, update
                 if (this.is_charging()) {
                     if (this.tween.isRunning) {
-                        console.log("running, slow down")
                         this.tween.updateTweenData("duration", this.attack_speed * 3, 1);
                     }
                 }
@@ -279,7 +278,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                     var instance = get_instance(this.bullets);
                     for (var bullet in instance) {
                         if (instance[bullet].alive) {
-                            this._game.physics.arcade.moveToObject(instance[bullet], this._player.get_player(), 50, this._player.get_powerup_effect().get_speed());
                             instance[bullet].body.gravity.y = this._player.get_powerup_effect().get_gravity();
                             instance[bullet].body.velocity.y = 120;
                             instance[bullet].body.velocity.x += 29;
@@ -310,7 +308,6 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
                 for (var bullet in instance) {
                     if (instance[bullet].alive) {
                         instance[bullet].body.gravity.y = 0;
-                        this._game.physics.arcade.moveToObject(instance[bullet], this._player.get_player(), 50, 1500);
                     }
                 }
             }
@@ -341,6 +338,9 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
         this.fireweed.onComplete.add(queueHeal, this);
 
         function queueHeal() {
+            if (this.is_dead)
+                return false;
+
             var emitter = this._game.add.emitter(0, 0, 100);
             emitter.makeParticles(['leaf']);
             emitter.start(false, 1200, 0, 6);
