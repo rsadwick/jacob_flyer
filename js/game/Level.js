@@ -84,7 +84,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //boss timer:
         this.boss_timer = this._game.time.create(false);
-        this.boss_timer.add(1000, this.summon_boss, this);
+        this.boss_timer.add(50000, this.summon_boss, this);
         this.boss_timer.start();
 
     };
