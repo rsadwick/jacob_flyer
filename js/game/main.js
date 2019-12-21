@@ -157,12 +157,12 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
 
                         powerUpTypes: {
                             OVERWEIGHT: {
-                                start: 0.51,
-                                end: 0.90
+                                start: 51,
+                                end: 100
                             },
                             FEATHERWEIGHT: {
-                                start: -0.21,
-                                end: -0.40
+                                start: 0,
+                                end: 0.50
                             },
                             NORMAL: {
                                 velocity: -350,
@@ -170,12 +170,12 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
 
                             },
                             SHIELD: {
-                                start: 0.0,
-                                end: 0.50
+                                start: 0.51,
+                                end: 0.90
                             },
                             BOMBOS: {
-                                start: -0.61,
-                                end: -0.90
+                                start: -0,
+                                end: -20
                             }
                         }
                     },
@@ -207,11 +207,11 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
                         powerUpTypes: {
                             OVERWEIGHT: {
                                 start: 0.0,
-                                end: 0.40
+                                end: 0.30
                             },
                             FEATHERWEIGHT: {
-                                start: 0.41,
-                                end: 0.70
+                                start: 0.31,
+                                end: 0.50
                             },
                             NORMAL: {
                                 velocity: -350,
@@ -219,7 +219,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
 
                             },
                             SHIELD: {
-                                start: 0.71,
+                                start: 0.51,
                                 end: 0.99
                             },
                             BOMBOS: {

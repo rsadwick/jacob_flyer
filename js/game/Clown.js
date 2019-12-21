@@ -122,7 +122,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/Boss.js'], function
             function shootFireballs() {
 
                 var bullet = this.bullets.getFirstDead();
-                if (!this.is_dead) {
+                if (bullet && !this.is_dead) {
                     //reset bullet gravity:
                     bullet.body.gravity.y = 0;
                     bullet.reset(this.boss.x - 8, this.boss.y - 8);

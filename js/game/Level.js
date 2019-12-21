@@ -11,6 +11,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this.powerups;
         this.old_powerup;
         this.powerup;
+        this.powerup_instances = [];
         this.powerup_timer;
         this.choosePowerupTimer;
         this.death_timer;
@@ -48,6 +49,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
     Level.prototype.create = function (player, hud) {
 
+        this.powerup_group = this._game.add.group();
         //events
         this._game.events.onPlayerDeath.add(this.kill_player, this);
 
@@ -84,7 +86,7 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
 
         //boss timer:
         this.boss_timer = this._game.time.create(false);
-        this.boss_timer.add(1000, this.summon_boss, this);
+        this.boss_timer.add(15000, this.summon_boss, this);
         this.boss_timer.start();
 
     };
@@ -104,8 +106,11 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
         this._game.physics.arcade.overlap(this._player.get_player(), this.holes, this.validate_score, null, this);
 
         //powerups:
-        if(this.powerup)
-            this._game.physics.arcade.overlap(this._player.get_player(), this.powerup.get_powerup(), this.on_collect, null, this);
+        if(this.powerup_instances.length > 0){
+            for(var i = 0; i < this.powerup_instances.length; i++){
+                this._game.physics.arcade.overlap(this._player.get_player(), this.powerup_instances[i], this.on_collect, null, this);
+            }
+        }
 
         //bomb emitters
         if(this.powerup instanceof Bomb)
@@ -167,6 +172,8 @@ define(['/js/game/HUD.js', '/js/game/Player.js', 'js/game/powerup/Powerup.js', '
             if(randomSeed >= this.powerups[powerup].get_start_chance() && randomSeed <= this.powerups[powerup].get_end_chance() ){
                 this.powerups[powerup].add();
                 this.powerup = this.powerups[powerup];
+                this.powerup_instances.push(this.powerups[powerup].get_powerup());
+                
             }
         }
     };
