@@ -31,7 +31,7 @@ require(['/js/libs/phaser.js', 'js/game/Player.js', 'js/game/Level.js', 'js/game
         game_state.title.prototype = {
 
             preload: function () {
-                _game.load.image("titlescreen", "assets/titlescreen.png");
+                _game.load.image("titlescreen", "assets/clown_boss.png");
             },
 
             create: function () {
