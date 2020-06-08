@@ -55,7 +55,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
         if(bomb){
             bomb.reset(this._game.width / 2, this._game.height / 2);
-            this.delay_timer = this._game.time.events.add(Phaser.Timer.SECOND * 5, this.track_pipes, this);
+            this.delay_timer = this._game.time.events.add(Phaser.Timer.SECOND * 2, this.track_pipes, this);
         }
     };
 
@@ -65,13 +65,11 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
 
         var bomb = this.get_instances();
 
-        if(bomb && this.emitter){
-            if(this.bombs.length >= 1){
-                this.emitter.destroy(true, false);
-                this.tween.stop();
-                bomb.tint = 0xFFFFFF;
-                bomb.kill();
-            }
+        if(bomb && this.emitter && this.bombs.length >= 1){
+            this.emitter.destroy(true, false);
+            this.tween.stop();
+            bomb.tint = 0xFFFFFF;
+            bomb.kill(); 
         }
     };
 
@@ -122,6 +120,7 @@ define(['/js/game/Level.js', '/js/game/Player.js', '/js/game/powerup/Powerup.js'
     };
 
     Bomb.prototype.track_pipes = function(){
+        console.log('bomb timer')
         this._game.time.events.remove(this.delay_timer);
         var bomb = this.bombs.getFirstDead();
         this.tween = this._game.add.tween(bomb)
